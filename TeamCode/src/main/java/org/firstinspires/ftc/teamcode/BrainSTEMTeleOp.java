@@ -3,6 +3,10 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.DcMotor;
+
+import org.firstinspires.ftc.teamcode.util.Encoder;
 
 @TeleOp(name="tank-drive", group="Iterative Opmode")
 
@@ -25,25 +29,36 @@ public class BrainSTEMTeleOp extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
+        robot.Encoders();
 
-        while(!opModeIsActive());
 
-        while(opModeIsActive()) {
+        while (!opModeIsActive()) ;
+
+        while (opModeIsActive()) {
+
 
             //driver 1
 
-            double leftPower = -gamepad1.left_stick_y;
-            double rightPower = -gamepad1.left_stick_y;
+            double leftPower;
+            double rightPower;
+
+            double drive = -gamepad1.left_stick_y;
+            double turn = gamepad1.right_stick_x;
+            leftPower = Range.clip(drive + turn, -1.0, 1.0);
+            rightPower = Range.clip(drive - turn, -1.0, 1.0);
 
 
-            if (gamepad1.right_bumper = true) {
+            if (gamepad1.right_bumper) {
                 robot.spinningWheelofDeath(0.65); // add ramp up and hold speed at 0.65 and stop at release
             } else {
                 robot.spinningWheelofDeath(0);
             }
 
+
             if (gamepad1.right_trigger > threshold) {
                 robot.Collector(1);
+                robot.Vex393U(.75);
+                robot.Vex393L(.75);
 
             } else {
                 robot.Collector(0);
@@ -64,11 +79,9 @@ public class BrainSTEMTeleOp extends LinearOpMode {
                 robot.ElderWand(2435); // storage position for match
             }
 
-           // if (gamepad1.dpad_up = true) {
-              //  robot.ElderWandPos();
+            // if (gamepad1.dpad_up = true) {
+            //  robot.ElderWandPos();
             // }
-
-
 
 
             // gamepad 1 - b is elder wand all the way down (servo) -- done
@@ -85,73 +98,74 @@ public class BrainSTEMTeleOp extends LinearOpMode {
             // extendor in is 2000
 
 
-           // driver 2
+            // driver 2
             double DTurretAdjustment = gamepad2.left_stick_x;
-            double DExtension = gamepad2.right_stick_y;
+            double DExtension = -gamepad2.right_stick_y;
+           // Range.scale(DExtension, 0, 1, 1200, 2000);
+
+            if (DExtension == 0) {
+                robot.extendDepositor(2000);
+            }
+
+            if (DExtension > threshold) {
+                robot.extendDepositor(1200);
+            }
 
             if (gamepad2.a = true) {
-                robot.Dlift(.8); // lift to position 1
-
-            } else {
-                robot.Dlift(0);
+                robot.DepositorL.setTargetPosition(0); // lift to position 1
             }
 
             if (gamepad2.b = true) {
-                robot.Dlift(.8); // lift to reset
+                robot.DepositorL.setTargetPosition(0); // lift to reset
 
-            } else {
-                robot.Dlift(0);
-            }
 
-            if (gamepad2.x = true) {
-                robot.Dlift(.8); // lift to position 2
+                if (gamepad2.x = true) {
+                    robot.DepositorL.setTargetPosition(0); // lift to position 2
 
-            } else {
-                robot.Dlift(0);
-            }
+                }
 
-            if (gamepad2.y = true) {
-                robot.Dlift(.8); // lift to position 3
+                if (gamepad2.y = true) {
+                    robot.DepositorL.setTargetPosition(0); // lift to position 3
 
-            } else {
-                robot.Dlift(0);
-            }
+                }
 
-            if (gamepad2.right_trigger > threshold) {
+          /*  if (gamepad2.right_trigger > threshold) {
                 robot.DServo(1600); // figure out open position
             } else {
                 robot.DServo(700); // figure out close position
             }
 
-            if (gamepad2.dpad_left = true) {
-                robot.Dturret(); // position 1
-            } else {
-                robot.Dturret(0);
+           */
+
+                if (gamepad2.dpad_left = true) {
+                    robot.DepositorT.setTargetPosition(0); // position 1
+                } else {
+                    robot.Dturret(0);
+                }
+
+                if (gamepad2.dpad_down = true) {
+                    robot.DepositorT.setTargetPosition(0); // position 2
+                } else {
+                    robot.Dturret(0);
+                }
+
+                if (gamepad2.dpad_right = true) {
+                    robot.DepositorT.setTargetPosition(0); // position 3
+                } else {
+                    robot.Dturret(0);
+                }
+
+
+                //robot.extendDepositor(DExtension);
+                robot.fineTuneTurret(DTurretAdjustment);
+                robot.setMotorPowers(-leftPower, rightPower, leftPower, rightPower);
+
+
+                // Show the elapsed game time and wheel power.
+                telemetry.addData("Status", "Run Time: " + runtime.toString());
+                telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
+                telemetry.update();
             }
-
-            if (gamepad2.dpad_down = true) {
-                robot.Dturret(); // position 2
-            } else {
-                robot.Dturret(0);
-            }
-
-            if (gamepad2.dpad_right = true) {
-                robot.Dturret(); // position 3
-            } else {
-                robot.Dturret(0);
-            }
-
-
-
-            robot.extendDepositor(DExtension);
-            robot.fineTuneTurret(DTurretAdjustment);
-            robot.setMotorPowers(-leftPower, rightPower, leftPower, -rightPower);
-
-
-            // Show the elapsed game time and wheel power.
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
-            telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftPower, rightPower);
-            telemetry.update();
         }
     }
 }

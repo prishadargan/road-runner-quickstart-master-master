@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -38,20 +39,22 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Robot {
-    private DcMotor frontLeft;
-    private DcMotor frontRight;
-    private DcMotor backLeft;
-    private DcMotor backRight;
-    private DcMotor.RunMode currentDrivetrainMode;
-    private DcMotor DepositorT;
-    private DcMotor DepositorL;
-    private DcMotor collector;
-    private Telemetry telemetry;
-    private OpMode opMode;
-    private DcMotor swod;
-    private Servo DepositorS;
-    private Servo DepositorM;
-    private Servo ElderWand;
+    public DcMotor frontLeft;
+    public DcMotor frontRight;
+    public DcMotor backLeft;
+    public DcMotor backRight;
+    public DcMotor.RunMode currentDrivetrainMode;
+    public DcMotor DepositorT;
+    public DcMotor DepositorL;
+    public DcMotor collector;
+    public Telemetry telemetry;
+    public OpMode opMode;
+    public DcMotor swod;
+    public Servo DepositorS;
+    public Servo DepositorM;
+    public Servo ElderWand;
+    public CRServo Vex393L;
+    public CRServo Vex393U;
 
 
     public Robot(HardwareMap hwMap, Telemetry telemetry, LinearOpMode opMode) {
@@ -69,6 +72,9 @@ public class Robot {
         DepositorS = hwMap.servo.get("Depositor-S");
         DepositorM = hwMap.servo.get("Depositor-Stretch");
         ElderWand = hwMap.servo.get("Elder-Wand");
+        Vex393L = hwMap.crservo.get("V-393-L");
+        Vex393U = hwMap.crservo.get("V-393-U");
+
 
 
 
@@ -97,6 +103,16 @@ public class Robot {
         }
     }
 
+    public void Encoders() {
+        currentDrivetrainMode = DcMotor.RunMode.RUN_USING_ENCODER;
+        setMotorModes(currentDrivetrainMode);
+        setMotorModes(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        DepositorL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        DepositorL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        DepositorT.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        DepositorT.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
     public void spinningWheelofDeath(double power) {
 
         swod.setPower(-power);
@@ -121,7 +137,7 @@ public class Robot {
    }
    public void DStretch( double position) {DepositorM.setPosition(position);}
    public void ElderWand(double position) {ElderWand.setPosition(position);}
-   public void ElderWandPos() {ElderWand.getPosition() += 10;}
+   // public void ElderWandPos() {ElderWand.getPosition() += 10;}
 
 
 
@@ -147,6 +163,9 @@ public class Robot {
     public void extendDepositor(double extension) {
         DepositorM.setPosition(extension);
     }
+
+    public void Vex393U(double power) {Vex393U.setPower(power);}
+    public void Vex393L(double power) {Vex393L.setPower(power);}
 }
 
 
