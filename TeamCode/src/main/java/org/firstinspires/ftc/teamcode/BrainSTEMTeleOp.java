@@ -71,12 +71,12 @@ public class BrainSTEMTeleOp extends LinearOpMode {
                 robot.Collector(0);
             }
 
-            if (gamepad1.b = true) {
-                robot.ElderWand(1000); // find position of lowest position
+            if (gamepad1.b) {
+                robot.ElderWand(995); // find position of lowest position (to pick up the team marker)
             }
 
-            if (gamepad1.x = true) {
-                robot.ElderWand(2435); // storage position for match
+            if (gamepad1.x) {
+                robot.ElderWand(2500); // storage position for match
             }
 
             // if (gamepad1.dpad_up = true) {
@@ -111,20 +111,20 @@ public class BrainSTEMTeleOp extends LinearOpMode {
                 robot.extendDepositor(1200);
             }
 
-            if (gamepad2.a = true) {
+            if (gamepad2.a) {
                 robot.DepositorL.setTargetPosition(0); // lift to position 1
             }
 
-            if (gamepad2.b = true) {
+            if (gamepad2.b) {
                 robot.DepositorL.setTargetPosition(0); // lift to reset
 
 
-                if (gamepad2.x = true) {
+                if (gamepad2.x) {
                     robot.DepositorL.setTargetPosition(0); // lift to position 2
 
                 }
 
-                if (gamepad2.y = true) {
+                if (gamepad2.y) {
                     robot.DepositorL.setTargetPosition(0); // lift to position 3
 
                 }
@@ -137,19 +137,19 @@ public class BrainSTEMTeleOp extends LinearOpMode {
 
            */
 
-                if (gamepad2.dpad_left = true) {
+                if (gamepad2.dpad_left) {
                     robot.DepositorT.setTargetPosition(0); // position 1
                 } else {
                     robot.Dturret(0);
                 }
 
-                if (gamepad2.dpad_down = true) {
+                if (gamepad2.dpad_down) {
                     robot.DepositorT.setTargetPosition(0); // position 2
                 } else {
                     robot.Dturret(0);
                 }
 
-                if (gamepad2.dpad_right = true) {
+                if (gamepad2.dpad_right) {
                     robot.DepositorT.setTargetPosition(0); // position 3
                 } else {
                     robot.Dturret(0);
