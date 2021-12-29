@@ -1,51 +1,53 @@
 package org.firstinspires.ftc.teamcode;
 
-    /* Copyright (c) 2017 FIRST. All rights reserved.
-     *
-     * Redistribution and use in source and binary forms, with or without modification,
-     * are permitted (subject to the limitations in the disclaimer below) provided that
-     * the following conditions are met:
-     *
-     * Redistributions of source code must retain the above copyright notice, this list
-     * of conditions and the following disclaimer.
-     *
-     * Redistributions in binary form must reproduce the above copyright notice, this
-     * list of conditions and the following disclaimer in the documentation and/or
-     * other materials provided with the distribution.
-     *
-     * Neither the name of FIRST nor the names of its contributors may be used to endorse or
-     * promote products derived from this software without specific prior written permission.
-     *
-     * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
-     * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-     * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-     * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-     * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
-     * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-     * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-     * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-     * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-     * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-     * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-     */
+/* Copyright (c) 2017 FIRST. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted (subject to the limitations in the disclaimer below) provided that
+ * the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this list
+ * of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright notice, this
+ * list of conditions and the following disclaimer in the documentation and/or
+ * other materials provided with the distribution.
+ *
+ * Neither the name of FIRST nor the names of its contributors may be used to endorse or
+ * promote products derived from this software without specific prior written permission.
+ *
+ * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
+ * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Robot {
-    public DcMotor frontLeft;
-    public DcMotor frontRight;
-    public DcMotor backLeft;
-    public DcMotor backRight;
+    public DcMotorEx frontLeft;
+    public DcMotorEx frontRight;
+    public DcMotorEx backLeft;
+    public DcMotorEx backRight;
     public DcMotor.RunMode currentDrivetrainMode;
-    public DcMotor DepositorT;
-    public DcMotor DepositorL;
+    public DcMotorEx DepositorT;
+    public DcMotorEx DepositorL;
     public DcMotor collector;
     public Telemetry telemetry;
     public OpMode opMode;
@@ -61,14 +63,20 @@ public class Robot {
         this.telemetry = telemetry;
         this.opMode = opMode;
 
-        frontLeft = hwMap.dcMotor.get("FL");
-        frontRight = hwMap.dcMotor.get("FR");
-        backLeft = hwMap.dcMotor.get("BL");
-        backRight = hwMap.dcMotor.get("BR");
+        float hi;
+
+        hi = (float) 2.0;
+
+
+
+        frontLeft = (DcMotorEx) hwMap.dcMotor.get("FL");
+        frontRight = (DcMotorEx) hwMap.dcMotor.get("FR");
+        backLeft = (DcMotorEx) hwMap.dcMotor.get("BL");
+        backRight = (DcMotorEx) hwMap.dcMotor.get("BR");
         swod = hwMap.dcMotor.get("SWOD");
         collector = hwMap.dcMotor.get("collector");
-        DepositorT = hwMap.dcMotor.get("Depositor-Turret");
-        DepositorL = hwMap.dcMotor.get("Depositor-Lift");
+        DepositorT = (DcMotorEx) hwMap.dcMotor.get("Depositor-Turret");
+        DepositorL = (DcMotorEx) hwMap.dcMotor.get("Depositor-Lift");
         DepositorS = hwMap.servo.get("Depositor-S");
         DepositorM = hwMap.servo.get("Depositor-Stretch");
         ElderWand = hwMap.servo.get("Elder-Wand");
@@ -104,13 +112,13 @@ public class Robot {
     }
 
     public void Encoders() {
-        currentDrivetrainMode = DcMotor.RunMode.RUN_USING_ENCODER;
+        currentDrivetrainMode = DcMotorEx.RunMode.RUN_USING_ENCODER;
         setMotorModes(currentDrivetrainMode);
-        setMotorModes(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        DepositorL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        DepositorL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        DepositorT.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        DepositorT.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        setMotorModes(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        DepositorL.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        DepositorL.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        DepositorT.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        DepositorT.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void spinningWheelofDeath(double power) {
@@ -132,12 +140,12 @@ public class Robot {
     public void Dturret(double power) {
         DepositorT.setPower(power);
     }
-   public void DServo(double position) {
-       DepositorS.setPosition(position);
-   }
-   public void DStretch( double position) {DepositorM.setPosition(position);}
-   public void ElderWand(double position) {ElderWand.setPosition(position);}
-   //public void ElderWandPos() {ElderWand.setPosition(ElderWand.getPosition() += 0.1);}
+    public void DServo(double position) {
+        DepositorS.setPosition(position);
+    }
+    public void DStretch( double position) {DepositorM.setPosition(position);}
+    public void ElderWand(double position) {ElderWand.setPosition(position);}
+
 
 
 
@@ -167,6 +175,3 @@ public class Robot {
     public void Vex393U(double power) {Vex393U.setPower(power);}
     public void Vex393L(double power) {Vex393L.setPower(power);}
 }
-
-
-
