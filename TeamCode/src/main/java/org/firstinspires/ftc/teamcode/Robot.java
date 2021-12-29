@@ -137,7 +137,7 @@ public class Robot {
    }
    public void DStretch( double position) {DepositorM.setPosition(position);}
    public void ElderWand(double position) {ElderWand.setPosition(position);}
-   // public void ElderWandPos() {ElderWand.getPosition() += 10;}
+   //public void ElderWandPos() {ElderWand.setPosition(ElderWand.getPosition() += 0.1);}
 
 
 

@@ -48,10 +48,16 @@ public class BrainSTEMTeleOp extends LinearOpMode {
             rightPower = Range.clip(drive - turn, -1.0, 1.0);
 
 
-            if (gamepad1.right_bumper) {
-                robot.spinningWheelofDeath(0.65); // add ramp up and hold speed at 0.65 and stop at release
-            } else {
-                robot.spinningWheelofDeath(0);
+
+            while (gamepad1.right_bumper) {
+                robot.spinningWheelofDeath((0.2));
+                sleep(500);
+                robot.spinningWheelofDeath((0.4));
+                sleep(500);
+                robot.spinningWheelofDeath((0.6));
+                sleep(500);
+                robot.spinningWheelofDeath((0.65));
+                sleep(800);
             }
 
 
@@ -72,11 +78,11 @@ public class BrainSTEMTeleOp extends LinearOpMode {
             }
 
             if (gamepad1.b) {
-                robot.ElderWand(995); // find position of lowest position (to pick up the team marker)
+                robot.ElderWand(0.9920634920634921); // find position of lowest position (to pick up the team marker)
             }
 
             if (gamepad1.x) {
-                robot.ElderWand(2500); // storage position for match
+                robot.ElderWand(0.25); // storage position for match
             }
 
             // if (gamepad1.dpad_up = true) {
@@ -104,11 +110,11 @@ public class BrainSTEMTeleOp extends LinearOpMode {
            // Range.scale(DExtension, 0, 1, 1200, 2000);
 
             if (DExtension == 0) {
-                robot.extendDepositor(2000);
+                robot.extendDepositor(0.7936507936507937);
             }
 
             if (DExtension > threshold) {
-                robot.extendDepositor(1200);
+                robot.extendDepositor(0.35);
             }
 
             if (gamepad2.a) {
@@ -117,7 +123,7 @@ public class BrainSTEMTeleOp extends LinearOpMode {
 
             if (gamepad2.b) {
                 robot.DepositorL.setTargetPosition(0); // lift to reset
-
+            }
 
                 if (gamepad2.x) {
                     robot.DepositorL.setTargetPosition(0); // lift to position 2
@@ -129,13 +135,13 @@ public class BrainSTEMTeleOp extends LinearOpMode {
 
                 }
 
-          /*  if (gamepad2.right_trigger > threshold) {
-                robot.DServo(1600); // figure out open position
+          if (gamepad2.right_trigger > threshold) {
+                robot.DServo(0.6349206349206349); // figure out open position
             } else {
-                robot.DServo(700); // figure out close position
+                robot.DServo(0.25); // figure out close position
             }
 
-           */
+
 
                 if (gamepad2.dpad_left) {
                     robot.DepositorT.setTargetPosition(0); // position 1
@@ -168,4 +174,3 @@ public class BrainSTEMTeleOp extends LinearOpMode {
             }
         }
     }
-}
