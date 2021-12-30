@@ -63,10 +63,6 @@ public class Robot {
         this.telemetry = telemetry;
         this.opMode = opMode;
 
-        float hi;
-
-        hi = (float) 2.0;
-
 
 
         frontLeft = (DcMotorEx) hwMap.dcMotor.get("FL");
@@ -84,10 +80,7 @@ public class Robot {
         Vex393U = hwMap.crservo.get("V-393-U");
 
 
-
-
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
