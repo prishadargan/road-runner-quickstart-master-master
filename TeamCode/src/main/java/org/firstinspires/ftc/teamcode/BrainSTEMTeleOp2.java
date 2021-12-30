@@ -48,7 +48,7 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
             double turn = (gamepad1.right_stick_x);
             leftPower = Range.clip(drive + turn, -1.0, 1.0);
             rightPower = Range.clip(drive - turn, -1.0, 1.0);
-            robot.setMotorPowers(-leftPower, rightPower, leftPower, rightPower);
+            robot.setMotorPowers(leftPower, rightPower, leftPower, rightPower);
 
 
             /*
