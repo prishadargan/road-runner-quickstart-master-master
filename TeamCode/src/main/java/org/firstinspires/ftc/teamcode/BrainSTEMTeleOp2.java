@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -50,9 +51,13 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
             robot.setMotorPowers(-leftPower, rightPower, leftPower, rightPower);
 
 
-            if (gamepad1.left_stick_y < 0.2 && gamepad1.left_stick_y > -0.2 || gamepad1.right_stick_x < 0.2 && gamepad1.right_stick_x > -0.2) {
+            /*
+             dead zone that sometimes works
+            if (gamepad1.left_stick_y < 0.15 && gamepad1.left_stick_y > -0.15 || gamepad1.right_stick_x < 0.15 && gamepad1.right_stick_x > -0.15) {
                 robot.setMotorPowers(0,0,0,0);
             }
+
+             */
 
             while (gamepad1.right_bumper) {
                 robot.spinningWheelofDeath((0.2));
@@ -62,7 +67,7 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
                 robot.spinningWheelofDeath((0.6));
                 sleep(500);
                 robot.spinningWheelofDeath((0.65));
-                sleep(2000);
+                sleep(1000);
 
             }
             if (gamepad1.left_bumper) {
@@ -93,11 +98,11 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
             }
 
             if (gamepad1.b) {
-                robot.ElderWand(0.9920634920634921); // find position of lowest position (to pick up the team marker)
+                robot.ElderWand(0.426587301587302); // find position of lowest position (to pick up the team marker)
             }
 
             if (gamepad1.x) {
-                robot.ElderWand(0.25); // storage position for match
+                robot.ElderWand(1); // storage position for match
             }
 
             while (gamepad1.dpad_up) {
@@ -171,7 +176,7 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
             if (gamepad2.dpad_left) {
 
                 robot.DepositorT.setTargetPosition(0); // position 1
-                robot.DepositorT.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.DepositorT.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                 robot.Dturret(0.25);
                 while (robot.DepositorT.isBusy()) {
                 }
