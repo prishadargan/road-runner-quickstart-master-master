@@ -67,9 +67,11 @@ public class Autonomous1 extends LinearOpMode {
         encoderTurnR(0.3, 145, -145, 5);
         encoderDrive(1, 1, 930, 930, 5);
         encoderTurnR(0.5,160, -160, 5);
-        encoderDrive(0.55, 0.55, 80, 80, 5);
+        encoderDrive(0.55, 0.55, 372, 80, 5);
+        encoderTurn(0.3,-256,256,2);
+        encoderDrive(1,1,500,500,3);
 
-        
+
 
     }
 
