@@ -98,11 +98,11 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
             }
 
             if (gamepad1.b) {
-                robot.ElderWand(0.426587301587302); // find position of lowest position (to pick up the team marker)
+                robot.ElderWand(1059); // find position of lowest position (to pick up the team marker)
             }
 
             if (gamepad1.x) {
-                robot.ElderWand(1); // storage position for match
+                robot.ElderWand(2520); // storage position for match
             }
 
             while (gamepad1.dpad_up) {
@@ -166,45 +166,44 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
             }
 
             if (gamepad2.right_trigger > threshold) {
-                robot.DServo(0.657); // figure out open position
+                robot.DServo(0.657); // open position
             } else {
-                robot.DServo(0.1); // figure out close position
+                robot.DServo(0.1); // close position
             }
-
-
 
             if (gamepad2.dpad_left) {
-
-                robot.DepositorT.setTargetPosition(0); // position 1
+                int target;
+                target = ((robot.DepositorT.getCurrentPosition()) + 28);
+                robot.DepositorT.setTargetPosition(target); // position 1
                 robot.DepositorT.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                robot.Dturret(0.25);
+                robot.DepositorT.setPower(0.25);
                 while (robot.DepositorT.isBusy()) {
+                    telemetry.addData("Target Value", target);
+                    telemetry.addData("Current Position", robot.DepositorT.getCurrentPosition());
                 }
                 robot.Dturret(0);
+                robot.DepositorT.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
             }
 
-            if (gamepad2.dpad_down) {
-                /*
-                robot.DepositorT.setTargetPosition(3600); // position 2
-                robot.DepositorT.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.Dturret(0);
-
-                 */
-                telemetry.addData("P2", "Active");
-            }
 
             if (gamepad2.dpad_right) {
-                /*
-                robot.DepositorT.setTargetPosition(2400); // position 3
-                robot.DepositorT.setPower(-0.5);
-                robot.DepositorT.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                int target2;
+                target2 = ((robot.DepositorT.getCurrentPosition()) - 28);
+                robot.DepositorT.setTargetPosition(target2); // position 1
+                robot.DepositorT.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                robot.DepositorT.setPower(0.25);
+                while (robot.DepositorT.isBusy()) {
+                    telemetry.addData("Target Value", target2);
+                    telemetry.addData("Current Position", robot.DepositorT.getCurrentPosition());
+                }
                 robot.Dturret(0);
-                 */
-                robot.DepositorT.setPower(-0.5);
-                telemetry.addData("P3", "Active");
+                robot.DepositorT.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
             }
+
+
+
 
 
             //robot.extendDepositor(DExtension);
