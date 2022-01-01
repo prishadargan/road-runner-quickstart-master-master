@@ -18,11 +18,9 @@ public class Autonomous3 extends LinearOpMode {
 
     @Override
 
-    public void runOpMode() throws InterruptedException {
-
-        robot.ElderWand((300)); // lower ElderWand
+    robot.ElderWand((300)); // lower ElderWand
         encoderDrive(0.3, 0.3,295,295,10); // move out
-        encoderTurnR(0.3,-244,244,10); // turn
+        encoderTurnR(0.3,244,-244,10); // turn
         encoderDrive(-0.1, -0.1,-300,-300,10); // move back and maybe get team element
         sleep(250); // stop briefly
         encoderDrive(-0.1, -0.1, 850,850,10); // move forward to the end of the tile
@@ -30,7 +28,7 @@ public class Autonomous3 extends LinearOpMode {
         robot.ElderWand((2521)); // raise the Elder Wand
 
         encoderDrive(0.2, 0.2, 150, 150, 10); // go forward again
-        encoderTurnR(0.3,-145,145,10); // turn to face carousel
+        encoderTurnR(0.3,145,-145,10); // turn to face carousel
         encoderDrive(0.3,0.3, 150,150,10); // go towards carousel
 
         robot.setMotorPowers(0.2,0.2,0.2,0.2); // snug up the the carousel by time
@@ -51,7 +49,7 @@ public class Autonomous3 extends LinearOpMode {
         //
         encoderDrive(-0.4, -0.4, -1000,-100,5);
         encoderDrive(-0.4, -0.4, -1470, -1470, 15); //
-        encoderTurnR(0.3,-310, 310, 4); // turn to go straight //
+        encoderTurnR(0.3,310, -310, 4); // turn to go straight //
         encoderDrive(0.4, 0.4, 890, 890, 5);
         robot.DepositorM.setPosition(0.35);
         sleep(500);
@@ -60,18 +58,13 @@ public class Autonomous3 extends LinearOpMode {
         robot.DepositorS.setPosition(0.1);
         sleep(500);
         robot.DepositorM.setPosition(0.793650790794);
-        encoderTurn(0.3, 145, -145, 5);
+        encoderTurn(0.3, -145, 145, 5);
         encoderDrive(1, 1, 930, 930, 5);
-        encoderTurn(0.5,160, -160, 5);
+        encoderTurn(0.5,-160, 160, 5);
         encoderDrive(0.55, 0.55, 372, 80, 5);
-        encoderTurnR(0.3,-256,256,2);
+        encoderTurnR(0.3,256,-256,2);
         encoderDrive(1,1,1250,1250,5);
-
-
-
-
-
-    }
+}
     
     public void encoderDrive(double leftspeed, double rightspeed,
                              double leftInches, double rightInches,
