@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+            package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.I2cAddr;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
 /*
 link - https://learnroadrunner.com/quickstart-overview.html#are-you-using-drive-encoders
@@ -14,19 +16,65 @@ link - https://learnroadrunner.com/quickstart-overview.html#are-you-using-drive-
 @Autonomous(name="Red Ducks", group="SummerCamp")
 public class Autonomous1 extends LinearOpMode {
     Robot robot;
+    public double team_element_x;
+    public double team_element_y;
+    public int lift_height;
     private ElapsedTime runtime = new ElapsedTime();
     @Override
 
     public void runOpMode() throws InterruptedException {
+        robot = new Robot(hardwareMap, telemetry, this);
+
+        waitForStart();
+        while (!robot.getLimitState()) {
+            sleep(1000);
+            robot.Dturret(0.35);
+        }
+        robot.DepositorT.setPower(0);
+        robot.DepositorT.setTargetPosition(900);
+        robot.DepositorT.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        robot.DepositorT.setPower(-0.3);
 
         // 250 ticks ~ 1 ft (11-12 inches) |  f == ((250/12) * I)
-        robot = new Robot(hardwareMap, telemetry, this);
-        waitForStart();
         robot.Encoders();
 
+        robot.pixyCam.engage();
+        team_element_x = 0xff&robot.pixyCam.read(0x51,5)[1];
+        team_element_y = 0xff&robot.pixyCam.read(0x51,5)[2];
+
+
+        /*
+        if (team_element_y < 90){
+            if (team_element_y > 16) {
+                lift_height = 0;
+            } else {
+
+            }
+        }
+        if (team_element_y < 160){
+            if (110 < team_element_y){
+                lift_height = 2;
+            }
+        }
+        if (170 < team_element_y){
+            lift_height = 3;
+        }
+
+         */
+
+        for (int i =1; i != 0; i++) {
+            telemetry.addData("X Position", team_element_x);
+            telemetry.addData("Y Position", team_element_y);
+
+            telemetry.update();
+        }
+
+
+        /*
         robot.ElderWand((300)); // lower ElderWand
-        encoderDrive(0.3, 0.3,295,295,10); // move out
-        encoderTurn(0.3,-244,244,10); // turn
+        encoderDrive(0.3, 0.3,270,270,10); // move out
+        encoderTurn(0.3,-255,255,10); // turn
         encoderDrive(-0.1, -0.1,-300,-300,10); // move back and maybe get team element
         sleep(250); // stop briefly
         encoderDrive(-0.1, -0.1, 850,850,10); // move forward to the end of the tile
@@ -41,6 +89,7 @@ public class Autonomous1 extends LinearOpMode {
         sleep(2000);
         robot.stop();
 
+
         //
         // swod
         robot.spinningWheelofDeath((0.2));
@@ -54,9 +103,12 @@ public class Autonomous1 extends LinearOpMode {
         robot.spinningWheelofDeath((0));
         //
         encoderDrive(-0.4, -0.4, -1000,-100,5);
-        encoderDrive(-0.4, -0.4, -1470, -1470, 15); //
-        encoderTurn(0.3,-310, 310, 4); // turn to go straight //
-        encoderDrive(0.4, 0.4, 890, 890, 5);
+        encoderDrive(-0.4, -0.4, -1450, -1450, 15);
+        encoderTurn(0.3,-290, 290, 4); // turn to go straight
+        encoderDrive(0.4, 0.4, 790, 790, 5);
+        robot.DepositorL.setPower(0.5);
+        sleep(lift_height);
+        robot.DepositorL.setPower(0);
         robot.DepositorM.setPosition(0.35);
         sleep(500);
         robot.DepositorS.setPosition(0.657);
@@ -64,13 +116,15 @@ public class Autonomous1 extends LinearOpMode {
         robot.DepositorS.setPosition(0.1);
         sleep(500);
         robot.DepositorM.setPosition(0.793650790794);
+        encoderDrive(0.1, 0.1, 85, 85, 5);
         encoderTurnR(0.3, 145, -145, 5);
-        encoderDrive(1, 1, 930, 930, 5);
-        encoderTurnR(0.5,160, -160, 5);
-        encoderDrive(0.55, 0.55, 372, 80, 5);
+        encoderDrive(1, 1, 700, 700, 5);
+        encoderTurnR(0.5,200, -200, 5);
+        encoderDrive(0.55, 0.55, 355, 355, 5);
         encoderTurn(0.3,-256,256,2);
-        encoderDrive(1,1,1250,1250,5);
+        encoderDrive(1,1,1300,1300,3);
 
+         */
 
 
     }
@@ -94,13 +148,11 @@ public class Autonomous1 extends LinearOpMode {
         robot.frontRight.setTargetPosition(newRightTarget);
         robot.backRight.setTargetPosition(newRightTarget);
 
-
         // Turn On RUN_TO_POSITION
         robot.frontLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         robot.backRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         robot.backLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         robot.frontRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-
 
         // reset the timeout time and start motion.
         runtime.reset();
