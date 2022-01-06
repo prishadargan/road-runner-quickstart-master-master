@@ -27,9 +27,7 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
         // step (using the FTC Robot Controller app on the phone).
 
         robot = new Robot(this.hardwareMap, this.telemetry, this);
-        robot.Dturret(-0.35);
-        sleep(760);
-        robot.Dturret(0);
+
         robot.Encoders();
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -38,7 +36,6 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
         while (!opModeIsActive()) ;
 
         while (opModeIsActive()) {
-
 
             //driver 1
 
@@ -77,24 +74,24 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
 
             if (gamepad1.right_trigger > threshold) {
                 robot.Collector(1);
-                robot.Vex393U(0.55);
-                robot.Vex393L(0.55);
+                robot.Vex393U(1);
+
 
             } else {
                 robot.Collector(0);
                 robot.Vex393U(0);
-                robot.Vex393L(0);
+
             }
 
 
             if (gamepad1.left_trigger > threshold) {
                 robot.Collector(-1);
-                robot.Vex393U(.25);
-                robot.Vex393L(.25);
+                robot.Vex393U(0.05);
+
             } else {
                 robot.Collector(0);
                 robot.Vex393U(0);
-                robot.Vex393L(0);
+
             }
 
             if (gamepad1.b) {
@@ -167,38 +164,45 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
 
             if (gamepad2.right_trigger > threshold) {
                 robot.DServo(0.657); // open position
-            } else {
+            }
+            if (gamepad2.left_trigger > threshold) {
                 robot.DServo(0.1); // close position
             }
 
             if (gamepad2.dpad_left) {
+                robot.DepositorT.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 int target;
-                target = ((robot.DepositorT.getCurrentPosition()) + 28);
+                target = ((robot.DepositorT.getCurrentPosition()) + (300));
                 robot.DepositorT.setTargetPosition(target); // position 1
                 robot.DepositorT.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                robot.DepositorT.setPower(0.25);
-                while (robot.DepositorT.isBusy()) {
+                runtime.reset();
+                robot.DepositorT.setPower(-0.3);
+                while (robot.DepositorT.isBusy() && (runtime.seconds() < 2)) {
                     telemetry.addData("Target Value", target);
                     telemetry.addData("Current Position", robot.DepositorT.getCurrentPosition());
+                    telemetry.update();
                 }
                 robot.Dturret(0);
-                robot.DepositorT.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.DepositorT.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
             }
 
 
             if (gamepad2.dpad_right) {
+                robot.DepositorT.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 int target2;
-                target2 = ((robot.DepositorT.getCurrentPosition()) - 28);
-                robot.DepositorT.setTargetPosition(target2); // position 1
+                target2 = ((robot.DepositorT.getCurrentPosition()) - (300));
+                robot.DepositorT.setTargetPosition(target2); // position 2
                 robot.DepositorT.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                robot.DepositorT.setPower(0.25);
-                while (robot.DepositorT.isBusy()) {
+                runtime.reset();
+                robot.DepositorT.setPower(0.3);
+                while (robot.DepositorT.isBusy() && (runtime.seconds() < 2)) {
                     telemetry.addData("Target Value", target2);
                     telemetry.addData("Current Position", robot.DepositorT.getCurrentPosition());
+                    telemetry.update();
                 }
                 robot.Dturret(0);
-                robot.DepositorT.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.DepositorT.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
             }
 
