@@ -1,4 +1,3 @@
-
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -37,7 +36,7 @@ public class Autonomous2 extends LinearOpMode {
             sleep(100);
 
             if (team_element_x > 75) {
-                
+
             }
             if (team_element_x > 100) {
                 liftHeight = 0;
@@ -83,9 +82,9 @@ public class Autonomous2 extends LinearOpMode {
         encoderDrive(0.4, 0.4, 750, 750, 5);
         robot.DepositorM.setPosition(0.35);
         sleep(500);
-        robot.DepositorS.setPosition(0.555555);
+        robot.DepositorS.setPower(-0.99);
         sleep(500);
-        robot.DepositorS.setPosition(0.1);
+        robot.DepositorS.setPower(0);
         sleep(500);
         robot.DepositorM.setPosition(0.76);
         encoderDrive(0.4, 0.4, 370,370,5);
