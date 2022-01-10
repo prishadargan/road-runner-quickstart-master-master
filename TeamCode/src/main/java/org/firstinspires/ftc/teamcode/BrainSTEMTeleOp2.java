@@ -16,6 +16,7 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
     private Robot robot;
+    private int Pos = 0;
 
     double threshold = 0.2;
 
@@ -36,6 +37,12 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
         while (!opModeIsActive()) ;
 
         while (opModeIsActive()) {
+            robot.collector.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            robot.swod.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
+            telemetry.addData("TeleOP","Active");
 
             //driver 1
 
@@ -57,42 +64,16 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
              */
 
             while (gamepad1.right_bumper) {
-                robot.spinningWheelofDeath((0.2));
-                sleep(500);
-                robot.spinningWheelofDeath((0.4));
-                sleep(500);
-                robot.spinningWheelofDeath((0.6));
-                sleep(500);
-                robot.spinningWheelofDeath((0.65));
-                sleep(1000);
-
+                robot.swod.setPower((-1));
             }
-            if (gamepad1.left_bumper) {
-                robot.spinningWheelofDeath((0));
+
+            while (gamepad1.right_trigger > threshold) {
+                robot.collector.setPower((1));
             }
 
 
-            if (gamepad1.right_trigger > threshold) {
-                robot.Collector(1);
-                robot.Vex393U(1);
 
 
-            } else {
-                robot.Collector(0);
-                robot.Vex393U(0);
-
-            }
-
-
-            if (gamepad1.left_trigger > threshold) {
-                robot.Collector(-1);
-                robot.Vex393U(0.05);
-
-            } else {
-                robot.Collector(0);
-                robot.Vex393U(0);
-
-            }
 
             if (gamepad1.b) {
                 robot.ElderWand(1059); // find position of lowest position (to pick up the team marker)
@@ -133,40 +114,102 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
 
             // driver 2
             double DTurretAdjustment = gamepad2.left_stick_x;
-            double DExtension = -gamepad2.right_stick_y;
-            // Range.scale(DExtension, 0, 1, 1200, 2000);
+            double DExtension = gamepad2.right_stick_y;
 
-            if (DExtension == 0) {
-                robot.extendDepositor(0.7936507936507937);
+            /*
+            if (gamepad2.right_stick_y == 0){
+                telemetry.addData("G2- Right Stick Y", "0");
+            }
+            if (gamepad2.right_stick_y != 0){
+                telemetry.addData("G2- Right Stick Y", "> 0.2");
             }
 
-            if (DExtension > threshold) {
-                robot.extendDepositor(0.35);
+             */
+
+
+            if (gamepad2.right_stick_y != 0) {
+               robot.extendDepositor(2000/2522);
             }
 
-            if (gamepad2.a) {
-                robot.DepositorL.setTargetPosition(0); // lift to position 1
+            if (gamepad2.right_stick_y == 0) {
+                robot.extendDepositor(2522/2522);
             }
+
+
+
 
             if (gamepad2.b) {
-                robot.DepositorL.setTargetPosition(0); // lift to reset
+                telemetry.addData("G2-B", "True");
+            }
+            if (gamepad2.x) {
+                telemetry.addData("G2-X", "True");
+            }
+            if (gamepad2.y) {
+                telemetry.addData("G2-Y", "True");
+            }
+
+
+            /*
+            if (gamepad2.b) {
+                Pos = 1;
+                telemetry.addData("Lift Positon", "Postion 1 - Lowest");
+                telemetry.update();
+                if (Pos == 1){
+                    robot.DepositorL.setTargetPosition(0); // positon 1
+                }
+                if (Pos == 2){
+                    robot.DepositorL.setTargetPosition(42);
+                }
+                if (Pos == 3){
+                    robot.DepositorL.setTargetPosition(80);
+                }
+
             }
 
             if (gamepad2.x) {
-                robot.DepositorL.setTargetPosition(0); // lift to position 2
-
+                Pos = 2;
+                telemetry.addData("Lift Positon", "Postion 2 - Middle");
+                telemetry.update();
+                if (Pos == 1){
+                    robot.DepositorL.setTargetPosition(-42); // positon 1
+                }
+                if (Pos == 2){
+                    robot.DepositorL.setTargetPosition(0);
+                }
+                if (Pos == 3){
+                    robot.DepositorL.setTargetPosition(35);
+                }
             }
 
             if (gamepad2.y) {
-                robot.DepositorL.setTargetPosition(0); // lift to position 3
-
+                Pos = 3;
+                telemetry.addData("Lift Positon", "Postion 3 - Highest");
+                telemetry.update();
+                if (Pos == 1){
+                    robot.DepositorL.setTargetPosition(-42); // positon 1
+                }
+                if (Pos == 2){
+                    robot.DepositorL.setTargetPosition(-35);
+                }
+                if (Pos == 3){
+                    robot.DepositorL.setTargetPosition(0);
+                }
             }
 
-            if (gamepad2.right_trigger > threshold) {
-                robot.DServo(0.657); // open position
+             */
+
+
+
+
+            if (gamepad2.right_trigger > 0.1) {
+                robot.DServo(0.75);
+            } else {
+               robot.DServo(0);
             }
-            if (gamepad2.left_trigger > threshold) {
-                robot.DServo(0.1); // close position
+            if (gamepad2.left_trigger > 0.1) {
+                robot.DServo(-0.75);
+            } else {
+               robot.DServo(0);
             }
 
             if (gamepad2.dpad_left) {
@@ -185,7 +228,11 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
                 robot.Dturret(0);
                 robot.DepositorT.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
+
+
             }
+
+
 
 
             if (gamepad2.dpad_right) {
@@ -210,8 +257,10 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
 
 
 
+
+
             //robot.extendDepositor(DExtension);
-            robot.fineTuneTurret(DTurretAdjustment);
+            //robot.fineTuneTurret(DTurretAdjustment);
 
 
 
