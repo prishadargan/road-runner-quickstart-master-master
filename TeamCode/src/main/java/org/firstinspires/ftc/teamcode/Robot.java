@@ -34,7 +34,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -58,17 +60,18 @@ public class Robot {
     public Telemetry telemetry;
     public OpMode opMode;
     public DcMotor swod;
-    public Servo DepositorS;
+    public CRServo DepositorS;
     public Servo DepositorM;
     public Servo ElderWand;
-    public CRServo Vex393L;
-    public CRServo Vex393U;
+    public I2cDeviceSynch pixyCam;
+    public DigitalChannel limit;
+
+
 
 
     public Robot(HardwareMap hwMap, Telemetry telemetry, LinearOpMode opMode) {
         this.telemetry = telemetry;
         this.opMode = opMode;
-
 
 
         frontLeft = (DcMotorEx) hwMap.dcMotor.get("FL");
@@ -79,17 +82,17 @@ public class Robot {
         collector = hwMap.dcMotor.get("collector");
         DepositorT = (DcMotorEx) hwMap.dcMotor.get("Depositor-Turret");
         DepositorL = (DcMotorEx) hwMap.dcMotor.get("Depositor-Lift");
-        DepositorS = hwMap.servo.get("Depositor-S");
+        DepositorS = hwMap.crservo.get("Depositor-S"); // depositing servo
         DepositorM = hwMap.servo.get("Depositor-Stretch");
         ElderWand = hwMap.servo.get("Elder-Wand");
-        Vex393L = hwMap.crservo.get("V-393-L");
-        Vex393U = hwMap.crservo.get("V-393-U");
+        pixyCam = hwMap.i2cDeviceSynch.get("Pixy-Cam");
+        limit = hwMap.digitalChannel.get("Limit-Switch");
+
 
 
         frontRight.setDirection(DcMotor.Direction.REVERSE);
         backLeft.setDirection(DcMotor.Direction.REVERSE);
         backRight.setDirection(DcMotor.Direction.REVERSE);
-
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -121,6 +124,7 @@ public class Robot {
         DepositorL.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         DepositorT.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         DepositorT.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+
     }
 
     public void spinningWheelofDeath(double power) {
@@ -135,21 +139,21 @@ public class Robot {
 
 
 
-    public void Dlift(double power) {
-        DepositorL.setPower(power);
-    }
+    public void Dlift(double power) { DepositorL.setPower(power);}
 
-    public void Dturret(double power) {
-        DepositorT.setPower(power);
-    }
+    public void Dturret(double power) {DepositorT.setPower(power);}
+
     public void DServo(double position) {
-        DepositorS.setPosition(position);
+        DepositorS.setPower(position);
     }
-    public void DStretch( double position) {DepositorM.setPosition(position);}
-    public void ElderWand(double position) {ElderWand.setPosition(position);}
 
+    public void DStretch(double position) {
+        DepositorM.setPosition(position);
+    }
 
-
+    public void ElderWand(double position) {
+        ElderWand.setPosition(position/2520);
+    }
 
 
     public void setMotorPowers(double frontLeftPower, double frontRightPower, double backLeftPower, double backRightPower) {
@@ -166,82 +170,67 @@ public class Robot {
         backRight.setPower(0);
     }
 
-    public void fineTuneTurret(double turretFineTuneSpeed) {
-        DepositorT.setPower(turretFineTuneSpeed);
+    //public void fineTuneTurret(double turretFineTuneSpeed) { DepositorT.setPower(turretFineTuneSpeed); }
+
+    public void extendDepositor(double extension) { DepositorM.setPosition(extension); }
+
+    public boolean getLimitState() {
+        return limit.getState();
     }
 
-    public void extendDepositor(double extension) {
-        DepositorM.setPosition(extension);
-    }
 
-    public void Vex393U(double power) {Vex393U.setPower(power);}
-    public void Vex393L(double power) {Vex393L.setPower(power);}
-
-
-    public void encoderDrive(double speed,
-                             double leftInches, double rightInches,
-                             double timeoutS) {
-        ElapsedTime runtime = new ElapsedTime();
+    public void encoderDrive(double speed, double leftInches, double rightInches, double timeoutS) {
         int newLeftTarget;
         int newRightTarget;
         // Ensure that the opmode is still active
-            frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-            frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-            backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-            backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-            // Determine new target position, and pass to motor controller
-            newLeftTarget = ((frontLeft.getCurrentPosition())  + (int)(leftInches));
-            newRightTarget = ((backRight.getCurrentPosition()) + (int)(rightInches));
-            frontLeft.setTargetPosition((newLeftTarget));
-            backLeft.setTargetPosition((newLeftTarget ));
-            frontRight.setTargetPosition(newRightTarget);
-            backRight.setTargetPosition(newRightTarget);
+        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        // Determine new target position, and pass to motor controller
+        newLeftTarget = ((frontLeft.getCurrentPosition())  + (int)(leftInches));
+        newRightTarget = ((backRight.getCurrentPosition()) + (int)(rightInches));
+        frontLeft.setTargetPosition((newLeftTarget));
+        backLeft.setTargetPosition((newLeftTarget ));
+        frontRight.setTargetPosition(newRightTarget);
+        backRight.setTargetPosition(newRightTarget);
+        // Turn On RUN_TO_POSITION
+        frontLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        backRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        backLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        frontRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        // reset the timeout time and start motion.
+        frontRight.setPower(Math.abs(speed));
+        backRight.setPower(Math.abs(speed));
+        frontLeft.setPower((Math.abs(speed)));
+        backLeft.setPower((Math.abs(speed)));
+
+        // keep looping while we are still active, and there is time left, and both motors are running.
+        // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
+        // its target position, the motion will stop.  This is "safer" in the event that the robot will
+        // always end the motion as soon as possible.
+        // However, if you require that BOTH motors have finished their moves before the robot continues
+        // onto the next step, use (isBusy() || isBusy()) in the loop test.
 
 
-            // Turn On RUN_TO_POSITION
-            frontLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-            backRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-            backLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-            frontRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+            // Display it for the driver.
+            telemetry.addData("Path1",  "Running to %7d :%7d", newLeftTarget,  newRightTarget);
+            telemetry.addData("front encoders",  "Running at Left:Right %7d :%7d",
+                    frontLeft.getCurrentPosition(),
+                    frontRight.getCurrentPosition());
+            telemetry.addData("back encoders",  "Running at Left:Right %7d :%7d",
+                    backLeft.getCurrentPosition(),
+                    backRight.getCurrentPosition());
+            telemetry.update();
 
+        // Stop all motion;
+        stop();
 
-            // reset the timeout time and start motion.
-            runtime.reset();
-            frontRight.setPower(Math.abs(speed));
-            backRight.setPower(Math.abs(speed));
-            frontLeft.setPower((Math.abs(speed)));
-            backLeft.setPower((Math.abs(speed)));
+        // Turn off RUN_TO_POSITION
+        frontLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        backLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        frontRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        backRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
-            // keep looping while we are still active, and there is time left, and both motors are running.
-            // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
-            // its target position, the motion will stop.  This is "safer" in the event that the robot will
-            // always end the motion as soon as possible.
-            // However, if you require that BOTH motors have finished their moves before the robot continues
-            // onto the next step, use (isBusy() || isBusy()) in the loop test.
-            while (
-                    (runtime.seconds() < timeoutS) &&
-                    (frontLeft.isBusy() && frontRight.isBusy())) {
-
-                // Display it for the driver.
-                telemetry.addData("Path1",  "Running to %7d :%7d", newLeftTarget,  newRightTarget);
-                telemetry.addData("front encoders",  "Running at Left:Right %7d :%7d",
-                        frontLeft.getCurrentPosition(),
-                        frontRight.getCurrentPosition());
-                telemetry.addData("back encoders",  "Running at Left:Right %7d :%7d",
-                        backLeft.getCurrentPosition(),
-                        backRight.getCurrentPosition());
-                telemetry.update();
-            }
-
-            // Stop all motion;
-            stop();
-
-            // Turn off RUN_TO_POSITION
-            frontLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-            backLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-            frontRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-            backRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-
-            //  sleep(250);   // optional pause after each move
-        }
     }
+}
