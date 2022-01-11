@@ -71,6 +71,10 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
                 robot.collector.setPower((1));
             }
 
+            while (gamepad1.right_trigger < threshold){
+                robot.collector.setPower(0);
+            }
+
 
 
 
@@ -129,10 +133,13 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
 
             if (gamepad2.right_stick_y != 0) {
                robot.extendDepositor(2000/2522);
+               telemetry.addData("G2 - Right Stick Y:", robot.DepositorM.getPosition());
             }
 
             if (gamepad2.right_stick_y == 0) {
                 robot.extendDepositor(2522/2522);
+                telemetry.addData("G2 - Right Stick Y:", robot.DepositorM.getPosition());
+                telemetry.update();
             }
 
 

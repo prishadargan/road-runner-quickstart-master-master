@@ -83,7 +83,7 @@ public class Robot {
         DepositorT = (DcMotorEx) hwMap.dcMotor.get("Depositor-Turret");
         DepositorL = (DcMotorEx) hwMap.dcMotor.get("Depositor-Lift");
         DepositorS = hwMap.crservo.get("Depositor-S"); // depositing servo
-        DepositorM = hwMap.servo.get("Depositor-Stretch");
+        DepositorM = hwMap.servo.get("Depositor-Extend");
         ElderWand = hwMap.servo.get("Elder-Wand");
         pixyCam = hwMap.i2cDeviceSynch.get("Pixy-Cam");
         limit = hwMap.digitalChannel.get("Limit-Switch");
@@ -170,9 +170,9 @@ public class Robot {
         backRight.setPower(0);
     }
 
-    //public void fineTuneTurret(double turretFineTuneSpeed) { DepositorT.setPower(turretFineTuneSpeed); }
+    public void fineTuneTurret(double turretFineTuneSpeed) { DepositorT.setPower(turretFineTuneSpeed); }
 
-    public void extendDepositor(double extension) { DepositorM.setPosition(extension); }
+    public void extendDepositor(double extension) { DepositorM.setPosition(extension/2522); }
 
     public boolean getLimitState() {
         return limit.getState();
@@ -213,15 +213,15 @@ public class Robot {
         // onto the next step, use (isBusy() || isBusy()) in the loop test.
 
 
-            // Display it for the driver.
-            telemetry.addData("Path1",  "Running to %7d :%7d", newLeftTarget,  newRightTarget);
-            telemetry.addData("front encoders",  "Running at Left:Right %7d :%7d",
-                    frontLeft.getCurrentPosition(),
-                    frontRight.getCurrentPosition());
-            telemetry.addData("back encoders",  "Running at Left:Right %7d :%7d",
-                    backLeft.getCurrentPosition(),
-                    backRight.getCurrentPosition());
-            telemetry.update();
+        // Display it for the driver.
+        telemetry.addData("Path1",  "Running to %7d :%7d", newLeftTarget,  newRightTarget);
+        telemetry.addData("front encoders",  "Running at Left:Right %7d :%7d",
+                frontLeft.getCurrentPosition(),
+                frontRight.getCurrentPosition());
+        telemetry.addData("back encoders",  "Running at Left:Right %7d :%7d",
+                backLeft.getCurrentPosition(),
+                backRight.getCurrentPosition());
+        telemetry.update();
 
         // Stop all motion;
         stop();
