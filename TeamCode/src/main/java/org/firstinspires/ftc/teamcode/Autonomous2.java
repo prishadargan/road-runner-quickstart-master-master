@@ -27,7 +27,7 @@ public class Autonomous2 extends LinearOpMode {
         robot.DepositorT.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         robot.Encoders();
-
+        /*
         robot.pixyCam.engage();
         team_element_x = 0xff&robot.pixyCam.read(0x51,5)[1];
         team_element_y = 0xff&robot.pixyCam.read(0x51,5)[2];
@@ -51,6 +51,8 @@ public class Autonomous2 extends LinearOpMode {
 
             }
         }
+
+         */
         sleep(500);
         robot.ElderWand(100);
         encoderDrive(0.4, 0.3, 330, 330, 10);
@@ -63,9 +65,9 @@ public class Autonomous2 extends LinearOpMode {
         encoderTurn(0.5, -500, 500, 10);
         encoderDrive(0.2, 0.2, 165, 165, 10);
         encoderTurnR(0.3, 200, -200, 10);
-        encoderDrive(0.3, 0.3, 75, 75, 10);
+        encoderDrive(0.3, 0.3, 90, 90, 10);
         robot.setMotorPowers(0.2, 0.2, 0.2, 0.2);
-        sleep(1000);
+        sleep(1200);
         robot.stop();
         robot.spinningWheelofDeath((-0.2));
         sleep(500);
@@ -73,9 +75,18 @@ public class Autonomous2 extends LinearOpMode {
         sleep(500);
         robot.spinningWheelofDeath((-0.6));
         sleep(500);
-        robot.spinningWheelofDeath((-0.65));
+        robot.spinningWheelofDeath((-0.63));
         sleep(1000);
         robot.spinningWheelofDeath(0);
+        encoderDrive(-0.3,-0.3,-290,-320,6);
+        encoderTurnR(0.3,350,-350,4);
+        encoderTurn(0.3,1800,1700,10);
+        robot.extendDepositor(400);
+        sleep(1000);
+        encoderDrive(-0.2,-0.2,-500,-300,6);
+
+
+        /*
         encoderDrive(-0.4, -0.4, -250,-1000,5);
         encoderDrive(-0.4, -0.4, -1400, -1400, 15);
         encoderTurnR(0.3,320,-320,6);
@@ -92,6 +103,8 @@ public class Autonomous2 extends LinearOpMode {
         encoderDrive(0.5,0.5,1000,1000,10);
         encoderTurn(0.3,-30,-30,5);
         encoderDrive(0.3,0.3,1200,1200,4);
+
+         */
 
 
 

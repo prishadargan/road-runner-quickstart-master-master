@@ -83,7 +83,7 @@ public class Robot {
         DepositorT = (DcMotorEx) hwMap.dcMotor.get("Depositor-Turret");
         DepositorL = (DcMotorEx) hwMap.dcMotor.get("Depositor-Lift");
         DepositorS = hwMap.crservo.get("Depositor-S"); // depositing servo
-        DepositorM = hwMap.servo.get("Depositor-Extend");
+        DepositorM = hwMap.servo.get("DS");
         ElderWand = hwMap.servo.get("Elder-Wand");
         pixyCam = hwMap.i2cDeviceSynch.get("Pixy-Cam");
         limit = hwMap.digitalChannel.get("Limit-Switch");
@@ -148,7 +148,7 @@ public class Robot {
     }
 
     public void DStretch(double position) {
-        DepositorM.setPosition(position);
+        //DepositorM.setPosition(position);
     }
 
     public void ElderWand(double position) {
@@ -172,7 +172,8 @@ public class Robot {
 
     public void fineTuneTurret(double turretFineTuneSpeed) { DepositorT.setPower(turretFineTuneSpeed); }
 
-    public void extendDepositor(double extension) { DepositorM.setPosition(extension/2522); }
+    public void extendDepositor(double extension) { DepositorM.setPosition(extension/2522);
+         }
 
     public boolean getLimitState() {
         return limit.getState();
@@ -233,4 +234,6 @@ public class Robot {
         backRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
     }
+
+
 }

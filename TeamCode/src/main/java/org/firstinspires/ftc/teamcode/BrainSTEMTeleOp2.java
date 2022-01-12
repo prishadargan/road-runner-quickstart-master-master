@@ -1,3 +1,4 @@
+
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -42,7 +43,7 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
             robot.swod.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
-            telemetry.addData("TeleOP","Active");
+            telemetry.addData("TeleOP", "Active");
 
             //driver 1
 
@@ -64,19 +65,19 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
              */
 
             while (gamepad1.right_bumper) {
-                robot.swod.setPower((-1));
+                robot.collector.setPower((-1));
             }
 
-            while (gamepad1.right_trigger > threshold) {
-                robot.collector.setPower((1));
-            }
-
-            while (gamepad1.right_trigger < threshold){
-                robot.collector.setPower(0);
+            while (gamepad1.left_bumper) {
+                robot.collector.setPower(1);
             }
 
 
-
+            if (gamepad1.right_trigger > threshold) {
+                robot.swod.setPower((0.3));
+            } else {
+                robot.swod.setPower((0));
+            }
 
 
             if (gamepad1.b) {
@@ -92,7 +93,7 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
                 position1 = position1 + 0.01;
                 robot.ElderWand.setPosition(position1);
                 sleep(50);
-             }
+            }
 
             while (gamepad1.dpad_down) {
                 double position2 = robot.ElderWand.getPosition();
@@ -131,18 +132,17 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
              */
 
 
-            if (gamepad2.right_stick_y != 0) {
-               robot.extendDepositor(2000/2522);
-               telemetry.addData("G2 - Right Stick Y:", robot.DepositorM.getPosition());
-            }
-
             if (gamepad2.right_stick_y == 0) {
-                robot.extendDepositor(2522/2522);
-                telemetry.addData("G2 - Right Stick Y:", robot.DepositorM.getPosition());
+                robot.extendDepositor(1275);
+                telemetry.addData("G2 - L-Bumper:", "True");
                 telemetry.update();
             }
 
-
+            if (gamepad2.right_stick_y != 0) {
+                robot.extendDepositor(200);
+                telemetry.addData("G2 - L-Bumper:", "True");
+                telemetry.update();
+            }
 
 
             if (gamepad2.b) {
@@ -152,71 +152,107 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
                 telemetry.addData("G2-X", "True");
             }
             if (gamepad2.y) {
-                telemetry.addData("G2-Y", "True");
+                telemetry.addData("G2-Y", "Down");
+                robot.DepositorL.setPower(0.2);
+                sleep(1000);
+                robot.DepositorL.setPower(0);
             }
+
+
+            for (int i = 0; i < 1; i++) {
+                robot.DepositorL.setPower(0.2);
+                sleep(500);
+                robot.DepositorL.setPower(0);
+            }
+
+
+
 
 
             /*
             if (gamepad2.b) {
+                robot.DepositorL.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
                 Pos = 1;
                 telemetry.addData("Lift Positon", "Postion 1 - Lowest");
                 telemetry.update();
                 if (Pos == 1){
                     robot.DepositorL.setTargetPosition(0); // positon 1
+                    robot.DepositorL.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    robot.DepositorL.setPower(0.3);
                 }
                 if (Pos == 2){
-                    robot.DepositorL.setTargetPosition(42);
+                    robot.DepositorL.setTargetPosition(126);
+                    robot.DepositorL.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    robot.DepositorL.setPower(0.3);
                 }
                 if (Pos == 3){
-                    robot.DepositorL.setTargetPosition(80);
+                    robot.DepositorL.setTargetPosition(240);
+                    robot.DepositorL.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    robot.DepositorL.setPower(0.3);
                 }
+                robot.DepositorL.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                robot.DepositorL.setPower(0.3);
 
             }
 
             if (gamepad2.x) {
+                robot.DepositorL.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
                 Pos = 2;
                 telemetry.addData("Lift Positon", "Postion 2 - Middle");
                 telemetry.update();
                 if (Pos == 1){
                     robot.DepositorL.setTargetPosition(-42); // positon 1
+                    robot.DepositorL.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    robot.DepositorL.setPower(0.3);
                 }
                 if (Pos == 2){
                     robot.DepositorL.setTargetPosition(0);
+                    robot.DepositorL.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    robot.DepositorL.setPower(0.3);
                 }
                 if (Pos == 3){
                     robot.DepositorL.setTargetPosition(35);
+                    robot.DepositorL.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    robot.DepositorL.setPower(0.3);
                 }
+
             }
 
-            if (gamepad2.y) {
+            if (gamepad2.a) {
+                robot.DepositorL.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
                 Pos = 3;
                 telemetry.addData("Lift Positon", "Postion 3 - Highest");
                 telemetry.update();
                 if (Pos == 1){
                     robot.DepositorL.setTargetPosition(-42); // positon 1
+                    robot.DepositorL.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    robot.DepositorL.setPower(0.3);
                 }
                 if (Pos == 2){
                     robot.DepositorL.setTargetPosition(-35);
+                    robot.DepositorL.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    robot.DepositorL.setPower(0.3);
                 }
                 if (Pos == 3){
                     robot.DepositorL.setTargetPosition(0);
+                    robot.DepositorL.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    robot.DepositorL.setPower(0.3);
                 }
+
             }
 
              */
 
 
-
-
             if (gamepad2.right_trigger > 0.1) {
                 robot.DServo(0.75);
             } else {
-               robot.DServo(0);
+                robot.DServo(0);
             }
             if (gamepad2.left_trigger > 0.1) {
                 robot.DServo(-0.75);
             } else {
-               robot.DServo(0);
+                robot.DServo(0);
             }
 
             if (gamepad2.dpad_left) {
@@ -236,10 +272,7 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
                 robot.DepositorT.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
 
-
             }
-
-
 
 
             if (gamepad2.dpad_right) {
@@ -261,14 +294,8 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
             }
 
 
-
-
-
-
-
             //robot.extendDepositor(DExtension);
             //robot.fineTuneTurret(DTurretAdjustment);
-
 
 
             // Show the elapsed game time and wheel power.
@@ -277,4 +304,44 @@ public class BrainSTEMTeleOp2 extends LinearOpMode {
             telemetry.update();
         }
     }
-}
+
+
+        public void encoderLift(double speed,double height,double TimeoutS){
+
+            int newLeftTarget;
+            // Ensure that the opmode is still active
+            robot.DepositorL.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+            // Determine new target position, and pass to motor controller
+            newLeftTarget = ((robot.DepositorL.getCurrentPosition()) + (int) (height));
+            robot.DepositorL.setTargetPosition((newLeftTarget));
+            // Turn On RUN_TO_POSITION
+            robot.DepositorL.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+            // reset the timeout time and start motion.
+            robot.DepositorL.setPower((speed));
+            while (opModeIsActive() &&
+                    (runtime.seconds() < TimeoutS) &&
+                    (robot.frontLeft.isBusy() && robot.frontRight.isBusy())) {
+
+                // Display it for the driver.
+                telemetry.addData("Path1", "Running to %7d :%7d", newLeftTarget);
+                telemetry.addData("front encoders", "Running at Left:Right %7d :%7d",
+                        robot.frontLeft.getCurrentPosition(),
+                        robot.frontRight.getCurrentPosition());
+                telemetry.addData("back encoders", "Running at Left:Right %7d :%7d",
+                        robot.backLeft.getCurrentPosition(),
+                        robot.backRight.getCurrentPosition());
+                telemetry.update();
+            }
+
+            // Stop all motion;
+            robot.stop();
+            // Turn off RUN_TO_POSITION
+            robot.DepositorL.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+            // Display it for the driver.
+            telemetry.addData("Lift Motor", "Running at Left:Right %7d", robot.DepositorL.getCurrentPosition());
+
+            telemetry.update();
+        }
+
+
+    }
