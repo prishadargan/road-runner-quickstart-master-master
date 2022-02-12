@@ -37,7 +37,7 @@ public class Robot
     //public I2cDeviceSynch pixyCam;
 
     public enum states {
-        LIFTING_UP, LIFTING_UP_ACTION, LIFTING_DOWN, STOPPED_L, LIFTING_DOWN_ACTION, LIFT_MIDO, LIFT_MO_ACT, E_OUT, E_OUT_ACTION, E_IN, E_IN_ACTON, STOPPED_E,  TURRET_LEFT, TURRET_LEFT_ACTION, TURRET_RIGHT, TURRET_RIGHT_ACTON, STOPPED_T, TURRET_MID, T_MID_ACTION, FINE_ADJ_L, FAL_ACT, FINE_ADJ_R, FAR_ACT
+        LIFTING_UP, LIFTING_UP_ACTION, LIFTING_DOWN, STOPPED_L, LIFTING_DOWN_ACTION, LIFT_MIDO, LIFT_MO_ACT, E_OUT, E_OUT_ACTION, E_IN, E_IN_ACTON, STOPPED_E,  TURRET_LEFT, TURRET_LEFT_ACTION, TURRET_RIGHT, TURRET_RIGHT_ACTON, STOPPED_T, TURRET_MID, T_MID_ACTION, FINE_ADJ_L, FAL_ACT, FINE_ADJ_R, FAR_ACT, LIFT_FAU, LFAU_ACT, LIFT_FAD, LFAD_ACT
     }
 
 
@@ -119,7 +119,7 @@ public class Robot
             case LIFTING_UP:
                 sleep(50);
                 nt = ((lift.getCurrentPosition()) + (int) (825));
-                lift.setTargetPosition((830));
+                lift.setTargetPosition((1420));
                 lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                 runtime.reset();
                 lift.setPower((1));
@@ -133,7 +133,7 @@ public class Robot
                 break;
             case LIFT_MIDO:
                 sleep(50);
-                lift.setTargetPosition((300));
+                lift.setTargetPosition((400));
                 lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                 runtime.reset();
                 lift.setPower((0.45));
@@ -145,6 +145,36 @@ public class Robot
                     state = states.STOPPED_L;
                 }
                 break;
+            case LIFT_FAD:
+                sleep(50);
+                lift.setTargetPosition((lift.getCurrentPosition() - 75));
+                lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                lift.setPower((0.3));
+                state = states.LFAD_ACT;
+                break;
+            case LFAD_ACT:
+                if((runtime.seconds() > 1) || (!lift.isBusy())) {
+                    telemetry.addData("status", "complete");
+                    state = states.STOPPED_L;
+                }
+                break;
+            case LIFT_FAU:
+                sleep(50);
+                lift.setTargetPosition((lift.getCurrentPosition() + 75));
+                lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                lift.setPower((0.3));
+                state = states.LFAD_ACT;
+                break;
+            case LFAU_ACT:
+                if((runtime.seconds() > 1) || (!lift.isBusy())) {
+                    telemetry.addData("status", "complete");
+                    state = states.STOPPED_L;
+                    telemetry.update();
+                }
+                break;
+
             case E_IN:
                 linearActuator.setPosition(0.7936507924);
                 extention.setPower(0.8);

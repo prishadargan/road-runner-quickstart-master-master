@@ -252,6 +252,15 @@ public class TeleOpCodeBlue extends LinearOpMode {
                 telemetry.addData("Current Position", robot.lift.getCurrentPosition());
                 robot.state = Robot.states.LIFT_MIDO;
             }
+
+            if (gamepad2.dpad_left){
+                robot.state = Robot.states.LIFT_FAD;
+
+            }
+            if (gamepad2.dpad_right){
+                robot.state = Robot.states.LIFT_FAU;
+
+            }
             telemetry.update();
             robot.update();
 
