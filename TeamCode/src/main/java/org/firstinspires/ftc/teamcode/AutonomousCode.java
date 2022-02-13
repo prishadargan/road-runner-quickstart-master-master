@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+
 import static java.lang.Thread.sleep;
 
 @Autonomous(name="Blue Ducks Auto", group="SummerCamp")
@@ -40,33 +41,63 @@ public class AutonomousCode extends LinearOpMode {
         robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.extention.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         drive.setPoseEstimate(new Pose2d(-32.0, 65.0, Math.toRadians(-90.0)));
-// 4
 
-        team_element_x = 0xff&robot.pixyCam.read(0x51,5)[1];
-        team_element_y = 0xff&robot.pixyCam.read(0x51,5)[2];
-        for (int i = 0; i < 13; i++) {
-            sleep(100);
-            if ((team_element_x < 100) && team_element_x > 70) {
-                liftHeight = "low";
-
-            } else if ((team_element_x > 110) && team_element_x < 160) {
-                liftHeight = "mid";
-            } else {
-                liftHeight = "top";
-            }
+        while (opModeIsActive()) {
+            robot.pixyCam.engage();
+            team_element_x = 0xff & robot.pixyCam.read(0x51, 5)[1];
+            team_element_y = 0xff & robot.pixyCam.read(0x51, 5)[2];
+            duck_x = 0xff & robot.pixyCam.read(0x52, 5)[1];
+            duck_y = 0xff & robot.pixyCam.read(0x52, 5)[2];
+            telemetry.addLine();
+            telemetry.addData("Pixy Health :", robot.pixyCam.getHealthStatus());
+            telemetry.addLine();
+            telemetry.addData("Pixy Connection : ", robot.pixyCam.getConnectionInfo());
+            telemetry.update();
         }
+        sleep(500000);
 
+
+        /*
         if (liftHeight == "low") {
             robot.state = Robot.states.LIFT_MIDO;
+            sleep(500);
+            robot.state = Robot.states.FINE_ADJ_R;
+            robot.state = Robot.states.FINE_ADJ_R;
         } else if (liftHeight == "mid") {
             robot.state = Robot.states.LIFT_MIDO;
             robot.state = Robot.states.LIFT_FAU;
             robot.state = Robot.states.LIFT_FAU;
+
         } else {
+            robot.state = Robot.states.FINE_ADJ_R;
+            robot.state = Robot.states.FINE_ADJ_R;
             robot.state = Robot.states.LIFTING_UP;
+
+
         }
+        robot.update();
+        sleep(500);
+
+
+        robot.state = Robot.states.TURRET_RIGHT;
+
+        robot.state = Robot.states.E_OUT;
+        robot.state = Robot.states.E_OUT;
 
         robot.update();
+
+        robot.collector.setPower(-1);
+        sleep(250);
+        robot.collector.setPower(0);
+        sleep(25);
+        robot.state = Robot.states.E_IN;
+        robot.state = Robot.states.TURRET_RIGHT;
+        robot.state = Robot.states.LIFT_MIDO;
+        sleep(250);
+
+        robot.update();
+
+         */
 
 // 1
 
@@ -74,9 +105,8 @@ public class AutonomousCode extends LinearOpMode {
 
                 .forward(9)
                 .build();
-
-
         drive.followTrajectory(builder1);
+
 
 
         Trajectory builder2 = drive.trajectoryBuilder(drive.getPoseEstimate())
@@ -108,6 +138,7 @@ public class AutonomousCode extends LinearOpMode {
 // 3
         turn_right(0.3,1100);
 
+        /*
         for (int i = 0; i < 57; i++) {
             telemetry.addData("Variant   : ", i);
             telemetry.addData("PIXY-D-X :", duck_x);
@@ -146,8 +177,10 @@ public class AutonomousCode extends LinearOpMode {
             }
         }
 
+         */
+
         Trajectory builder3b = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .back(25)
+                .back(27)
                 .build();
 
         drive.followTrajectory(builder3b);
@@ -164,6 +197,7 @@ public class AutonomousCode extends LinearOpMode {
         drive.followTrajectory(builder4a);
 
 
+        /*
         if (liftHeight == "low") {
             robot.state = Robot.states.LIFT_MIDO;
         } else if (liftHeight == "mid") {
@@ -174,6 +208,8 @@ public class AutonomousCode extends LinearOpMode {
             robot.state = Robot.states.LIFTING_UP;
         }
 
+         */
+
         robot.update();
 // 2
 
@@ -182,11 +218,12 @@ public class AutonomousCode extends LinearOpMode {
                 .forward(40)
                 .build();
 
-        drive.followTrajectoryAsync(builder4b);
+        drive.followTrajectory(builder4b);
         robot.state = Robot.states.LIFT_MIDO;
-        while (drive.isBusy()) {
-            robot.update();
-        }
+        robot.update();
+
+
+
 
 
         Trajectory builder5 = drive.trajectoryBuilder(drive.getPoseEstimate())
@@ -198,7 +235,7 @@ public class AutonomousCode extends LinearOpMode {
 
 
         Trajectory builder6 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .forward(35)
+                .forward(50)
                 .build();
 
         drive.followTrajectory(builder6);
