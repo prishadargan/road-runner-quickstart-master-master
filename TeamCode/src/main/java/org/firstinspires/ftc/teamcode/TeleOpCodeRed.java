@@ -33,6 +33,7 @@ TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -55,7 +56,7 @@ public class TeleOpCodeRed extends LinearOpMode {
 
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(hardwareMap, telemetry, this);
-
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         telemetry.addLine("Waiting for start");
         telemetry.update();
         robot.extention.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -106,7 +107,23 @@ public class TeleOpCodeRed extends LinearOpMode {
 
             // drive-train
 
-            if (Math.abs(gamepad1.right_stick_x) > threshold) {
+            drive.setWeightedDrivePower(
+                    new Pose2d(
+                            gamepad1.left_stick_y,
+                            gamepad1.left_stick_x,
+                            -gamepad1.right_stick_x
+                    )
+            );
+
+            drive.update();
+
+            Pose2d poseEstimate = drive.getPoseEstimate();
+            telemetry.addData("x", poseEstimate.getX());
+            telemetry.addData("y", poseEstimate.getY());
+            telemetry.addData("heading", poseEstimate.getHeading());
+            telemetry.update();
+
+            /* if (Math.abs(gamepad1.right_stick_x) > threshold) {
                 if (gamepad1.right_stick_x < 0) {
                     rightStickX = -gamepad1.right_stick_x * gamepad1.right_stick_x * -1 * (4.0 / 5.0) - (1.0 / 5.0);
                 } else {
@@ -127,6 +144,8 @@ public class TeleOpCodeRed extends LinearOpMode {
             } else {
                 robot.stop();
             }
+
+             */
 
 
             // collector
@@ -166,12 +185,12 @@ public class TeleOpCodeRed extends LinearOpMode {
 
             // main turret
             if (gamepad2.right_bumper) {
-                robot.state = Robot.states.TURRET_RIGHT;
+                robot.state = Robot.states.TURRET_LEFT;
                 telemetry.update();
             }
 
             if (gamepad2.left_bumper) {
-                robot.state = Robot.states.TURRET_LEFT;
+                robot.state = Robot.states.TURRET_RIGHT;
                 telemetry.update();
             }
 
@@ -232,10 +251,10 @@ public class TeleOpCodeRed extends LinearOpMode {
             // lift
 
             if (gamepad2.b) {
-                telemetry.addData("Lowest Positon", "Postion 1 - Lowest");
-                telemetry.addData("Target Value", robot.newLeftTarget);
+                telemetry.addData("Highest Positon", "Postion 2 - Highest");
+                telemetry.addData("Target Value", robot.nt);
                 telemetry.addData("Current Position", robot.lift.getCurrentPosition());
-                robot.state = Robot.states.LIFTING_UP;
+                robot.state = Robot.states.LIFT_MIDO;
 
             }
             if (gamepad2.a) {
@@ -243,6 +262,13 @@ public class TeleOpCodeRed extends LinearOpMode {
                 telemetry.addData("Target Value", robot.nt);
                 telemetry.addData("Current Position", robot.lift.getCurrentPosition());
                 robot.state = Robot.states.LIFTING_DOWN;
+            }
+
+            if(gamepad2.x){
+                telemetry.addData("Highest Positon", "Postion 2 - Highest");
+                telemetry.addData("Target Value", robot.nt);
+                telemetry.addData("Current Position", robot.lift.getCurrentPosition());
+                robot.state = Robot.states.LIFTING_UP;
             }
             telemetry.update();
             robot.update();

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -32,16 +33,16 @@ public class AutonomousCode extends LinearOpMode {
         telemetry.update();
         waitForStart();
         robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.extention.setPower(-.1);
+        robot.extention.setPower(.1);
         sleep(250);
-        robot.extention.setPower(-0);
-        robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.extention.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.extention.setPower(0);
+        //robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         drive.setPoseEstimate(new Pose2d(-32.0, 65.0, Math.toRadians(-90.0)));
 
+        /*
         while (opModeIsActive()) {
             robot.pixyCam.engage();
             team_element_x = 0xff & robot.pixyCam.read(0x51, 5)[1];
@@ -56,48 +57,23 @@ public class AutonomousCode extends LinearOpMode {
         }
         sleep(500000);
 
-
-        /*
-        if (liftHeight == "low") {
-            robot.state = Robot.states.LIFT_MIDO;
-            sleep(500);
-            robot.state = Robot.states.FINE_ADJ_R;
-            robot.state = Robot.states.FINE_ADJ_R;
-        } else if (liftHeight == "mid") {
-            robot.state = Robot.states.LIFT_MIDO;
-            robot.state = Robot.states.LIFT_FAU;
-            robot.state = Robot.states.LIFT_FAU;
-
-        } else {
-            robot.state = Robot.states.FINE_ADJ_R;
-            robot.state = Robot.states.FINE_ADJ_R;
-            robot.state = Robot.states.LIFTING_UP;
-
-
-        }
-        robot.update();
-        sleep(500);
-
-
-        robot.state = Robot.states.TURRET_RIGHT;
-
-        robot.state = Robot.states.E_OUT;
-        robot.state = Robot.states.E_OUT;
-
-        robot.update();
-
-        robot.collector.setPower(-1);
-        sleep(250);
-        robot.collector.setPower(0);
-        sleep(25);
-        robot.state = Robot.states.E_IN;
-        robot.state = Robot.states.TURRET_RIGHT;
-        robot.state = Robot.states.LIFT_MIDO;
-        sleep(250);
-
-        robot.update();
-
          */
+
+        lift_top();
+        sleep(100);
+        turret_turn45();
+        extension_outfull();
+        robot.collector.setPower(1);
+        sleep(600);
+        robot.collector.setPower(0);
+        turret_back();
+        robot.turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        sleep(800);
+        extension_in();
+        sleep(800);
+        lift_down();
+        LAD();
+        sleep(50);
 
 // 1
 
@@ -109,6 +85,8 @@ public class AutonomousCode extends LinearOpMode {
 
 
 
+
+
         Trajectory builder2 = drive.trajectoryBuilder(drive.getPoseEstimate())
                 .lineToLinearHeading(new Pose2d(-65.0, 57, Math.toRadians(-90)))
                 .build();
@@ -117,14 +95,15 @@ public class AutonomousCode extends LinearOpMode {
         drive.followTrajectory(builder2);
 
         Trajectory builder2a = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .back(4)
+                .back(1)
                 .build();
+
 
         drive.followTrajectory(builder2a);
 
-        sleep(50);
-        robot.SWOD(0.15);
-        sleep(2300);
+
+        robot.SWOD(0.2);
+        sleep(2800);
         robot.SWOD(0);
 
 
@@ -134,6 +113,8 @@ public class AutonomousCode extends LinearOpMode {
                 .build();
 
         drive.followTrajectory(builder3);
+
+
 
 // 3
         turn_right(0.3,1100);
@@ -188,51 +169,41 @@ public class AutonomousCode extends LinearOpMode {
 
         turn_right(0.4,400);
         move_backwards(-0.1, 1500);
+        lift_top();
 
 
         Trajectory builder4a = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .forward(23)
+                .forward(43)
                 .build();
 
         drive.followTrajectory(builder4a);
 
 
-        /*
-        if (liftHeight == "low") {
-            robot.state = Robot.states.LIFT_MIDO;
-        } else if (liftHeight == "mid") {
-            robot.state = Robot.states.LIFT_MIDO;
-            robot.state = Robot.states.LIFT_FAU;
-            robot.state = Robot.states.LIFT_FAU;
-        } else {
-            robot.state = Robot.states.LIFTING_UP;
-        }
+        // everything after here is brokey
+        turret_turn90();
+        // everything after here works-ish
+        robot.collector.setPower(1);
+        sleep(1000);
+        robot.collector.setPower(0);
+        turret_backmore();
+        sleep(1000);
+        lift_barriers();
+        sleep(1000);
 
-         */
 
-        robot.update();
-// 2
 
 
         Trajectory builder4b = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .forward(40)
+                .forward(20)
                 .build();
 
         drive.followTrajectory(builder4b);
-        robot.state = Robot.states.LIFT_MIDO;
-        robot.update();
-
-
-
-
 
         Trajectory builder5 = drive.trajectoryBuilder(drive.getPoseEstimate())
                 .strafeLeft(40)
                 .build();
 
         drive.followTrajectory(builder5);
-
-
 
         Trajectory builder6 = drive.trajectoryBuilder(drive.getPoseEstimate())
                 .forward(50)
@@ -242,32 +213,12 @@ public class AutonomousCode extends LinearOpMode {
 
 
 
-    }
-    private void encodeForward (int distance, double power) {
 
-        robot.frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        robot.frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        robot.backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        robot.backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        robot.frontLeft.setTargetPosition((distance));
-        robot.backLeft.setTargetPosition((distance ));
-        robot.frontRight.setTargetPosition((distance));
-        robot.backRight.setTargetPosition((distance));
-        robot.frontLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        robot.backRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        robot.backLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        robot.frontRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        robot.frontRight.setPower((power));
-        robot.backRight.setPower((power));
-        robot.frontLeft.setPower(((power)));
-        robot.backLeft.setPower(((power)));
+
 
     }
-    private void move_straight(double speed, long time) {
-        robot.setMotorPowers(-speed, -speed, -speed, -speed);
-        sleep(time);
-        robot.stop();
-    }
+
+
     private void turn_left(double speed, long time) {
         robot.setMotorPowers(-speed, speed, -speed, speed);
         sleep(time);
@@ -284,15 +235,200 @@ public class AutonomousCode extends LinearOpMode {
         sleep(time);
         robot.stop();
     }
-    private void strafe_right(double speed, long time){
-        robot.setMotorPowers(-speed, speed, speed, -speed);
-        sleep(time);
-        robot.stop();
+    private void turret_turn45(){
+        robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.turret.setTargetPosition((robot.turret.getCurrentPosition() - 60));
+        robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        if (robot.turret.getCurrentPosition() > robot.turret.getTargetPosition()){
+            robot.turret.setPower(-0.6);
+        }
+
+        if (robot.turret.getCurrentPosition() < robot.turret.getTargetPosition()){
+            robot.turret.setPower(0.6);
+        }
+        if(runtime.seconds() > 1 || !robot.turret.isBusy()) {
+            telemetry.addData("Turret Stat : ", "complete");
+            robot.turret.setPower(0);
+            telemetry.update();
+        }
     }
-    private void strafe_left(double speed, long ms){
-        robot.setMotorPowers(speed, -speed, -speed, speed);
-        sleep(ms);
-        robot.stop();
+    private void lift_up(){
+        sleep(50);
+        int target = (robot.lift.getCurrentPosition() + 10);
+        robot.lift.setTargetPosition(target);
+        robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        robot.lift.setPower((1));
+        while ((robot.lift.isBusy())){
+            telemetry.addData("Target Position", robot.lift.getTargetPosition());
+            telemetry.addData("Current Position", robot.lift.getCurrentPosition());
+        }
+        if((runtime.seconds() > 5) || (!robot.lift.isBusy())) {
+            telemetry.addData("status", "complete");
+            robot.lift.setPower(0);
+        }
     }
+    private void lift_top(){
+        sleep(50);
+        robot.lift.setTargetPosition((1730));
+        robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        robot.lift.setPower((1));
+        while ((robot.lift.isBusy())){
+            telemetry.addData("Target Position", robot.lift.getTargetPosition());
+            telemetry.addData("Current Position", robot.lift.getCurrentPosition());
+        }
+        if((runtime.seconds() > 5) || (!robot.lift.isBusy())) {
+            telemetry.addData("status", "complete");
+            robot.lift.setPower(0);
+        }
+    }
+    private void lift_middle(){
+        sleep(50);
+        robot.lift.setTargetPosition((1420));
+        robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        robot.lift.setPower((1));
+        if((runtime.seconds() > 4) || (!robot.lift.isBusy())) {
+            telemetry.addData("status", "complete");
+            robot.lift.setPower(0);
+        }
+    }
+    private void lift_bottom(){
+        sleep(50);
+        robot.lift.setTargetPosition((1420));
+        robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        robot.lift.setPower((1));
+        if((runtime.seconds() > 4) || (!robot.lift.isBusy())) {
+            telemetry.addData("status", "complete");
+            robot.lift.setPower(0);
+        }
+    }
+    private void extension_outfull(){
+        robot.linearActuator.setPosition((0.39682527));
+        robot.extention.setPower(-0.75);
+        sleep(2250);
+        robot.extention.setPower(0);
+    }
+    private void extension_outpartial(){
+        robot.linearActuator.setPosition((0.39682527));
+        robot.extention.setPower(-0.75);
+        sleep(1000);
+        robot.extention.setPower(0);
+    }
+    private void extension_in(){
+        robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.extention.setTargetPosition((0));
+        robot.extention.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        robot.extention.setPower(0.6);
+        if ((runtime.seconds() > 2) || (!robot.extention.isBusy())) {
+            robot.extention.setPower(0);
+        }
+        if (!robot.frontLimit.getState()) {
+
+            robot.extention.setPower(0.25);
+        } else {
+            robot.extention.setPower(0);
+        }
+    }
+    private void LAD(){
+        robot.linearActuator.setPosition((0.79682527));
+    }
+    private void lift_down(){
+        robot.lift.setTargetPosition((0));
+        robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        robot.lift.setPower((1));
+        if((!robot.lift.isBusy())) {
+            telemetry.addData("status", "complete");
+            robot.lift.setPower(0);
+        }
+    }
+
+    private void lift_barriers(){
+        robot.lift.setTargetPosition((400));
+        robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        robot.lift.setPower((1));
+        if((!robot.lift.isBusy())) {
+            telemetry.addData("status", "complete");
+            robot.lift.setPower(0);
+        }
+    }
+    private void turret_back(){
+        robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.turret.setTargetPosition((robot.turret.getCurrentPosition() + 60));
+        robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        if (robot.turret.getCurrentPosition() < robot.turret.getTargetPosition()){
+            robot.turret.setPower(0.6);
+        }
+        if (robot.turret.getCurrentPosition() > robot.turret.getTargetPosition()){
+            robot.turret.setPower(-0.6);
+        }
+        while (!robot.cLimit.getState()) {
+            robot.turret.setPower(0.25);
+        }
+        if(runtime.seconds() > 1 || !robot.turret.isBusy()) {
+            robot.turret.setPower(0);
+        }
+
+    }
+    private void turret_backmore(){
+        robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.turret.setTargetPosition((robot.turret.getCurrentPosition() + 330));
+        robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        if (robot.turret.getCurrentPosition() < robot.turret.getTargetPosition()){
+            robot.turret.setPower(0.6);
+        }
+        if (robot.turret.getCurrentPosition() > robot.turret.getTargetPosition()){
+            robot.turret.setPower(-0.6);
+        }
+        while (!robot.cLimit.getState()) {
+            robot.turret.setPower(0.25);
+        }
+        if(runtime.seconds() > 1 || !robot.turret.isBusy()) {
+            robot.turret.setPower(0);
+        }
+
+    }
+
+    //DO NOT TOUCH THIS METHOD UNDER ANY CIRCUMSTANCE!!! DO NOT DO IT!!!! [unless it breaks ;)] BUT IT SHOULD NOT!!!!
+    private void turret_turn90(){
+        robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.turret.setTargetPosition((robot.turret.getCurrentPosition() - 330));
+        robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        if (robot.turret.getCurrentPosition() > robot.turret.getTargetPosition()){
+            robot.turret.setPower(-0.6);
+        }
+
+        if (robot.turret.getCurrentPosition() < robot.turret.getTargetPosition()){
+            robot.turret.setPower(0.6);
+        }
+        if(runtime.seconds() > 1.5 || !robot.turret.isBusy()) {
+            telemetry.addData("Turret Stat : ", "complete");
+            robot.turret.setPower(0);
+            telemetry.update();
+        }
+    }
+
+    private void lift_raiseforbarriers(){
+        sleep(50);
+        int target = (robot.lift.getCurrentPosition() + 400);
+        robot.lift.setTargetPosition((target));
+        robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        robot.lift.setPower((0.45));
+        if((runtime.seconds() > 2) || (!robot.lift.isBusy())) {
+            telemetry.addData("status", "complete");
+            robot.lift.setPower(0);
+        }
+    }
+
+
 
 }
