@@ -64,16 +64,13 @@ public class AutonomousCode extends LinearOpMode {
         turret_turn45();
         extension_outfull();
         robot.collector.setPower(1);
-        sleep(600);
+        sleep(500);
         robot.collector.setPower(0);
         turret_back();
         robot.turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        sleep(800);
         extension_in();
-        sleep(800);
-        lift_down();
         LAD();
-        sleep(50);
+        lift_down();
 
 // 1
 
@@ -95,7 +92,7 @@ public class AutonomousCode extends LinearOpMode {
         drive.followTrajectory(builder2);
 
         Trajectory builder2a = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .back(1)
+                .back(2)
                 .build();
 
 
@@ -161,14 +158,14 @@ public class AutonomousCode extends LinearOpMode {
          */
 
         Trajectory builder3b = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .back(27)
+                .back(26)
                 .build();
 
         drive.followTrajectory(builder3b);
 
 
         turn_right(0.4,400);
-        move_backwards(-0.1, 1500);
+        move_backwards(-0.6, 300);
         lift_top();
 
 
@@ -178,17 +175,13 @@ public class AutonomousCode extends LinearOpMode {
 
         drive.followTrajectory(builder4a);
 
-
-        // everything after here is brokey
         turret_turn90();
-        // everything after here works-ish
+        sleep(500);
         robot.collector.setPower(1);
-        sleep(1000);
+        sleep(500);
         robot.collector.setPower(0);
         turret_backmore();
-        sleep(1000);
         lift_barriers();
-        sleep(1000);
 
 
 
@@ -309,13 +302,7 @@ public class AutonomousCode extends LinearOpMode {
     private void extension_outfull(){
         robot.linearActuator.setPosition((0.39682527));
         robot.extention.setPower(-0.75);
-        sleep(2250);
-        robot.extention.setPower(0);
-    }
-    private void extension_outpartial(){
-        robot.linearActuator.setPosition((0.39682527));
-        robot.extention.setPower(-0.75);
-        sleep(1000);
+        sleep(2100);
         robot.extention.setPower(0);
     }
     private void extension_in(){
@@ -399,7 +386,7 @@ public class AutonomousCode extends LinearOpMode {
     //DO NOT TOUCH THIS METHOD UNDER ANY CIRCUMSTANCE!!! DO NOT DO IT!!!! [unless it breaks ;)] BUT IT SHOULD NOT!!!!
     private void turret_turn90(){
         robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.turret.setTargetPosition((robot.turret.getCurrentPosition() - 330));
+        robot.turret.setTargetPosition((robot.turret.getCurrentPosition() - 300));
         robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         runtime.reset();
         if (robot.turret.getCurrentPosition() > robot.turret.getTargetPosition()){
@@ -413,19 +400,6 @@ public class AutonomousCode extends LinearOpMode {
             telemetry.addData("Turret Stat : ", "complete");
             robot.turret.setPower(0);
             telemetry.update();
-        }
-    }
-
-    private void lift_raiseforbarriers(){
-        sleep(50);
-        int target = (robot.lift.getCurrentPosition() + 400);
-        robot.lift.setTargetPosition((target));
-        robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        runtime.reset();
-        robot.lift.setPower((0.45));
-        if((runtime.seconds() > 2) || (!robot.lift.isBusy())) {
-            telemetry.addData("status", "complete");
-            robot.lift.setPower(0);
         }
     }
 
