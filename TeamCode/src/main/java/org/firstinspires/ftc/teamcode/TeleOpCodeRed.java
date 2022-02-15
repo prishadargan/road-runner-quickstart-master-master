@@ -2,24 +2,18 @@ package org.firstinspires.ftc.teamcode;
 
 /*
 Copyright (c) 2016 Robert Atkinson
-
 All rights reserved.
-
 Redistribution and use in source and binary forms, with or without modification,
 are permitted (subject to the limitations in the disclaimer below) provided that
 the following conditions are met:
-
 Redistributions of source code must retain the above copyright notice, this list
 of conditions and the following disclaimer.
-
 Redistributions in binary form must reproduce the above copyright notice, this
 list of conditions and the following disclaimer in the documentation and/or
 other materials provided with the distribution.
-
 Neither the name of Robert Atkinson nor the names of his contributors may be used to
 endorse or promote products derived from this software without specific prior
 written permission.
-
 NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
 LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
@@ -94,7 +88,6 @@ public class TeleOpCodeRed extends LinearOpMode {
             telemetry.addData("left_stick_x", leftStickX);
             telemetry.addData("left_stick_y", leftStickY);
             telemetry.update();
-
              */
 
 
@@ -111,7 +104,7 @@ public class TeleOpCodeRed extends LinearOpMode {
                     new Pose2d(
                             gamepad1.left_stick_y,
                             gamepad1.left_stick_x,
-                            -gamepad1.right_stick_x
+                            gamepad1.right_stick_x
                     )
             );
 
@@ -132,19 +125,15 @@ public class TeleOpCodeRed extends LinearOpMode {
             } else {
                 rightStickX = 0;
             }
-
-
             if ((Math.abs(gamepad1.left_stick_y) > threshold) || (Math.abs(gamepad1.left_stick_x) > threshold) || Math.abs(gamepad1.right_stick_x) > threshold) {
                 //Calculate formula for mecanum drive function
                 double addValue = (double) (Math.round((50 * (leftStickY * Math.abs(leftStickY) + leftStickX * Math.abs(leftStickX))))) / 50;
                 double subtractValue = (double) (Math.round((50 * (leftStickY * Math.abs(leftStickY) - leftStickX * Math.abs(leftStickX))))) / 50;
-
                 //Set motor speed variables
                 robot.setMotorPowers(addValue + rightStickX, subtractValue - rightStickX, subtractValue + rightStickX, addValue - rightStickX);
             } else {
                 robot.stop();
             }
-
              */
 
 
@@ -184,17 +173,17 @@ public class TeleOpCodeRed extends LinearOpMode {
 
 
             // main turret
-            if (gamepad2.right_bumper) {
+            if (gamepad2.left_bumper) {
                 robot.state = Robot.states.TURRET_LEFT;
                 telemetry.update();
             }
 
-            if (gamepad2.left_bumper) {
+            if (gamepad2.right_bumper) {
                 robot.state = Robot.states.TURRET_RIGHT;
                 telemetry.update();
             }
 
-            if (gamepad2.right_trigger > 0.2) {
+            if (gamepad2.left_trigger > 0.2) {
                 robot.state = Robot.states.TURRET_MID;
             }
 
@@ -240,11 +229,9 @@ public class TeleOpCodeRed extends LinearOpMode {
             if (robot.cLimit.getState()) {
                 robot.state = Robot.states.STOPPED_T;
             }
-
             if (robot.expanLimit.getState()) {
                 robot.state = Robot.states.STOPPED_T;
             }
-
              */
 
 
@@ -295,7 +282,7 @@ public class TeleOpCodeRed extends LinearOpMode {
                 }
             }
 
-            if (gamepad2.left_trigger > 0.2) {
+            if (gamepad2.right_trigger > 0.2) {
                 robot.linearActuator.setPosition((0.79682527));
                 robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.extention.setTargetPosition((0));
@@ -328,4 +315,3 @@ public class TeleOpCodeRed extends LinearOpMode {
 
     }
 }
-
