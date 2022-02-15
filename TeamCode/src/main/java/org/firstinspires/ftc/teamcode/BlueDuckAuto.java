@@ -14,7 +14,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import static java.lang.Thread.sleep;
 
 @Autonomous(name="Blue Ducks Auto", group="SummerCamp")
-public class AutonomousCode extends LinearOpMode {
+public class BlueDuckAuto extends LinearOpMode {
     Robot robot;
     public double team_element_x;
     public double team_element_y;
