@@ -54,13 +54,12 @@ public class PixyTest extends LinearOpMode {
 
          */
 
-
-        while (true) {
+        while (opModeIsActive()) {
             robot.pixyCam.engage();
-            team_element_x = 0xff & robot.pixyCam.read(0x51, 5)[1];
-            team_element_y = 0xff & robot.pixyCam.read(0x51, 5)[2];
-            duck_x = 0xff & robot.pixyCam.read(0x52, 5)[1];
-            duck_y = 0xff & robot.pixyCam.read(0x52, 5)[2];
+            team_element_x = 0xff & robot.pixyCam.read(0x52, 5)[1];
+            team_element_y = 0xff & robot.pixyCam.read(0x52, 5)[2];
+            duck_x = 0xff & robot.pixyCam.read(0x51, 5)[1];
+            duck_y = 0xff & robot.pixyCam.read(0x51, 5)[2];
             telemetry.addLine();
             telemetry.addData("Pixy Health :", robot.pixyCam.getHealthStatus());
             telemetry.addLine();
@@ -72,7 +71,9 @@ public class PixyTest extends LinearOpMode {
             telemetry.addLine();
             telemetry.addData("Duck Y ", duck_y);
             telemetry.update();
+
         }
+
 
 
 
