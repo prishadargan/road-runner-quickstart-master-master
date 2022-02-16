@@ -57,7 +57,7 @@ public class BlueDuckAuto extends LinearOpMode {
         }
         sleep(500000);
 
-         
+
 
         lift_top();
         turret_turn45();
