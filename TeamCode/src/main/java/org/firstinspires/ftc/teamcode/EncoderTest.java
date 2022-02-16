@@ -13,7 +13,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 
 import static java.lang.Thread.sleep;
 
-@Autonomous(name="Encoder Test - Turret", group="SummerCamp")
+@Autonomous(name="Encoder Test", group="SummerCamp")
 public class EncoderTest extends LinearOpMode {
     Robot robot;
     private ElapsedTime runtime = new ElapsedTime();
@@ -25,8 +25,9 @@ public class EncoderTest extends LinearOpMode {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         while (opModeIsActive()) {
-            telemetry.addData("Current Value", robot.turret.getCurrentPosition());
+            telemetry.addData("Current Value", robot.lift.getCurrentPosition());
             telemetry.update();
+
         }
     }
 }

@@ -107,7 +107,7 @@ public class TeleOpCodeRed extends LinearOpMode {
                             -gamepad1.right_stick_x
                     )
             );
-            
+
             if (gamepad1.right_trigger > 0.2) {
                 drive.setWeightedDrivePower(new Pose2d(
                                 (-gamepad1.left_stick_y),

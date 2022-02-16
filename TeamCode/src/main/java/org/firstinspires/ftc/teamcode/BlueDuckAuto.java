@@ -29,9 +29,32 @@ public class BlueDuckAuto extends LinearOpMode {
         robot = new Robot(hardwareMap, telemetry, this);
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        telemetry.addLine("Robot is ready.");
-        telemetry.update();
-        waitForStart();
+        while(!opModeIsActive()) {
+            telemetry.addLine("Robot is ready.");
+            telemetry.update();
+            robot.pixyCam.engage();
+            team_element_x = 0xff & robot.pixyCam.read(0x52, 5)[1];
+            team_element_y = 0xff & robot.pixyCam.read(0x52, 5)[2];
+            duck_x = 0xff & robot.pixyCam.read(0x51, 5)[1];
+            duck_y = 0xff & robot.pixyCam.read(0x51, 5)[2];
+            telemetry.addLine();
+            telemetry.addData("Pixy Health :", robot.pixyCam.getHealthStatus());
+            telemetry.addLine();
+            telemetry.addData("Pixy Connection : ", robot.pixyCam.getConnectionInfo());
+            telemetry.update();
+            // pixy
+                if (team_element_x != 0 && team_element_x < 130) {
+                    liftHeight = "low";
+                } else if (team_element_x > 160) {
+                    if (team_element_x < 195) {
+                        liftHeight = "mid";
+                    }
+                } else {
+                    liftHeight = "top";
+                }
+                telemetry.addLine(liftHeight);
+
+        }
         robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -42,24 +65,9 @@ public class BlueDuckAuto extends LinearOpMode {
         //robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         drive.setPoseEstimate(new Pose2d(-32.0, 65.0, Math.toRadians(-90.0)));
 
+        if (liftHeight == "top"){ lift_top(); } else if (liftHeight == "mid"){ lift_mid(); } else{ lift_barriers(); }
 
-        while (opModeIsActive()) {
-            robot.pixyCam.engage();
-            team_element_x = 0xff & robot.pixyCam.read(0x51, 5)[1];
-            team_element_y = 0xff & robot.pixyCam.read(0x51, 5)[2];
-            duck_x = 0xff & robot.pixyCam.read(0x52, 5)[1];
-            duck_y = 0xff & robot.pixyCam.read(0x52, 5)[2];
-            telemetry.addLine();
-            telemetry.addData("Pixy Health :", robot.pixyCam.getHealthStatus());
-            telemetry.addLine();
-            telemetry.addData("Pixy Connection : ", robot.pixyCam.getConnectionInfo());
-            telemetry.update();
-        }
-        sleep(500000);
-
-
-
-        lift_top();
+        sleep(100);
         turret_turn45();
         sleep(10);
         extension_outfull();
@@ -248,6 +256,7 @@ public class BlueDuckAuto extends LinearOpMode {
     }
     private void lift_up(){
         sleep(10);
+        robot.linearActuator.setPosition((0.39682527));
         int target = (robot.lift.getCurrentPosition() + 10);
         robot.lift.setTargetPosition(target);
         robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
@@ -278,8 +287,25 @@ public class BlueDuckAuto extends LinearOpMode {
             robot.lift.setPower(0);
         }
     }
+    private void lift_mid(){
+        sleep(10);
+        robot.linearActuator.setPosition((0.39682527));
+        robot.lift.setTargetPosition((775));
+        robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        robot.lift.setPower((0.75));
+        while ((robot.lift.isBusy())){
+            telemetry.addData("Target Position", robot.lift.getTargetPosition());
+            telemetry.addData("Current Position", robot.lift.getCurrentPosition());
+        }
+        if((runtime.seconds() > 5) || (!robot.lift.isBusy())) {
+            telemetry.addData("status", "complete");
+            robot.lift.setPower(0);
+        }
+    }
     private void lift_middle(){
         sleep(10);
+        robot.linearActuator.setPosition((0.39682527));
         robot.lift.setTargetPosition((1420));
         robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         runtime.reset();

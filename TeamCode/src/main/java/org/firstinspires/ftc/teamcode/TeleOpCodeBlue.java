@@ -86,21 +86,8 @@ public class TeleOpCodeBlue extends LinearOpMode {
             telemetry.addLine("Running...");
             telemetry.addData("Turret Current - C", robot.turret.getCurrentPosition());
 
-
             leftStickX = gamepad1.left_stick_x * -1;
             leftStickY = gamepad1.left_stick_y * -1;
-
-
-            /*
-            add back
-            telemetry.addData("left_stick_x", leftStickX);
-            telemetry.addData("left_stick_y", leftStickY);
-            telemetry.update();
-
-             */
-
-
-
 
             /*
                 D1 - Driver 1
@@ -108,10 +95,6 @@ public class TeleOpCodeBlue extends LinearOpMode {
 
 
             // drive-train
-
-
-
-
 
                 drive.setWeightedDrivePower(
                         new Pose2d(
@@ -129,31 +112,6 @@ public class TeleOpCodeBlue extends LinearOpMode {
                 telemetry.addData("heading", poseEstimate.getHeading());
                 telemetry.update();
 
-            /*
-            if (Math.abs(gamepad1.right_stick_x) > threshold) {
-                if (gamepad1.right_stick_x < 0) {
-                    rightStickX = -gamepad1.right_stick_x * gamepad1.right_stick_x * -1 * (4.0 / 5.0) - (1.0 / 5.0);
-                } else {
-                    rightStickX = -gamepad1.right_stick_x * gamepad1.right_stick_x * 1 * (4.0 / 5.0) + (1.0 / 5.0);
-                }
-            } else {
-                rightStickX = 0;
-            }
-
-
-            if ((Math.abs(gamepad1.left_stick_y) > threshold) || (Math.abs(gamepad1.left_stick_x) > threshold) || Math.abs(gamepad1.right_stick_x) > threshold) {
-                //Calculate formula for mecanum drive function
-                double addValue = (double) (Math.round((50 * (leftStickY * Math.abs(leftStickY) + leftStickX * Math.abs(leftStickX))))) / 50;
-                double subtractValue = (double) (Math.round((50 * (leftStickY * Math.abs(leftStickY) - leftStickX * Math.abs(leftStickX))))) / 50;
-
-                //Set motor speed variables
-                robot.setMotorPowers(addValue + rightStickX, subtractValue + rightStickX, subtractValue + rightStickX, addValue - rightStickX);
-            } else {
-                robot.stop();
-            }
-
-             */
-
 
             // collector
             if (gamepad1.left_bumper) {
@@ -165,18 +123,20 @@ public class TeleOpCodeBlue extends LinearOpMode {
             if (gamepad1.right_bumper && gamepad1.left_bumper) {
                 robot.Collector(0);
             }
+            if (gamepad1.right_trigger > 0.2 && gamepad1.left_trigger > 0.2) {
+                robot.Collector(-0.5);
+            }
 
 
             // swod
-
             if (gamepad1.x) {
                 telemetry.addData("SWOD : ", "On");
                 telemetry.update();
-                double power = 0.35;
-                for (int i = 1; i < 3; i++){
-                    robot.SWOD(power);
-                    power += 0.1;
-                }
+                robot.SWOD(0.15);
+                sleep(650);
+                robot.SWOD(0.35);
+                sleep(250);
+                robot.SWOD(0.85);
             }
 
             if (gamepad1.y) {
