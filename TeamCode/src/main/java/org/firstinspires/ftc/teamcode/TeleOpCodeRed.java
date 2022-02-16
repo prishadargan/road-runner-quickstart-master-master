@@ -102,9 +102,9 @@ public class TeleOpCodeRed extends LinearOpMode {
 
             drive.setWeightedDrivePower(
                     new Pose2d(
-                            gamepad1.left_stick_y,
-                            gamepad1.left_stick_x,
-                            gamepad1.right_stick_x
+                            -gamepad1.left_stick_y,
+                            -gamepad1.left_stick_x,
+                            -gamepad1.right_stick_x
                     )
             );
 
@@ -154,11 +154,11 @@ public class TeleOpCodeRed extends LinearOpMode {
             if (gamepad1.x) {
                 telemetry.addData("SWOD : ", "On");
                 telemetry.update();
-                robot.SWOD(0.15);
-                sleep(650);
-                robot.SWOD(0.35);
-                sleep(250);
-                robot.SWOD(0.85);
+                double power = 0.35;
+                for (int i = 1; i < 3; i++){
+                    robot.SWOD(-power);
+                    power += 0.1;
+                }
             }
 
             if (gamepad1.y) {
@@ -173,12 +173,12 @@ public class TeleOpCodeRed extends LinearOpMode {
 
 
             // main turret
-            if (gamepad2.left_bumper) {
+            if (gamepad2.right_bumper) {
                 robot.state = Robot.states.TURRET_LEFT;
                 telemetry.update();
             }
 
-            if (gamepad2.right_bumper) {
+            if (gamepad2.left_bumper) {
                 robot.state = Robot.states.TURRET_RIGHT;
                 telemetry.update();
             }
@@ -195,7 +195,7 @@ public class TeleOpCodeRed extends LinearOpMode {
             if (gamepad2.dpad_left) {
                 robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 int ttarget;
-                ttarget = ((robot.turret.getCurrentPosition()) - (int) (35));
+                ttarget = ((robot.turret.getCurrentPosition()) - (int) (65));
                 robot.turret.setTargetPosition((ttarget));
                 robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                 runtime.reset();
@@ -211,7 +211,7 @@ public class TeleOpCodeRed extends LinearOpMode {
             if (gamepad2.dpad_right) {
                 robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 int ttarget;
-                ttarget = ((robot.turret.getCurrentPosition()) + (int) (35));
+                ttarget = ((robot.turret.getCurrentPosition()) + (int) (65));
                 robot.turret.setTargetPosition((ttarget));
                 robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                 runtime.reset();
