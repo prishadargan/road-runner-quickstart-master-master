@@ -297,17 +297,9 @@ public class TeleOpCodeRed extends LinearOpMode {
                 robot.extention.setTargetPosition((0));
                 robot.extention.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                 robot.extention.setPower(-0.8);
-                if ((runtime.seconds() > 4) || (!robot.extention.isBusy())) {
+                if ((runtime.seconds() > 4)) {
                     robot.extention.setPower(0);
                 }
-                if (!robot.frontLimit.getState()) {
-
-                    robot.extention.setPower(-0.25);
-                } else {
-                    robot.extention.setPower(0);
-                }
-
-
             }
 
             if (gamepad2.dpad_down) {

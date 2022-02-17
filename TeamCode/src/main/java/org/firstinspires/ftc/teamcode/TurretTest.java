@@ -13,8 +13,10 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 
 import static java.lang.Thread.sleep;
 
-@Autonomous(name="Blue Ducks Auto", group="SummerCamp")
-public class BlueDuckAuto extends LinearOpMode {
+import java.util.ServiceLoader;
+
+@Autonomous(name="Test", group="SummerCamp")
+public class TurretTest extends LinearOpMode {
     Robot robot;
     public double team_element_x;
     public double team_element_y;
@@ -43,21 +45,22 @@ public class BlueDuckAuto extends LinearOpMode {
             telemetry.addData("Pixy Connection : ", robot.pixyCam.getConnectionInfo());
             telemetry.update();
             // pixy
-                if (team_element_x != 0 && team_element_x < 130) {
-                    liftHeight = "low";
-                } else if (team_element_x > 160) {
-                    if (team_element_x < 195) {
-                        liftHeight = "mid";
-                    }
-                } else {
-                    liftHeight = "top";
+            if (team_element_x != 0 && team_element_x < 130) {
+                liftHeight = "low";
+            } else if (team_element_x > 160) {
+                if (team_element_x < 195) {
+                    liftHeight = "mid";
                 }
-                telemetry.addLine(liftHeight);
+            } else {
+                liftHeight = "top";
+            }
+            telemetry.addLine(liftHeight);
 
         }
         robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.extention.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.extention.setPower(.1);
         sleep(50);
@@ -65,180 +68,25 @@ public class BlueDuckAuto extends LinearOpMode {
         //robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         drive.setPoseEstimate(new Pose2d(-32.0, 65.0, Math.toRadians(-90.0)));
 
-        if (liftHeight == "top"){ lift_top(); }
-        else if (liftHeight == "mid"){ lift_mid(); }
-        else if (liftHeight == "low"){ lift_barriers(); }
-
-
-        sleep(100);
+        lift_top();
+        sleep(1000);
         turret_turn45();
-        sleep(10);
+        sleep(1000);
         extension_outfull();
         robot.collector.setPower(1);
-        sleep(200);
+        sleep(1000);
         robot.collector.setPower(0);
+        sleep(1000);
         extension_in();
-        sleep(25);
+        sleep(1000);
         turret_back();
-        robot.turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        sleep(1000);
         lift_bottom_level();
+        sleep(1000);
         LAD();
 
-        Trajectory builder1 = drive.trajectoryBuilder(new Pose2d())
-                .forward(7)
-                .build();
-        drive.followTrajectory(builder1);
-
-        Trajectory builder2 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .lineToLinearHeading(new Pose2d(-65.0, 57, Math.toRadians(-90)))
-                .build();
 
 
-        drive.followTrajectory(builder2);
-
-        robot.swod.setPower(0.15);
-
-        Trajectory builder2a = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .back(2.05)
-                .build();
-
-
-        drive.followTrajectory(builder2a);
-
-
-        robot.SWOD(0.13);
-        sleep(3500);
-        robot.SWOD(0);
-
-
-        Trajectory builder3 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .forward(17.02)
-                .build();
-
-        drive.followTrajectory(builder3);
-
-
-        lift_top();
-        sleep(100);
-        turret_teleop_pos();
-        sleep(100);
-        lift_barriers();
-        lift_bottom_level();
-
-
-        for (int i = 0; i < 25; i++) {
-            telemetry.addData("Variant   : ", i);
-            telemetry.addData("PIXY-D-X :", duck_x);
-            telemetry.addData("PIXY-D-Y : ", duck_y);
-            telemetry.addData("PIXY STAT : ", robot.pixyCam.getHealthStatus());
-            telemetry.addData("TE-STAT :", te_Stat);
-            telemetry.update();
-            robot.pixyCam.engage();
-            duck_x = 0xff & robot.pixyCam.read(0x51, 5)[1];
-            duck_y = 0xff & robot.pixyCam.read(0x51, 5)[2];
-            for (int v = 0; v < 5; v++){
-                if (duck_x == 0) {
-                    move_forward(0.2, 100);
-                }
-                if (duck_x != 0){
-                    v = 5;
-                }
-            }
-            if (duck_x < 110 && duck_x != 0) {
-                turn_right(0.15,100);
-                robot.stop();
-            }
-            if (duck_x > 140 && duck_x != 0 ){
-                turn_left(0.15,100);
-                robot.stop();
-            }
-            if (duck_x < 135 && duck_x > 110) {
-                if (te_Stat == "Not-Collected"){
-                    robot.collector.setPower(-1);
-                    extension_outfull();
-                    telemetry.addLine("Extension Out");
-                    telemetry.update();
-                    sleep(250);
-                    extension_in();
-                    telemetry.addLine("Extension In");
-                    telemetry.update();
-                    sleep(1000);
-                    te_Stat = "Collected";
-                    telemetry.addData("TE-STAT :", te_Stat);
-                } else {
-                    telemetry.addData("TE-STAT :", te_Stat);
-                }
-                telemetry.update();
-            }
-
-            sleep(50);
-
-            if (te_Stat == "Collected"){
-                sleep(350);
-                extension_in();
-                i = 25;
-            }
-        }
-        sleep(1);
-        extension_in();
-        sleep(10);
-
-
-
-        Trajectory builder3b = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .forward(31)
-                .build();
-
-        drive.followTrajectory(builder3b);
-
-
-        turn_right(0.710,290);
-        move_backwards(-0.35, 650);
-        lift_top();
-
-
-        Trajectory builder4a = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .forward(43)
-                .build();
-
-        drive.followTrajectory(builder4a);
-
-        turret_turn90();
-        sleep(450);
-        robot.collector.setPower(1);
-        sleep(450);
-        robot.collector.setPower(0);
-        turret_teleop_pos();
-        sleep(10);
-        lift_barriers();
-        sleep(10);
-
-
-
-
-        Trajectory builder4b = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .forward(25)
-                .build();
-
-        drive.followTrajectory(builder4b);
-
-        move_forward(-0.1,500);
-
-
-        Trajectory builder5 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .strafeLeft(31)
-                .build();
-
-        drive.followTrajectory(builder5);
-
-        Trajectory builder6 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .forward(50)
-                .build();
-
-        drive.followTrajectory(builder6);
-
-        lift_down();
-        sleep(1);
 
     }
 
@@ -358,23 +206,14 @@ public class BlueDuckAuto extends LinearOpMode {
         robot.extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         sleep(1);
         robot.extention.setPower(-0.97);
-        sleep(554);
+        sleep(555);
         robot.extention.setPower(0);
 
     }
     private void extension_in(){
         robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.extention.setTargetPosition((0));
-        robot.extention.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        robot.extention.setPower(1);
-        if ((runtime.seconds() > 1.75) || (!robot.extention.isBusy())) {
-            robot.extention.setPower(0);
-        }
-        if (!robot.frontLimit.getState()) {
-            robot.extention.setPower(0.65);
-        } else {
-            robot.extention.setPower(0);
-        }
+        robot.extention.setTargetPosition(0);
+        robot.extention.setPower(0.7);
     }
     private void LAD(){ robot.linearActuator.setPosition((0.79682527)); }
     private void LAU(){ robot.linearActuator.setPosition((0.39682527)); }
@@ -445,15 +284,21 @@ public class BlueDuckAuto extends LinearOpMode {
     }
 
     private void turret_teleop_pos(){
+        LAD();
         robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.turret.setTargetPosition(-700);
+        robot.turret.setTargetPosition(-720);
         robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        robot.turret.setPower(-0.7);
         runtime.reset();
         if(runtime.seconds() > 1.5 || !robot.turret.isBusy()) {
             telemetry.addData("Turret Stat : ", "complete");
             robot.turret.setPower(0);
             telemetry.update();
+            robot.extention.setPower(0.4);
+            sleep(100);
+            robot.extention.setPower(0);
         }
+
     }
 
     //DO NOT TOUCH THIS METHOD UNDER ANY CIRCUMSTANCE!!! DO NOT DO IT!!!! [unless it breaks ;)] BUT IT SHOULD NOT!!!!
