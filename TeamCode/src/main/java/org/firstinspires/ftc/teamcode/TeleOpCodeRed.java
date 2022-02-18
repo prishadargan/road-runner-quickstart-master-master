@@ -50,10 +50,11 @@ public class TeleOpCodeRed extends LinearOpMode {
 
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(hardwareMap, telemetry, this);
+        StickyButton sb = new StickyButton();
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         telemetry.addLine("Waiting for start");
         telemetry.update();
-        robot.extention.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //robot.extention.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         waitForStart();
 
@@ -82,17 +83,6 @@ public class TeleOpCodeRed extends LinearOpMode {
             leftStickX = gamepad1.left_stick_x * -1;
             leftStickY = gamepad1.left_stick_y * -1;
 
-
-            /*
-            add back
-            telemetry.addData("left_stick_x", leftStickX);
-            telemetry.addData("left_stick_y", leftStickY);
-            telemetry.update();
-             */
-
-
-
-
             /*
                 D1 - Driver 1
              */
@@ -108,14 +98,7 @@ public class TeleOpCodeRed extends LinearOpMode {
                     )
             );
 
-            if (gamepad1.right_trigger > 0.2) {
-                drive.setWeightedDrivePower(new Pose2d(
-                                (-gamepad1.left_stick_y),
-                                -gamepad1.left_stick_x,
-                                gamepad1.right_stick_x
-                        )
-                );
-            }
+
 
             drive.update();
 
@@ -125,25 +108,7 @@ public class TeleOpCodeRed extends LinearOpMode {
             telemetry.addData("heading", poseEstimate.getHeading());
             telemetry.update();
 
-            /* if (Math.abs(gamepad1.right_stick_x) > threshold) {
-                if (gamepad1.right_stick_x < 0) {
-                    rightStickX = -gamepad1.right_stick_x * gamepad1.right_stick_x * -1 * (4.0 / 5.0) - (1.0 / 5.0);
-                } else {
-                    rightStickX = -gamepad1.right_stick_x * gamepad1.right_stick_x * 1 * (4.0 / 5.0) + (1.0 / 5.0);
-                }
-            } else {
-                rightStickX = 0;
-            }
-            if ((Math.abs(gamepad1.left_stick_y) > threshold) || (Math.abs(gamepad1.left_stick_x) > threshold) || Math.abs(gamepad1.right_stick_x) > threshold) {
-                //Calculate formula for mecanum drive function
-                double addValue = (double) (Math.round((50 * (leftStickY * Math.abs(leftStickY) + leftStickX * Math.abs(leftStickX))))) / 50;
-                double subtractValue = (double) (Math.round((50 * (leftStickY * Math.abs(leftStickY) - leftStickX * Math.abs(leftStickX))))) / 50;
-                //Set motor speed variables
-                robot.setMotorPowers(addValue + rightStickX, subtractValue - rightStickX, subtractValue + rightStickX, addValue - rightStickX);
-            } else {
-                robot.stop();
-            }
-             */
+
 
 
             // collector
@@ -159,14 +124,13 @@ public class TeleOpCodeRed extends LinearOpMode {
 
 
             // swod
-
             if (gamepad1.x) {
                 telemetry.addData("SWOD : ", "On");
                 telemetry.update();
-                double power = 0.35;
+                double power = 0.20;
                 for (int i = 1; i < 3; i++){
                     robot.SWOD(-power);
-                    power += 0.1;
+                    power += 0.15;
                 }
             }
 
@@ -174,6 +138,25 @@ public class TeleOpCodeRed extends LinearOpMode {
                 robot.SWOD(0);
                 telemetry.addData("SWOD : ", "Off");
                 telemetry.update();
+            }
+
+
+            // capping
+            if (gamepad1.right_trigger > 0.2){
+                robot.CapDown();
+                telemetry.clearAll();
+                telemetry.addData("Cap ", " Down");
+                telemetry.update();
+                sleep(100);
+            }
+
+
+            if (gamepad1.left_trigger > 0.2) {
+                robot.CapUp();
+                telemetry.clearAll();
+                telemetry.addData("Cap ", " Down");
+                telemetry.update();
+                sleep(100);
             }
 
             /*
@@ -217,7 +200,8 @@ public class TeleOpCodeRed extends LinearOpMode {
                 robot.turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
 
-            if (gamepad2.dpad_right) {
+            sb.update(gamepad2.dpad_right);
+            if (sb.getState()) {
                 robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 int ttarget;
                 ttarget = ((robot.turret.getCurrentPosition()) + (int) (65));
@@ -233,6 +217,8 @@ public class TeleOpCodeRed extends LinearOpMode {
                 robot.turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
             }
+
+
 
             /*
             if (robot.cLimit.getState()) {
@@ -282,7 +268,6 @@ public class TeleOpCodeRed extends LinearOpMode {
                 robot.extention.setPower(-0.75);
                 sleep(50);
                 robot.extention.setPower(0);
-                robot.extention.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
             }
 
             if (gamepad2.left_stick_y < 0.2) {
@@ -307,6 +292,51 @@ public class TeleOpCodeRed extends LinearOpMode {
                 telemetry.addData("TLA", "Down");
             }
 
+            // Alliance Specific Hub
+
+            if (gamepad2.x){
+                robot.LAup();
+                telemetry.clearAll();
+                runtime.reset();
+                robot.lift.setPower(1);
+                sleep(1000);
+                robot.turret.setTargetPosition(285);
+                robot.turret.setPower(0.55);
+                robot.lift.setPower(0.05);
+                telemetry.addLine("Extension should move");
+                telemetry.update();
+                if (!robot.turret.isBusy()){
+                    robot.extention.setTargetPosition(-650);
+                    robot.extention.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                    robot.extention.setPower(-0.65);
+                    sleep(500);
+                }
+            }
+
+            if (gamepad2.y){
+                robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.extention.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                robot.lift.setPower(0);
+                robot.extention.setTargetPosition(0);
+                robot.extention.setPower(-1);
+                if (robot.extention.getCurrentPosition() < 20){
+                    robot.turret.setTargetPosition(685);
+                    robot.turret.setPower(0.55);
+
+                }
+                if (robot.turret.getCurrentPosition() > 665){
+                    robot.lift.setTargetPosition(0);
+                    robot.lift.setPower(-0.6);
+
+                }
+                if (!robot.extention.isBusy()){
+                    robot.extention.setPower(0);
+                }
+                if (!robot.turret.isBusy()){
+                    robot.turret.setPower(0);
+                }
+
+            }
             telemetry.update();
 
 

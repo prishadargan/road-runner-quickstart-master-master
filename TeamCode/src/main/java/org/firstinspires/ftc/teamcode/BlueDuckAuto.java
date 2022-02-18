@@ -21,7 +21,7 @@ public class BlueDuckAuto extends LinearOpMode {
     public double duck_x;
     public double duck_y;
     public String te_Stat = "Not-Collected";
-    public String liftHeight;
+    public String liftHeight = "top";
     private ElapsedTime runtime = new ElapsedTime();
     @Override
     public void runOpMode() throws InterruptedException {
@@ -364,17 +364,8 @@ public class BlueDuckAuto extends LinearOpMode {
     }
     private void extension_in(){
         robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.extention.setTargetPosition((0));
-        robot.extention.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        robot.extention.setPower(1);
-        if ((runtime.seconds() > 1.75) || (!robot.extention.isBusy())) {
-            robot.extention.setPower(0);
-        }
-        if (!robot.frontLimit.getState()) {
-            robot.extention.setPower(0.65);
-        } else {
-            robot.extention.setPower(0);
-        }
+        robot.extention.setTargetPosition(0);
+        robot.extention.setPower(0.7);
     }
     private void LAD(){ robot.linearActuator.setPosition((0.79682527)); }
     private void LAU(){ robot.linearActuator.setPosition((0.39682527)); }

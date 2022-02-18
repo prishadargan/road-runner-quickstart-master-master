@@ -32,6 +32,7 @@ public class Robot
     public DigitalChannel frontLimit;
     public CRServo swod;
     public Servo linearActuator;
+    public Servo cServo;
     public Object drive;
 
     public enum states {
@@ -65,6 +66,7 @@ public class Robot
         expanLimit = hwMap.digitalChannel.get("E-Limit");
         cLimit = hwMap.digitalChannel.get("C-Limit");
         frontLimit = hwMap.digitalChannel.get("F-Limit");
+        cServo = hwMap.servo.get("YesCap");
         swod = hwMap.crservo.get("SWOD");
         pixyCam = hwMap.i2cDeviceSynch.get("Pixy-Cam");
         linearActuator = hwMap.servo.get("TLA");
@@ -197,7 +199,7 @@ public class Robot
                 break;
             case TURRET_LEFT:
                 turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                turret.setTargetPosition((660));
+                turret.setTargetPosition((680));
                 turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                 runtime.reset();
                 turret.setPower(0.3);
@@ -292,9 +294,7 @@ public class Robot
 
 
 
-    public states getState() {
-        return state;
-    }
+    public states getState() { return state;}
 
     private void setMotorModes(DcMotor.RunMode mode) {
         if(mode != currentDrivetrainMode) {
@@ -315,12 +315,33 @@ public class Robot
 
     public void stop() {
         setMotorPowers(0,0,0,0);
+    }
 
+    public void lift_top(){
+        lift.setTargetPosition((1780));
+        lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        lift.setPower((1));
+        while ((lift.isBusy())){
+            telemetry.addData("Target Position", lift.getTargetPosition());
+            telemetry.addData("Current Position", lift.getCurrentPosition());
+        }
+        if((runtime.seconds() > 5) || (!lift.isBusy())) {
+            telemetry.addData("status", "complete");
+            lift.setPower(0);
+        }
     }
 
     public void Collector (double power) { collector.setPower(power); }
 
     public void SWOD (double power) { swod.setPower(power);}
 
+    public void CapUp() {cServo.setPosition(0.9999999);}
+
+    public void CapDown() {cServo.setPosition(0.20618);}
+
+    public void LAdown() { linearActuator.setPosition((0.79682527)); }
+
+    public void LAup() { linearActuator.setPosition((0.39682527)); }
 
 }
