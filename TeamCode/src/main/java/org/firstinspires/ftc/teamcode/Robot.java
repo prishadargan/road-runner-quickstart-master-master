@@ -1,34 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-/* Copyright (c) 2017 FIRST. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -42,72 +13,291 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
-
-
-
+import static java.lang.Thread.sleep;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-public class Robot {
+public class Robot
+{
     public DcMotorEx frontLeft;
     public DcMotorEx frontRight;
     public DcMotorEx backLeft;
     public DcMotorEx backRight;
-    public DcMotor.RunMode currentDrivetrainMode;
-    public DcMotorEx DepositorT;
-    public DcMotorEx DepositorL;
+    public DcMotorEx turret;
+    public DcMotorEx lift;
+    public DcMotorEx extention;
     public DcMotor collector;
-    public Telemetry telemetry;
-    public OpMode opMode;
-    public DcMotor swod;
-    public CRServo DepositorS;
-    public Servo DepositorM;
-    public Servo ElderWand;
     public I2cDeviceSynch pixyCam;
-    public DigitalChannel limit;
+    public DigitalChannel expanLimit;
+    public DigitalChannel cLimit;
+    public DigitalChannel frontLimit;
+    public CRServo swod;
+    public Servo linearActuator;
+    public Servo cServo;
+    public Object drive;
+
+    public enum states {
+        LIFTING_UP, LIFTING_UP_ACTION, LIFTING_DOWN, STOPPED_L, LIFTING_DOWN_ACTION, LIFT_MIDO, LIFT_MO_ACT, E_OUT, E_OUT_ACTION, E_IN, E_IN_ACTON, STOPPED_E,  TURRET_LEFT, TURRET_LEFT_ACTION, TURRET_RIGHT, TURRET_RIGHT_ACTON, STOPPED_T, TURRET_MID, T_MID_ACTION, FINE_ADJ_L, FAL_ACT, FINE_ADJ_R, FAR_ACT, LIFT_FAU, LFAU_ACT, LIFT_FAD, LFAD_ACT
+    }
 
 
+    private ElapsedTime runtime = new ElapsedTime();
+    private DcMotor.RunMode currentDrivetrainMode;
+    public states state = states.STOPPED_L;
+    private Telemetry telemetry;
+    private OpMode opMode;
+    public int nt;
+    public int newLeftTarget;
+    public int ttarget;
+    public int attarget;
 
 
-    public Robot(HardwareMap hwMap, Telemetry telemetry, LinearOpMode opMode) {
+    public Robot(HardwareMap hwMap, Telemetry telemetry, LinearOpMode opMode){
         this.telemetry = telemetry;
         this.opMode = opMode;
-
 
         frontLeft = (DcMotorEx) hwMap.dcMotor.get("FL");
         frontRight = (DcMotorEx) hwMap.dcMotor.get("FR");
         backLeft = (DcMotorEx) hwMap.dcMotor.get("BL");
         backRight = (DcMotorEx) hwMap.dcMotor.get("BR");
-        swod = hwMap.dcMotor.get("SWOD");
-        collector = hwMap.dcMotor.get("collector");
-        DepositorT = (DcMotorEx) hwMap.dcMotor.get("Depositor-Turret");
-        DepositorL = (DcMotorEx) hwMap.dcMotor.get("Depositor-Lift");
-        DepositorS = hwMap.crservo.get("Depositor-S"); // depositing servo
-        DepositorM = hwMap.servo.get("DS");
-        ElderWand = hwMap.servo.get("Elder-Wand");
+        turret = (DcMotorEx) hwMap.dcMotor.get("Turret");
+        lift = (DcMotorEx) hwMap.dcMotor.get("Lift-Up");
+        extention = (DcMotorEx) hwMap.dcMotor.get("Lift-E");
+        collector = hwMap.dcMotor.get("Collector");
+        expanLimit = hwMap.digitalChannel.get("E-Limit");
+        cLimit = hwMap.digitalChannel.get("C-Limit");
+        frontLimit = hwMap.digitalChannel.get("F-Limit");
+        cServo = hwMap.servo.get("YesCap");
+        swod = hwMap.crservo.get("SWOD");
         pixyCam = hwMap.i2cDeviceSynch.get("Pixy-Cam");
-        limit = hwMap.digitalChannel.get("Limit-Switch");
+        linearActuator = hwMap.servo.get("TLA");
 
-
-
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-        backLeft.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        currentDrivetrainMode = DcMotor.RunMode.RUN_USING_ENCODER;
+        lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        turret.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        extention.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
         setMotorModes(currentDrivetrainMode);
-        setMotorModes(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         telemetry.addData("Robot", " Is Ready");
         telemetry.update();
     }
 
+    public void update() throws InterruptedException {
+        switch(state) {
+            case STOPPED_L:
+                lift.setPower(0);
+                break;
+            case STOPPED_E:
+                extention.setPower(0);
+                break;
+            case STOPPED_T:
+                turret.setPower(0);
+                break;
+            case LIFTING_DOWN:
+                sleep(50);
+                newLeftTarget = ((lift.getCurrentPosition()) + (int) (-823));
+                lift.setTargetPosition((0));
+                lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                lift.setPower(-0.25);
+                state = states.LIFTING_DOWN_ACTION;
+                break;
+            case LIFTING_DOWN_ACTION:
+                if((runtime.seconds() > 4) || (!lift.isBusy())) {
+                    state = states.STOPPED_L;
+                    telemetry.addData("status", "complete");
+                    telemetry.update();
+                }
+                break;
+            case LIFTING_UP:
+                sleep(50);
+                nt = ((lift.getCurrentPosition()) + (int) (825));
+                lift.setTargetPosition((1420));
+                lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                lift.setPower((1));
+                state = states.LIFTING_UP_ACTION;
+                break;
+            case LIFTING_UP_ACTION:
+                if((runtime.seconds() > 4) || (!lift.isBusy())) {
+                    telemetry.addData("status", "complete");
+                    state = states.STOPPED_L;
+                }
+                break;
+            case LIFT_MIDO:
+                sleep(50);
+                lift.setTargetPosition((400));
+                lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                lift.setPower((0.45));
+                state = states.LIFT_MO_ACT;
+                break;
+            case LIFT_MO_ACT:
+                if((runtime.seconds() > 2) || (!lift.isBusy())) {
+                    telemetry.addData("status", "complete");
+                    state = states.STOPPED_L;
+                }
+                break;
+            case LIFT_FAD:
+                sleep(50);
+                lift.setTargetPosition((lift.getCurrentPosition() - 75));
+                lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                lift.setPower((0.3));
+                state = states.LFAD_ACT;
+                break;
+            case LFAD_ACT:
+                if((runtime.seconds() > 1) || (!lift.isBusy())) {
+                    telemetry.addData("status", "complete");
+                    state = states.STOPPED_L;
+                }
+                break;
+            case LIFT_FAU:
+                sleep(50);
+                lift.setTargetPosition((lift.getCurrentPosition() + 75));
+                lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                lift.setPower((0.3));
+                state = states.LFAD_ACT;
+                break;
+            case LFAU_ACT:
+                if((runtime.seconds() > 1) || (!lift.isBusy())) {
+                    telemetry.addData("status", "complete");
+                    state = states.STOPPED_L;
+                    telemetry.update();
+                }
+                break;
+
+            case E_IN:
+                linearActuator.setPosition(0.7936507924);
+                extention.setPower(0.8);
+                sleep(750);
+                extention.setPower(0);
+                extention.setPower(0.15);
+                state = states.E_IN_ACTON;
+                 break;
+            case E_IN_ACTON:
+                if((runtime.seconds() > 2) || (!frontLimit.getState())) {
+                    state = states.STOPPED_E;
+                }
+                break;
+            case E_OUT:
+                extention.setPower(-0.8);
+                sleep(50);
+                extention.setPower(0);
+                state = states.E_OUT_ACTION;
+                break;
+            case E_OUT_ACTION:
+                state = states.STOPPED_E;
+                break;
+            case TURRET_LEFT:
+                turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                turret.setTargetPosition((680));
+                turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                turret.setPower(0.3);
+                state = states.TURRET_LEFT_ACTION;
+                break;
+            case TURRET_LEFT_ACTION:
+                telemetry.addData("Turret Left to +330", turret.getCurrentPosition());
+                if ((runtime.seconds() > 3) || !turret.isBusy()) {
+                    state = states.STOPPED_T;
+                    telemetry.addData("Status : ", "Complete");
+                }
+                telemetry.update();
+                break;
+            case TURRET_RIGHT:
+                turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                turret.setTargetPosition((0));
+                turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                turret.setPower(-0.25);
+                state = states.TURRET_RIGHT_ACTON;
+                break;
+            case TURRET_RIGHT_ACTON:
+                if(runtime.seconds() > 3 || !turret.isBusy()) {
+                    telemetry.addData("Turret Stat : ", "complete");
+                    state = states.STOPPED_T;
+                }
+                break;
+            case TURRET_MID:
+                turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                turret.setTargetPosition((330));
+                turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                if (turret.getCurrentPosition() > 330){
+                    turret.setPower(-0.25);
+                }
+
+                if (turret.getCurrentPosition() < 330){
+                    turret.setPower(0.25);
+                }
+                state = states.T_MID_ACTION;
+                break;
+            case T_MID_ACTION:
+                if(runtime.seconds() > 1.5 || !turret.isBusy()) {
+                    telemetry.addData("Turret Stat : ", "complete");
+                    state = states.STOPPED_T;
+                }
+                break;
+            case FINE_ADJ_L:
+                turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                turret.setTargetPosition((turret.getCurrentPosition() + 50));
+                turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                if (turret.getCurrentPosition() > turret.getTargetPosition()){
+                    turret.setPower(-0.2);
+                }
+
+                if (turret.getCurrentPosition() < turret.getTargetPosition()){
+                    turret.setPower(0.2);
+                }
+                state = states.FAL_ACT;
+                break;
+            case FAL_ACT:
+                if(runtime.seconds() > 1 || !turret.isBusy()) {
+                    telemetry.addData("Turret Stat : ", "complete");
+                    state = states.STOPPED_T;
+                }
+                break;
+            case FINE_ADJ_R:
+                turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                turret.setTargetPosition((turret.getCurrentPosition() - 50));
+                turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                if (turret.getCurrentPosition() > turret.getTargetPosition()){
+                    turret.setPower(-0.6);
+                }
+
+                if (turret.getCurrentPosition() < turret.getTargetPosition()){
+                    turret.setPower(0.6);
+                }
+                state = states.FAL_ACT;
+                break;
+            case FAR_ACT:
+                if(runtime.seconds() > 1 || !turret.isBusy()) {
+                    telemetry.addData("Turret Stat : ", "complete");
+                    state = states.STOPPED_T;
+                    telemetry.update();
+                }
+                break;
+        }
+
+    }
+
+
+
+    public states getState() { return state;}
+
     private void setMotorModes(DcMotor.RunMode mode) {
-        if (mode != currentDrivetrainMode) {
+        if(mode != currentDrivetrainMode) {
             frontLeft.setMode(currentDrivetrainMode);
             frontRight.setMode(currentDrivetrainMode);
             backLeft.setMode(currentDrivetrainMode);
@@ -115,46 +305,6 @@ public class Robot {
             currentDrivetrainMode = mode;
         }
     }
-
-    public void Encoders() {
-        currentDrivetrainMode = DcMotorEx.RunMode.RUN_USING_ENCODER;
-        setMotorModes(currentDrivetrainMode);
-        setMotorModes(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        DepositorL.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        DepositorL.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        DepositorT.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        DepositorT.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-
-    }
-
-    public void spinningWheelofDeath(double power) {
-
-        swod.setPower(-power);
-    }
-
-    public void Collector(double power) {
-
-        collector.setPower(power);
-    }
-
-
-
-    public void Dlift(double power) { DepositorL.setPower(power);}
-
-    public void Dturret(double power) {DepositorT.setPower(power);}
-
-    public void DServo(double position) {
-        DepositorS.setPower(position);
-    }
-
-    public void DStretch(double position) {
-        //DepositorM.setPosition(position);
-    }
-
-    public void ElderWand(double position) {
-        ElderWand.setPosition(position/2520);
-    }
-
 
     public void setMotorPowers(double frontLeftPower, double frontRightPower, double backLeftPower, double backRightPower) {
         frontLeft.setPower(frontLeftPower);
@@ -164,76 +314,34 @@ public class Robot {
     }
 
     public void stop() {
-        frontLeft.setPower(0);
-        frontRight.setPower(0);
-        backLeft.setPower(0);
-        backRight.setPower(0);
+        setMotorPowers(0,0,0,0);
     }
 
-    public void fineTuneTurret(double turretFineTuneSpeed) { DepositorT.setPower(turretFineTuneSpeed); }
-
-    public void extendDepositor(double extension) { DepositorM.setPosition(extension/2522);
-         }
-
-    public boolean getLimitState() {
-        return limit.getState();
+    public void lift_top(){
+        lift.setTargetPosition((1780));
+        lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        lift.setPower((1));
+        while ((lift.isBusy())){
+            telemetry.addData("Target Position", lift.getTargetPosition());
+            telemetry.addData("Current Position", lift.getCurrentPosition());
+        }
+        if((runtime.seconds() > 5) || (!lift.isBusy())) {
+            telemetry.addData("status", "complete");
+            lift.setPower(0);
+        }
     }
 
+    public void Collector (double power) { collector.setPower(power); }
 
-    public void encoderDrive(double speed, double leftInches, double rightInches, double timeoutS) {
-        int newLeftTarget;
-        int newRightTarget;
-        // Ensure that the opmode is still active
-        frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        // Determine new target position, and pass to motor controller
-        newLeftTarget = ((frontLeft.getCurrentPosition())  + (int)(leftInches));
-        newRightTarget = ((backRight.getCurrentPosition()) + (int)(rightInches));
-        frontLeft.setTargetPosition((newLeftTarget));
-        backLeft.setTargetPosition((newLeftTarget ));
-        frontRight.setTargetPosition(newRightTarget);
-        backRight.setTargetPosition(newRightTarget);
-        // Turn On RUN_TO_POSITION
-        frontLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        backRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        backLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        frontRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        // reset the timeout time and start motion.
-        frontRight.setPower(Math.abs(speed));
-        backRight.setPower(Math.abs(speed));
-        frontLeft.setPower((Math.abs(speed)));
-        backLeft.setPower((Math.abs(speed)));
+    public void SWOD (double power) { swod.setPower(power);}
 
-        // keep looping while we are still active, and there is time left, and both motors are running.
-        // Note: We use (isBusy() && isBusy()) in the loop test, which means that when EITHER motor hits
-        // its target position, the motion will stop.  This is "safer" in the event that the robot will
-        // always end the motion as soon as possible.
-        // However, if you require that BOTH motors have finished their moves before the robot continues
-        // onto the next step, use (isBusy() || isBusy()) in the loop test.
+    public void CapUp() {cServo.setPosition(0.9999999);}
 
+    public void CapDown() {cServo.setPosition(0.20618);}
 
-        // Display it for the driver.
-        telemetry.addData("Path1",  "Running to %7d :%7d", newLeftTarget,  newRightTarget);
-        telemetry.addData("front encoders",  "Running at Left:Right %7d :%7d",
-                frontLeft.getCurrentPosition(),
-                frontRight.getCurrentPosition());
-        telemetry.addData("back encoders",  "Running at Left:Right %7d :%7d",
-                backLeft.getCurrentPosition(),
-                backRight.getCurrentPosition());
-        telemetry.update();
+    public void LAdown() { linearActuator.setPosition((0.79682527)); }
 
-        // Stop all motion;
-        stop();
-
-        // Turn off RUN_TO_POSITION
-        frontLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        backLeft.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        frontRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        backRight.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-
-    }
-
+    public void LAup() { linearActuator.setPosition((0.39682527)); }
 
 }
