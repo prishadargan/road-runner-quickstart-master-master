@@ -70,20 +70,61 @@ public class Test extends LinearOpMode {
         robot.backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         robot.backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         robot.extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        robot.frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.frontLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        robot.frontRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        robot.backRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        robot.backLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
 
         //robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         drive.setPoseEstimate(new Pose2d(-32.0, 65.0, Math.toRadians(-90.0)));
 
 
-        sleep(1000);
-        EncoderTurn180R(0.45, 3);
-        sleep(1000);
+        turn_right(0.7, 300);
 
+
+
+    }
+
+    public void EncoderTurn90L(double speed,double timeoutS) {
+        ElapsedTime runtime = new ElapsedTime();
+        // Ensure that the opmode is still active
+        robot.frontLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        robot.frontRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        robot.backRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        robot.backLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        // Determine new target position, and pass to motor controller
+
+        robot.frontLeft.setTargetPosition((-410));
+        robot.backLeft.setTargetPosition((-485));
+        robot.frontRight.setTargetPosition(600);
+        robot.backRight.setTargetPosition(500);
+        // Turn On RUN_TO_POSITION
+        robot.frontLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        robot.backRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        robot.backLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        robot.frontRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        // reset the timeout time and start motion.
+        runtime.reset();
+        robot.frontRight.setPower(speed);
+        robot.backRight.setPower(speed);
+        robot.frontLeft.setPower(-speed);
+        robot.backLeft.setPower(-speed);
+
+        while (opModeIsActive() && (runtime.seconds() < timeoutS) && (robot.frontLeft.isBusy() && robot.frontRight.isBusy())) {
+
+            // Display it for the driver.
+            telemetry.addData("front encoders",  "Running at Left:Right %7d :%7d",
+                    robot.frontLeft.getCurrentPosition(),
+                    robot.frontRight.getCurrentPosition());
+            telemetry.addData("back encoders",  "Running at Left:Right %7d :%7d",
+                    robot.backLeft.getCurrentPosition(),
+                    robot.backRight.getCurrentPosition());
+            telemetry.update();
+        }
+        robot.stop();
+
+        sleep(150);
 
     }
 
@@ -91,31 +132,25 @@ public class Test extends LinearOpMode {
     public void EncoderTurn90R(double speed,double timeoutS) {
         ElapsedTime runtime = new ElapsedTime();
         // Ensure that the opmode is still active
-        robot.frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        robot.frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        robot.backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        robot.backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        // Determine new target position, and pass to motor controller
 
+        robot.frontLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        robot.frontRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        robot.backRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        robot.backLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         robot.frontLeft.setTargetPosition((410));
         robot.backLeft.setTargetPosition((485));
         robot.frontRight.setTargetPosition(-600);
         robot.backRight.setTargetPosition(-500);
-        // Turn On RUN_TO_POSITION
         robot.frontLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         robot.backRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         robot.backLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         robot.frontRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        // reset the timeout time and start motion.
         runtime.reset();
-        robot.frontRight.setPower(-Math.abs(speed));
-        robot.backRight.setPower(-Math.abs(speed));
-        robot.frontLeft.setPower((Math.abs(speed)));
-        robot.backLeft.setPower((Math.abs(speed)));
-
+        robot.frontRight.setPower(-speed);
+        robot.backRight.setPower(-speed);
+        robot.frontLeft.setPower(speed);
+        robot.backLeft.setPower(speed);
         while (opModeIsActive() && (runtime.seconds() < timeoutS) && (robot.frontLeft.isBusy() && robot.frontRight.isBusy())) {
-
-            // Display it for the driver.
             telemetry.addData("front encoders",  "Running at Left:Right %7d :%7d",
                     robot.frontLeft.getCurrentPosition(),
                     robot.frontRight.getCurrentPosition());
@@ -125,39 +160,29 @@ public class Test extends LinearOpMode {
             telemetry.update();
         }
         robot.stop();
-
         sleep(150);
-
     }
 
     public void EncoderTurn180R(double speed,double timeoutS) {
         ElapsedTime runtime = new ElapsedTime();
-        // Ensure that the opmode is still active
         robot.frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         robot.frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         robot.backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         robot.backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        // Determine new target position, and pass to motor controller
-
         robot.frontLeft.setTargetPosition((900));
         robot.backLeft.setTargetPosition((1100));
         robot.frontRight.setTargetPosition((-1300) * 2);
         robot.backRight.setTargetPosition((-1100) * 2);
-        // Turn On RUN_TO_POSITION
         robot.frontLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         robot.backRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         robot.backLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         robot.frontRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        // reset the timeout time and start motion.
         runtime.reset();
-        robot.frontRight.setPower(-Math.abs(speed));
-        robot.backRight.setPower(-Math.abs(speed));
-        robot.frontLeft.setPower((Math.abs(speed)));
-        robot.backLeft.setPower((Math.abs(speed)));
-
+        robot.frontRight.setPower(-(speed));
+        robot.backRight.setPower(-(speed));
+        robot.frontLeft.setPower(speed);
+        robot.backLeft.setPower(speed);
         while (opModeIsActive() && (runtime.seconds() < timeoutS) && (robot.frontLeft.isBusy() && robot.frontRight.isBusy())) {
-
-            // Display it for the driver.
             telemetry.addData("front encoders",  "Running at Left:Right %7d :%7d",
                     robot.frontLeft.getCurrentPosition(),
                     robot.frontRight.getCurrentPosition());
@@ -167,16 +192,23 @@ public class Test extends LinearOpMode {
             telemetry.update();
         }
         robot.stop();
-
         sleep(150);
-
     }
 
     private void turn_left(double speed, long time) {
         robot.setMotorPowers(-speed, speed, -speed, speed);
         sleep(time);
         robot.stop();
-
+    }
+    private void strafe_left(double speed, long time) {
+        robot.setMotorPowers(-speed, speed, speed, -speed);
+        sleep(time);
+        robot.stop();
+    }
+    private void strafe_right(double speed, long time) {
+        robot.setMotorPowers(speed, -speed, -speed, speed);
+        sleep(time);
+        robot.stop();
     }
     private void turn_right(double speed, long time) {
         robot.setMotorPowers(speed, -speed, speed, -speed);
@@ -405,9 +437,6 @@ public class Test extends LinearOpMode {
         }
 
     }
-
-    //DO NOT TOUCH THIS METHOD UNDER ANY CIRCUMSTANCE!!! DO NOT DO IT!!!! [unless it breaks ;)] BUT IT SHOULD NOT!!!!
-    // i made it 0.00000000000000000000000000000001 ms faster hehe
     private void turret_turn90(){
         robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.turret.setTargetPosition((robot.turret.getCurrentPosition() - 300));

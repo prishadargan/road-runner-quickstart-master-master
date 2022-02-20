@@ -43,60 +43,80 @@ public class RedDuckAuto extends LinearOpMode {
             telemetry.addData("Pixy Health :", robot.pixyCam.getHealthStatus());
             telemetry.addLine();
             telemetry.addData("Pixy Connection : ", robot.pixyCam.getConnectionInfo());
+            telemetry.addLine();
+            telemetry.addData("Completion Status : ", "Innit");
             telemetry.update();
-            // pixy
 
-
-            /*
-            if (team_element_x != 0 && team_element_x < 130) {
+            if (team_element_x != 0 && team_element_x < 30) {
                 liftHeight = "low";
-            } else if (team_element_x > 160) {
-                if (team_element_x < 195) {
+            } else if (team_element_x > 55) {
+                if (team_element_x < 80) {
                     liftHeight = "mid";
                 }
             } else {
                 liftHeight = "top";
             }
             telemetry.addLine(liftHeight);
-
-             */
-
             robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             robot.extention.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            robot.extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            robot.frontLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+            robot.frontRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+            robot.backRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+            robot.backLeft.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         }
         drive.setPoseEstimate(new Pose2d(-32.0, 65.0, Math.toRadians(-90.0)));
 
+        /*
+        drive.turn(Math.toRadians(90));
+        while (opModeIsActive());
+         */
 
         telemetry.addLine("Robot is ready.");
         telemetry.update();
-        lift_barriers();
+
+        if (liftHeight == "low") {
+            lift_low();
+        } else if (liftHeight == "mid"){
+            lift_mid();
+        } else {
+            lift_top();
+        }
+
         sleep(100);
         turret_turn45();
         sleep(100);
-        extension_outfull();
+        if (liftHeight == "low") {
+            extend_low();
+        } else if (liftHeight == "mid"){
+            extend_mid();
+        } else {
+            extend_top();
+        }
         robot.collector.setPower(1);
-        sleep(200);
+        sleep(250);
         robot.collector.setPower(0);
         extension_in();
         sleep(25);
         turret_back();
         LAD();
         sleep(100);
+        lift_barriers();
 
-// 1
+        while (opModeIsActive());
 
+        
         Trajectory builder1 = drive.trajectoryBuilder(new Pose2d())
-                .back(6)
+                .back(12)
                 .build();
         drive.followTrajectory(builder1);
 
-        EncoderTurn90R(0.4, 1);
+
+
+        drive.turn(Math.toRadians(89));
 
         broken();
-        sleep(10);
-        robot.extention.setPower(0.0000001);
-
 
 
 
@@ -106,18 +126,21 @@ public class RedDuckAuto extends LinearOpMode {
         drive.followTrajectory(builder2);
 
 
-        move_forward(0.2, 1100);
-
 
         Trajectory builder2a = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .strafeRight(9)
+                .strafeRight(8
+                , SampleMecanumDrive.getVelocityConstraint(7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
         drive.followTrajectory(builder2a);
 
 
-        robot.SWOD(-0.18);
-        sleep(2850);
+        robot.SWOD(-0.15);
+        sleep(4700);
         robot.SWOD(0);
+
+
+
 
         extension_in();
 
@@ -126,25 +149,18 @@ public class RedDuckAuto extends LinearOpMode {
                 .build();
         drive.followTrajectory(builder3);
 
+
+
         Trajectory builder3a = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .strafeLeft(7)
+                .strafeLeft(16)
                 .build();
         drive.followTrajectory(builder3a);
 
+/*
 
-        turn_right(0.85, 300);
-
-
-        Trajectory builder3b = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .back(1)
-                .build();
-        drive.followTrajectory(builder3b);
+        drive.turn(Math.toRadians(-90));
 
 
-
-
-
-        /*
         for (int i = 0; i < 25; i++) {
             telemetry.addData("Variant   : ", i);
             telemetry.addData("PIXY-D-X :", duck_x);
@@ -191,78 +207,55 @@ public class RedDuckAuto extends LinearOpMode {
             }
         }
 
-         */
+
 
         Trajectory builder4 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .strafeRight(20)
+                .strafeRight(10)
                 .build();
         drive.followTrajectory(builder4);
 
-        sleep(10);
+        sleep(7);
         extension_in();
 
 
         Trajectory builder5 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .back(46)
+                .back(39)
                 .build();
         drive.followTrajectory(builder5);
 
         Trajectory builder5a = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .strafeLeft(7)
+                .strafeLeft(6)
                 .build();
         drive.followTrajectory(builder5a);
-        turret_teleop_pos();
 
-        turn_left(0.85, 300);
+        drive.turn(Math.toRadians(-93));
 
-        Trajectory builder6 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .forward(5)
-                .build();
-        drive.followTrajectory(builder6);
-
-        lift_top();
-        sleep(10);
-        turret_turn90();
-        sleep(100);
-
-        turn_left(0.85, (620));
+        lift_barries2();
 
         Trajectory builder6a = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .back(45)
+                .back(60)
                 .build();
         drive.followTrajectory(builder6a);
 
-        sleep(500);
-
-        robot.collector.setPower(1);
-        sleep(250);
-        robot.collector.setPower(0);
-        extension_in();
-        turret_reset();
-        lift_barries2();
-
-
-        Trajectory builder7 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .back(25)
-                .build();
-        drive.followTrajectory(builder7);
-
-        move_backwards(0.2, 500);
 
 
         Trajectory builder8 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .strafeLeft(40)
+                .strafeLeft(27
+                        , SampleMecanumDrive.getVelocityConstraint(10, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
+
                 .build();
         drive.followTrajectory(builder8);
 
 
         Trajectory builder9 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .back(25)
+                .back(35,
+                        SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL))
                 .build();
         drive.followTrajectory(builder9);
 
-
-        extension_in();
+ */
 
 
 
@@ -280,7 +273,6 @@ public class RedDuckAuto extends LinearOpMode {
         sleep(time);
         robot.stop();
     }
-
 
     private void turn_right(double speed, long time) {
         robot.setMotorPowers(speed, -speed, speed, -speed);
@@ -304,98 +296,98 @@ public class RedDuckAuto extends LinearOpMode {
         robot.turret.setTargetPosition((robot.turret.getCurrentPosition() + 60));
         robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         runtime.reset();
-        if (robot.turret.getCurrentPosition() > robot.turret.getTargetPosition()){
+        while (runtime.milliseconds() < 1500 && robot.turret.isBusy()) {
             robot.turret.setPower(0.6);
-        }
-
-        if (robot.turret.getCurrentPosition() < robot.turret.getTargetPosition()){
-            robot.turret.setPower(-0.6);
-        }
-        while (runtime.seconds() > 1 || !robot.turret.isBusy()) {
-            telemetry.addData("Turret Stat : ", "complete");
-            robot.turret.setPower(0);
             telemetry.update();
         }
+        robot.turret.setPower(0);
     }
+
+
     private void lift_up(){
         sleep(50);
         int target = (robot.lift.getCurrentPosition() + 10);
         robot.lift.setTargetPosition(target);
         robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         runtime.reset();
-        robot.lift.setPower((1));
-        while ((robot.lift.isBusy())){
-            telemetry.addData("Target Position", robot.lift.getTargetPosition());
-            telemetry.addData("Current Position", robot.lift.getCurrentPosition());
+        while ((runtime.seconds() < 4) && (robot.lift.isBusy())) {
+            robot.lift.setPower((1));
         }
-        if((runtime.seconds() > 5) || (!robot.lift.isBusy())) {
-            telemetry.addData("status", "complete");
-            robot.lift.setPower(0);
-        }
+        robot.lift.setPower(0);
     }
+
     private void lift_top(){
         sleep(50);
         robot.lift.setTargetPosition((1730));
         robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         runtime.reset();
-        robot.lift.setPower((1));
-        while ((robot.lift.isBusy())){
-            telemetry.addData("Target Position", robot.lift.getTargetPosition());
-            telemetry.addData("Current Position", robot.lift.getCurrentPosition());
+        while ((runtime.seconds() < 5) && (robot.lift.isBusy())) {
+            robot.lift.setPower((1));
         }
-        if((runtime.seconds() > 5) || (!robot.lift.isBusy())) {
-            telemetry.addData("status", "complete");
-            robot.lift.setPower(0);
-        }
+        robot.lift.setPower(0);
     }
+
+
+
     private void lift_middle(){
         sleep(50);
         robot.lift.setTargetPosition((600));
         robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         runtime.reset();
         robot.lift.setPower((1));
-        while ((runtime.seconds() > 4) || (!robot.lift.isBusy())) {
+        while ((runtime.seconds() < 4) && (robot.lift.isBusy())) {
             telemetry.addData("status", "complete");
-            robot.lift.setPower(0);
+            robot.lift.setPower(1);
         }
+        robot.lift.setPower(0);
     }
+
     private void lift_bottom(){
         sleep(50);
         robot.lift.setTargetPosition((100));
         robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         runtime.reset();
         robot.lift.setPower((1));
-        while ((runtime.seconds() > 4) || (!robot.lift.isBusy())) {
+        while ((runtime.seconds() < 4) && (robot.lift.isBusy())) {
             telemetry.addData("status", "complete");
-            robot.lift.setPower(0);
+            robot.lift.setPower(1);
         }
+
+        robot.lift.setPower(0);
+
     }
+
+    private void extension_in() {
+        robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.extention.setTargetPosition(0);
+        robot.extention.setPower(0.7);
+        sleep(500);
+        robot.extention.setPower(0.01);
+    }
+
+    // fix below
+
     private void extension_outfull(){
         robot.linearActuator.setPosition((0.39682527));
         robot.extention.setPower(-0.75);
         sleep(650);
         robot.extention.setPower(0);
-        robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
-    private void extension_in(){
-        robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        robot.extention.setTargetPosition(0);
-        robot.extention.setPower(0.7);
-        sleep(1000);
-        robot.extention.setPower(0.35);
-    }
+
+
+
     private void LAD(){
         robot.linearActuator.setPosition((0.79682527));
     }
+
     private void lift_down(){
         robot.lift.setTargetPosition((0));
         robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         runtime.reset();
-        robot.lift.setPower((1));
-        if((!robot.lift.isBusy())) {
-            telemetry.addData("status", "complete");
-            robot.lift.setPower(0);
+        while (robot.lift.isBusy() && runtime.milliseconds() < 750) {
+            robot.lift.setPower((1));
         }
+        robot.lift.setPower(0);
     }
 
     private void lift_barriers(){
@@ -404,18 +396,20 @@ public class RedDuckAuto extends LinearOpMode {
         runtime.reset();
         robot.lift.setPower((1));
         sleep(10);
-        while ((!robot.lift.isBusy())) {
+        while ((!robot.lift.isBusy())  && runtime.milliseconds() > 500) {
             telemetry.addData("status", "complete");
             robot.lift.setPower(0);
         }
+
     }
     private void turret_back(){
         robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.turret.setTargetPosition((robot.turret.getCurrentPosition() - 60));
         robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         runtime.reset();
-        robot.turret.setPower(1);
-        sleep(500);
+        while (runtime.milliseconds() < 1000 && !robot.expanLimit.getState()) {
+            robot.turret.setPower(1);
+        }
         robot.turret.setPower(0);
 
     }
@@ -494,7 +488,74 @@ public class RedDuckAuto extends LinearOpMode {
         turret_teleop_pos();
         sleep(500);
         lift_bottom();
+        extension_in();
 
+
+    }
+
+    public void extend_top(){
+        robot.extention.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        robot.extention.setTargetPosition(-815);
+        robot.extention.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        while (robot.extention.isBusy() && runtime.milliseconds() > 600){
+            robot.extention.setPower(0.65);
+        }
+        robot.extention.setPower(0);
+    }
+
+    public void extend_mid(){
+        robot.extention.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        robot.extention.setTargetPosition(-715);
+        robot.extention.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        while (robot.extention.isBusy() && runtime.milliseconds() > 600){
+            robot.extention.setPower(0.65);
+        }
+        robot.extention.setPower(0);
+    }
+
+    public void extend_low(){
+        robot.extention.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        robot.extention.setTargetPosition(-615);
+        robot.extention.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        while (robot.extention.isBusy() && runtime.milliseconds() > 600){
+            robot.extention.setPower(0.65);
+        }
+        robot.extention.setPower(0);
+    }
+
+    private void lift_high(){
+        sleep(50);
+        robot.lift.setTargetPosition((1730)); // L-1230, B-730
+        robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        while ((runtime.seconds() < 5) && (robot.lift.isBusy())) {
+            robot.lift.setPower((1));
+        }
+        robot.lift.setPower(0);
+    }
+    private void lift_mid(){
+        sleep(50);
+        robot.lift.setTargetPosition((1230));
+        robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        while ((runtime.seconds() < 5) && (robot.lift.isBusy())) {
+            robot.lift.setPower((1));
+        }
+        robot.lift.setPower(0);
+    }
+
+    private void lift_low(){
+        sleep(50);
+        robot.lift.setTargetPosition((730));
+        robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        while ((runtime.seconds() < 5) && (robot.lift.isBusy())) {
+            robot.lift.setPower((1));
+        }
+        robot.lift.setPower(0);
     }
 
     //DO NOT TOUCH THIS METHOD UNDER ANY CIRCUMSTANCE!!! DO NOT DO IT!!!! [unless it breaks ;)] BUT IT SHOULD NOT!!!!
@@ -517,89 +578,9 @@ public class RedDuckAuto extends LinearOpMode {
         }
     }
 
-    public void EncoderTurn90R(double speed,double timeoutS) {
-        ElapsedTime runtime = new ElapsedTime();
-        // Ensure that the opmode is still active
-        robot.frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        robot.frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        robot.backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        robot.backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        // Determine new target position, and pass to motor controller
 
-        robot.frontLeft.setTargetPosition((410));
-        robot.backLeft.setTargetPosition((485));
-        robot.frontRight.setTargetPosition(-600);
-        robot.backRight.setTargetPosition(-500);
-        // Turn On RUN_TO_POSITION
-        robot.frontLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        robot.backRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        robot.backLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        robot.frontRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        // reset the timeout time and start motion.
-        runtime.reset();
-        robot.frontRight.setPower(-Math.abs(speed));
-        robot.backRight.setPower(-Math.abs(speed));
-        robot.frontLeft.setPower((Math.abs(speed)));
-        robot.backLeft.setPower((Math.abs(speed)));
 
-        while (opModeIsActive() && (runtime.seconds() < timeoutS) && (robot.frontLeft.isBusy() && robot.frontRight.isBusy())) {
 
-            // Display it for the driver.
-            telemetry.addData("front encoders",  "Running at Left:Right %7d :%7d",
-                    robot.frontLeft.getCurrentPosition(),
-                    robot.frontRight.getCurrentPosition());
-            telemetry.addData("back encoders",  "Running at Left:Right %7d :%7d",
-                    robot.backLeft.getCurrentPosition(),
-                    robot.backRight.getCurrentPosition());
-            telemetry.update();
-        }
-        robot.stop();
-
-        sleep(150);
-
-    }
-
-    public void EncoderTurn90L(double speed,double timeoutS) {
-        ElapsedTime runtime = new ElapsedTime();
-        // Ensure that the opmode is still active
-        robot.frontLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        robot.frontRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        robot.backRight.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        robot.backLeft.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        // Determine new target position, and pass to motor controller
-
-        robot.frontLeft.setTargetPosition((410));
-        robot.backLeft.setTargetPosition((485));
-        robot.frontRight.setTargetPosition(-600);
-        robot.backRight.setTargetPosition(-500);
-        // Turn On RUN_TO_POSITION
-        robot.frontLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        robot.backRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        robot.backLeft.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        robot.frontRight.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        // reset the timeout time and start motion.
-        runtime.reset();
-        robot.frontRight.setPower(Math.abs(speed));
-        robot.backRight.setPower(Math.abs(speed));
-        robot.frontLeft.setPower(-(Math.abs(speed)));
-        robot.backLeft.setPower(-(Math.abs(speed)));
-
-        while (opModeIsActive() && (runtime.seconds() < timeoutS) && (robot.frontLeft.isBusy() && robot.frontRight.isBusy())) {
-
-            // Display it for the driver.
-            telemetry.addData("front encoders",  "Running at Left:Right %7d :%7d",
-                    robot.frontLeft.getCurrentPosition(),
-                    robot.frontRight.getCurrentPosition());
-            telemetry.addData("back encoders",  "Running at Left:Right %7d :%7d",
-                    robot.backLeft.getCurrentPosition(),
-                    robot.backRight.getCurrentPosition());
-            telemetry.update();
-        }
-        robot.stop();
-
-        sleep(150);
-
-    }
 
 
 

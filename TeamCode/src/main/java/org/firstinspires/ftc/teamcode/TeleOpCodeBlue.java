@@ -270,6 +270,42 @@ public class TeleOpCodeBlue extends LinearOpMode {
                 telemetry.addData("TLA", "Down");
             }
 
+            if (gamepad2.x) {
+                telemetry.clearAll();
+                runtime.reset();
+                robot.lift.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+                robot.lift.setPower(1);
+                robot.LAup();
+
+                while (robot.lift.getCurrentPosition() <= 1500 && runtime.milliseconds() < 1500 && opModeIsActive()) ;
+
+                robot.turret.setTargetPosition(350);
+                robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                robot.turret.setPower(-0.85);
+                robot.lift.setPower(0.05);
+                sleep(500);
+                robot.extention.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                robot.extention.setTargetPosition(-490);
+                robot.extention.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                robot.extention.setPower(-0.65);
+            }
+
+
+            if (gamepad2.y) {
+                robot.turret.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+                robot.extention.setTargetPosition(0);
+                robot.extention.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                robot.extention.setPower(1);
+                robot.LAdown();
+                runtime.reset();
+                while (!robot.cLimit.getState() && runtime.milliseconds() < 1300) {
+                    robot.turret.setPower(-0.85);
+                }
+                robot.lift.setPower(-0.5);
+                sleep(1300);
+            }
+        }
+
             telemetry.update();
 
 
@@ -277,7 +313,7 @@ public class TeleOpCodeBlue extends LinearOpMode {
 
 
 
-    }
 }
+
 
 

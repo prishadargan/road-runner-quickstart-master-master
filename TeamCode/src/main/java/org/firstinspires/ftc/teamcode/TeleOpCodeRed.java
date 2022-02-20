@@ -59,14 +59,10 @@ public class TeleOpCodeRed extends LinearOpMode {
         waitForStart();
 
 
-
         // move to auto
         robot.turret.setPower(-0.1);
         sleep(250);
         robot.turret.setPower(0.0);
-
-
-
 
 
         robot.turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -99,7 +95,6 @@ public class TeleOpCodeRed extends LinearOpMode {
             );
 
 
-
             drive.update();
 
             Pose2d poseEstimate = drive.getPoseEstimate();
@@ -107,8 +102,6 @@ public class TeleOpCodeRed extends LinearOpMode {
             telemetry.addData("y", poseEstimate.getY());
             telemetry.addData("heading", poseEstimate.getHeading());
             telemetry.update();
-
-
 
 
             // collector
@@ -128,7 +121,7 @@ public class TeleOpCodeRed extends LinearOpMode {
                 telemetry.addData("SWOD : ", "On");
                 telemetry.update();
                 double power = 0.20;
-                for (int i = 1; i < 3; i++){
+                for (int i = 1; i < 3; i++) {
                     robot.SWOD(-power);
                     power += 0.15;
                 }
@@ -142,7 +135,7 @@ public class TeleOpCodeRed extends LinearOpMode {
 
 
             // capping
-            if (gamepad1.right_trigger > 0.2){
+            if (gamepad1.right_trigger > 0.2) {
                 robot.CapDown();
                 telemetry.clearAll();
                 telemetry.addData("Cap ", " Down");
@@ -178,7 +171,6 @@ public class TeleOpCodeRed extends LinearOpMode {
             if (gamepad2.left_trigger > 0.2) {
                 robot.state = Robot.states.TURRET_MID;
             }
-
 
 
             // turret fine adjustment
@@ -246,7 +238,7 @@ public class TeleOpCodeRed extends LinearOpMode {
                 robot.state = Robot.states.LIFTING_DOWN;
             }
 
-            if(gamepad2.x){
+            if (gamepad2.x) {
                 telemetry.addData("Highest Positon", "Postion 2 - Highest");
                 telemetry.addData("Target Value", robot.nt);
                 telemetry.addData("Current Position", robot.lift.getCurrentPosition());
@@ -292,57 +284,59 @@ public class TeleOpCodeRed extends LinearOpMode {
                 telemetry.addData("TLA", "Down");
             }
 
+            if (gamepad2.left_stick_button) {
+                robot.lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.extention.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            }
+
             // Alliance Specific Hub
 
-            if (gamepad2.x){
-                robot.LAup();
+
+            if (gamepad2.x) {
                 telemetry.clearAll();
                 runtime.reset();
+                robot.lift.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
                 robot.lift.setPower(1);
-                sleep(1000);
-                robot.turret.setTargetPosition(285);
-                robot.turret.setPower(0.55);
-                robot.lift.setPower(0.05);
-                telemetry.addLine("Extension should move");
+                sleep(500);
+                robot.LAup();
+                sleep(500);
+
+                telemetry.addLine();
+                telemetry.addData("status : ", " 1");
                 telemetry.update();
-                if (!robot.turret.isBusy()){
-                    robot.extention.setTargetPosition(-650);
-                    robot.extention.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    robot.extention.setPower(-0.65);
-                    sleep(500);
-                }
-            }
+                sleep(500);
 
-            if (gamepad2.y){
-                robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                while (robot.lift.getCurrentPosition() <= 1500 && runtime.milliseconds() < 1500 && opModeIsActive()) ;
+
+                robot.turret.setTargetPosition(-300);
+                robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                robot.turret.setPower(0.85);
+                robot.lift.setPower(0.05);
+                robot.extention.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                robot.extention.setTargetPosition(-490);
                 robot.extention.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                robot.lift.setPower(0);
-                robot.extention.setTargetPosition(0);
-                robot.extention.setPower(-1);
-                if (robot.extention.getCurrentPosition() < 20){
-                    robot.turret.setTargetPosition(685);
-                    robot.turret.setPower(0.55);
-
-                }
-                if (robot.turret.getCurrentPosition() > 665){
-                    robot.lift.setTargetPosition(0);
-                    robot.lift.setPower(-0.6);
-
-                }
-                if (!robot.extention.isBusy()){
-                    robot.extention.setPower(0);
-                }
-                if (!robot.turret.isBusy()){
-                    robot.turret.setPower(0);
-                }
-
+                robot.extention.setPower(-0.65);
             }
-            telemetry.update();
 
 
+            if (gamepad2.y) {
+                robot.turret.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+                robot.extention.setTargetPosition(0);
+                robot.extention.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                robot.extention.setPower(1);
+                robot.LAdown();
+                runtime.reset();
+                while (!robot.cLimit.getState() && runtime.milliseconds() < 1300) {
+                    robot.turret.setPower(0.85);
+                }
+                robot.lift.setPower(-0.55);
+                sleep(1300);
+            }
         }
 
-
-
+        telemetry.update();
     }
+
 }
+
