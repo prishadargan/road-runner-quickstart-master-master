@@ -1,3 +1,10 @@
+//All tuning test are completed and accurate until the second Localization test
+//The only tests remaining are the localization test 2, Back and Forth Test, FollowerPID Tuner, (Test the green and blue lines on the field), and the Spline Test
+// Make sure the Heading_PID and the Translation_PID get tuned to fix the accuracy of the straight and strafe tests.
+
+// We need to fix the issue of the strafe tests where although the reported y value and the meaused distance match, but they don't mathc the distance inputed into the test. 
+// Ex: The roadrunner said the robot traveled 20 inches, the robot had traveled 20 inches but the inputed distance was 60 inches. 
+
 package org.firstinspires.ftc.teamcode.drive;
 
 import com.acmerobotics.dashboard.config.Config;
