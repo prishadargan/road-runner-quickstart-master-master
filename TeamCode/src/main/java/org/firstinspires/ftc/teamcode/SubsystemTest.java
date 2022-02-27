@@ -11,15 +11,20 @@ public class SubsystemTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(hardwareMap, telemetry, this);
 
-        robot.lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.extention.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
 
         telemetry.addLine("Ready for start");
         telemetry.update();
 
         waitForStart();
 
+//        robot.turret.setPower(0.5);
         while(opModeIsActive()) {
             telemetry.addData("Lift encoder", robot.lift.getCurrentPosition());
             telemetry.addData("Turret encoder", robot.turret.getCurrentPosition());

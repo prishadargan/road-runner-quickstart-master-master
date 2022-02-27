@@ -10,9 +10,10 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 
 import static java.lang.Thread.sleep;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 
-public class DuckAuto extends LinearOpMode {
+public class DuckAuto {
     //Enums
     private enum LiftHeight {
         LOW, MID, TOP
@@ -26,6 +27,8 @@ public class DuckAuto extends LinearOpMode {
     private Robot robot;
     private LiftHeight height = LiftHeight.TOP;
     private AllianceColor color;
+    private LinearOpMode opMode;
+    private Telemetry telemetry;
     private ElapsedTime runtime = new ElapsedTime();
     private String te_Stat = "Not-Collected";
     private int[] pixyThresholds = new int[2];
@@ -43,13 +46,13 @@ public class DuckAuto extends LinearOpMode {
     private static final int PIXY_BLUE_THRESHOLD_LOW = 185;
     private static final int PIXY_BLUE_THRESHOLD_HIGH = 190;
 
-    private static final int EXTEND_TARGET_POSITION_TOP = -408;
+    private static final int EXTEND_TARGET_POSITION_TOP = -370;
     private static final int EXTEND_TARGET_POSITION_MID = -331;
     private static final int EXTEND_TARGET_POSITION_LOW = -295;
 
-    private static final int LIFT_TARGET_POSITION_TOP = 382;
-    private static final int LIFT_TARGET_POSITION_MID = 199;
-    private static final int LIFT_TARGET_POSITION_LOW = 52;
+    private static final int LIFT_TARGET_POSITION_TOP = 1450;
+    private static final int LIFT_TARGET_POSITION_MID = 884;
+    private static final int LIFT_TARGET_POSITION_LOW = 384;
 
     //Variable for target positions
     private int currentLiftTargetPosition;
@@ -61,8 +64,10 @@ public class DuckAuto extends LinearOpMode {
     private Pose2d depositPreload = new Pose2d(startPosition.getX(), -50.5, Math.toRadians(-90.0));
     private Pose2d closeToCarousel = new Pose2d(-65.0, -47.0, Math.toRadians(0));
 
-    public DuckAuto(AllianceColor color) {
+    public DuckAuto(AllianceColor color, LinearOpMode opMode) {
         this.color = color;
+        this.opMode = opMode;
+        telemetry = opMode.telemetry;
         switch (color) {
             case RED:
                 pixyThresholds[0] = PIXY_RED_THRESHOLD_LOW;
@@ -79,21 +84,23 @@ public class DuckAuto extends LinearOpMode {
         }
     }
 
-    @Override
-    public void runOpMode() throws InterruptedException {
-        robot = new Robot(hardwareMap, telemetry, this);
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+    public void run() throws InterruptedException {
+        robot = new Robot(opMode.hardwareMap, opMode.telemetry, opMode);
+        SampleMecanumDrive drive = new SampleMecanumDrive(opMode.hardwareMap);
         robot.pixyCam.engage();
 
-        robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.extention.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+        robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         telemetry.addLine("Robot is ready.");
         telemetry.update();
 
-        while(!opModeIsActive()) {
+        while(!opMode.opModeIsActive()) {
             team_element_x = 0xff & robot.pixyCam.read(0x52, 5)[1];
             team_element_y = 0xff & robot.pixyCam.read(0x52, 5)[2];
             telemetry.addLine();
@@ -103,22 +110,22 @@ public class DuckAuto extends LinearOpMode {
             telemetry.addLine();
             telemetry.addData("Completion Status : ", "Innit");
 
-            if (team_element_x != 0 && team_element_x < pixyThresholds[0]) {
-                //low
-                height = LiftHeight.LOW;
-                currentLiftTargetPosition = LIFT_TARGET_POSITION_LOW;
-                currentExtensionTargetPosition = EXTEND_TARGET_POSITION_LOW;
-            } else if (team_element_x > pixyThresholds[0] && team_element_x < pixyThresholds[1]) {
-               //mid
-                height = LiftHeight.MID;
-                currentLiftTargetPosition = LIFT_TARGET_POSITION_MID;
-                currentExtensionTargetPosition = EXTEND_TARGET_POSITION_MID;
-            } if (team_element_x > pixyThresholds[1] || team_element_x == 0) {
-                //top
+//            if (team_element_x == 0 || team_element_x > pixyThresholds[1]) {
+//                //detecting top
                 height = LiftHeight.TOP;
                 currentLiftTargetPosition = LIFT_TARGET_POSITION_TOP;
                 currentExtensionTargetPosition = EXTEND_TARGET_POSITION_TOP;
-            }
+//            } else if (team_element_x < pixyThresholds[0]) {
+//                //detecting low
+//                height = LiftHeight.LOW;
+//                currentLiftTargetPosition = LIFT_TARGET_POSITION_LOW;
+//                currentExtensionTargetPosition = EXTEND_TARGET_POSITION_LOW;
+//            } else {
+//               //detecting mid
+//                height = LiftHeight.MID;
+//                currentLiftTargetPosition = LIFT_TARGET_POSITION_MID;
+//                currentExtensionTargetPosition = EXTEND_TARGET_POSITION_MID;
+//            }
 
             telemetry.addLine(height.toString());
             telemetry.addData("team element", team_element_x);
@@ -126,7 +133,7 @@ public class DuckAuto extends LinearOpMode {
 
         }
 
-        waitForStart();
+        opMode.waitForStart();
         drive.setPoseEstimate(startPosition);
 
         //move towards hub
@@ -137,23 +144,33 @@ public class DuckAuto extends LinearOpMode {
         //will happen while moving: tilt, lift, turn turret
         robot.LAup();
         lift_up();
-        turret_turn_deposit_preload();
         runtime.reset();
-        drive.waitForIdle();
+
+        sleep(100);
+        boolean firstTime = true;
+        while(drive.isBusy() || firstTime) {
+            if (firstTime && runtime.seconds() > 0.8) {
+                turret_turn_deposit_preload();
+                firstTime = false;
+            }
+            drive.update();
+        }
+
+        runtime.reset();
 
         //after reaching deposit pose: wait for lift to reach position (or timeout)
-        while((robot.lift.isBusy() || runtime.seconds() < 2) && opModeIsActive());
+//        while(robot.lift.isBusy() && runtime.seconds() < 0.3 && opMode.opModeIsActive());
 
         //start extending out
         runtime.reset();
         extend_to_target(currentExtensionTargetPosition);
 
         //wait for extension to reach position (or timeout)
-        while((robot.extention.isBusy() || runtime.seconds() < 1.5) && opModeIsActive());
+        while(robot.extention.isBusy() && runtime.seconds() < 1.5 && opMode.opModeIsActive());
 
         //deposit preload block
-        robot.collector.setPower(0.5);
-        sleep(250);
+        robot.collector.setPower(1); // minimum depositing speed
+        sleep(500);
         robot.collector.setPower(0);
 
         //start extending in
@@ -161,7 +178,7 @@ public class DuckAuto extends LinearOpMode {
         extension_in();
 
         //wait for extension to come back (or timeout)
-        while((robot.extention.isBusy() || runtime.seconds() < 1) && opModeIsActive());
+        while(robot.extention.isBusy() && runtime.seconds() < 1 && opMode.opModeIsActive());
 
         //extend in slowly to hold it in
         extension_in_slow();
@@ -175,10 +192,13 @@ public class DuckAuto extends LinearOpMode {
         lift_barriers();
         turret_back();
         runtime.reset();
-        while((!isCorrectLimitPressed() || runtime.seconds() < 1.5) && opModeIsActive()) {
+        //cLimit works for both colors
+        while(!robot.cLimit.getState() && runtime.seconds() < 1.5 && opMode.opModeIsActive()) {
             drive.update();
         }
         drive.waitForIdle();
+
+        while(opMode.opModeIsActive());
 
         //slowly move to press wheel against carousel
         Trajectory pressWheelAgainstCarousel = drive.trajectoryBuilder(drive.getPoseEstimate())
@@ -352,22 +372,8 @@ public class DuckAuto extends LinearOpMode {
     }
 
     private void turret_back(){
-        robot.turret.setTargetPosition(0);
-        robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        robot.turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         robot.turret.setPower(1);
-    }
-
-    private boolean isCorrectLimitPressed() {
-        boolean stateOfCorrectLimit = false;
-        switch (color) {
-            case RED:
-                stateOfCorrectLimit = robot.expanLimit.getState();
-                break;
-            case BLUE:
-                stateOfCorrectLimit =  robot.cLimit.getState();
-                break;
-        }
-        return stateOfCorrectLimit;
     }
 
     //Lift
@@ -378,7 +384,7 @@ public class DuckAuto extends LinearOpMode {
     }
 
     private void lift_barriers(){
-        robot.lift.setTargetPosition(400);
+        robot.lift.setTargetPosition(LIFT_TARGET_POSITION_LOW);
         robot.lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         robot.lift.setPower(1);
 

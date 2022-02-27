@@ -21,7 +21,7 @@ public class BlueDuckAuto extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        DuckAuto auto = new DuckAuto(DuckAuto.AllianceColor.BLUE);
-        auto.runOpMode();
+        DuckAuto auto = new DuckAuto(DuckAuto.AllianceColor.BLUE, this);
+        auto.run();
     }
 }

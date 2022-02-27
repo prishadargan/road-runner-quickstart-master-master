@@ -55,21 +55,20 @@ public class Robot
         this.telemetry = telemetry;
         this.opMode = opMode;
 
-        frontLeft = (DcMotorEx) hwMap.dcMotor.get("FL");
-        frontRight = (DcMotorEx) hwMap.dcMotor.get("FR");
-        backLeft = (DcMotorEx) hwMap.dcMotor.get("BL");
-        backRight = (DcMotorEx) hwMap.dcMotor.get("BR");
-        turret = (DcMotorEx) hwMap.dcMotor.get("Turret");
-        lift = (DcMotorEx) hwMap.dcMotor.get("Lift-Up");
-        extention = (DcMotorEx) hwMap.dcMotor.get("Lift-E");
-        collector = hwMap.dcMotor.get("Collector");
-        expanLimit = hwMap.digitalChannel.get("E-Limit");
-        cLimit = hwMap.digitalChannel.get("C-Limit");
-        frontLimit = hwMap.digitalChannel.get("F-Limit");
-        cServo = hwMap.servo.get("YesCap");
-        swod = hwMap.crservo.get("SWOD");
-        pixyCam = hwMap.i2cDeviceSynch.get("Pixy-Cam");
-        linearActuator = hwMap.servo.get("TLA");
+        frontLeft = (DcMotorEx) hwMap.dcMotor.get("FL"); //
+        frontRight = (DcMotorEx) hwMap.dcMotor.get("FR"); //
+        backLeft = (DcMotorEx) hwMap.dcMotor.get("BL"); //
+        backRight = (DcMotorEx) hwMap.dcMotor.get("BR"); //
+        turret = (DcMotorEx) hwMap.dcMotor.get("Turret"); //
+        lift = (DcMotorEx) hwMap.dcMotor.get("Lift-Up"); //
+        extention = (DcMotorEx) hwMap.dcMotor.get("Lift-E"); //
+        collector = hwMap.dcMotor.get("Collector"); //
+        expanLimit = hwMap.digitalChannel.get("E-Limit"); //
+        cLimit = hwMap.digitalChannel.get("C-Limit"); //
+//      frontLimit = hwMap.digitalChannel.get("F-Limit");
+        swod = hwMap.crservo.get("SWOD"); //
+        pixyCam = hwMap.i2cDeviceSynch.get("Pixy-Cam"); //
+        linearActuator = hwMap.servo.get("TLA"); //
 
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
