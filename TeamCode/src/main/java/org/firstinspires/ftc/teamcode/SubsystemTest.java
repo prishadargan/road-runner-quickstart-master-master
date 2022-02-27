@@ -1,0 +1,33 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+
+@TeleOp
+public class SubsystemTest extends LinearOpMode {
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+        Robot robot = new Robot(hardwareMap, telemetry, this);
+
+        robot.lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.extention.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        telemetry.addLine("Ready for start");
+        telemetry.update();
+
+        waitForStart();
+
+        while(opModeIsActive()) {
+            telemetry.addData("Lift encoder", robot.lift.getCurrentPosition());
+            telemetry.addData("Turret encoder", robot.turret.getCurrentPosition());
+            telemetry.addData("Extension encoder", robot.extention.getCurrentPosition());
+            telemetry.addLine();
+            telemetry.addData("Control Hub Limit (Blue) is pressed?", robot.cLimit.getState());
+            telemetry.addData("Expansion Hub Limit (Red) is pressed?", robot.expanLimit.getState());
+            telemetry.update();
+        }
+    }
+}
