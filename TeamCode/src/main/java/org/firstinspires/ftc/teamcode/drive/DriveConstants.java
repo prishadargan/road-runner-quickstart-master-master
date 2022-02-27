@@ -1,10 +1,3 @@
-//All tuning test are completed and accurate until the second Localization test
-//The only tests remaining are the localization test 2, Back and Forth Test, FollowerPID Tuner, (Test the green and blue lines on the field), and the Spline Test
-// Make sure the Heading_PID and the Translation_PID get tuned to fix the accuracy of the straight and strafe tests.
-
-// We need to fix the issue of the strafe tests where although the reported y value and the meaused distance match, but they don't mathc the distance inputed into the test. 
-// Ex: The roadrunner said the robot traveled 20 inches, the robot had traveled 20 inches but the inputed distance was 60 inches. 
-
 package org.firstinspires.ftc.teamcode.drive;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -37,7 +30,7 @@ public class DriveConstants {
      * Set this flag to false if drive encoders are not present and an alternative localization
      * method is in use (e.g., tracking wheels).
      *
-     * If using the built-in motor velocity PID, update MOTOR_VELO_PID with the tuned coefficients
+     * If using the built-in motor velocity PID, update MOTOR_VELO_ PID with the tuned coefficients
      * from DriveVelocityPIDTuner.
      */
     public static final boolean RUN_USING_ENCODER = true;
@@ -105,10 +98,10 @@ public class DriveConstants {
      * https://github.com/acmerobotics/road-runner-quickstart/issues/91
 
      */
-    public static double MAX_VEL = 60;
-    public static double MAX_ACCEL = 90;
-    public static double MAX_ANG_VEL = 4.647324317413322;
-    public static double MAX_ANG_ACCEL = 5.806451612903226;
+    public static double MAX_VEL = 40;
+    public static double MAX_ACCEL = 40;
+    public static double MAX_ANG_VEL = Math.toRadians(270);
+    public static double MAX_ANG_ACCEL = Math.toRadians(270);
 
 
     public static double encoderTicksToInches(double ticks) {
