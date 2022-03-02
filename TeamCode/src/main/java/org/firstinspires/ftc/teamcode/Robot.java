@@ -65,7 +65,7 @@ public class Robot
         collector = hwMap.dcMotor.get("Collector"); //
         expanLimit = hwMap.digitalChannel.get("E-Limit"); //
         cLimit = hwMap.digitalChannel.get("C-Limit"); //
-//      frontLimit = hwMap.digitalChannel.get("F-Limit");
+//      -]frontLimit = hwMap.digitalChannel.get("F-Limit");
         swod = hwMap.crservo.get("SWOD"); //
         pixyCam = hwMap.i2cDeviceSynch.get("Pixy-Cam"); //
         linearActuator = hwMap.servo.get("TLA"); //

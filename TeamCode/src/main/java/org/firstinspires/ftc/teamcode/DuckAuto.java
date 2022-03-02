@@ -142,7 +142,7 @@ public class DuckAuto {
                 .build();
         drive.followTrajectoryAsync(depositPreloadTrajectory);
         //will happen while moving: tilt, lift, turn turret
-        robot.LAup();
+        //robot.LAup();
         lift_up();
         runtime.reset();
 
@@ -398,6 +398,6 @@ public class DuckAuto {
 
     //Linear Actuator
     private void linear_actuator_down(){
-        robot.linearActuator.setPosition(0.79682527);
+        //robot.linearActuator.setPosition(0.79682527);
     }
 }

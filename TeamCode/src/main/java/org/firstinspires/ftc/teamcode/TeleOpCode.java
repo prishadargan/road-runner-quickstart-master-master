@@ -2,24 +2,18 @@ package org.firstinspires.ftc.teamcode;
 
 /*
 Copyright (c) 2016 Robert Atkinson
-
 All rights reserved.
-
 Redistribution and use in source and binary forms, with or without modification,
 are permitted (subject to the limitations in the disclaimer below) provided that
 the following conditions are met:
-
 Redistributions of source code must retain the above copyright notice, this list
 of conditions and the following disclaimer.
-
 Redistributions in binary form must reproduce the above copyright notice, this
 list of conditions and the following disclaimer in the documentation and/or
 other materials provided with the distribution.
-
 Neither the name of Robert Atkinson nor the names of his contributors may be used to
 endorse or promote products derived from this software without specific prior
 written permission.
-
 NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
 LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
@@ -33,33 +27,33 @@ TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
-
 import java.util.stream.Collector;
-
 import static java.lang.Thread.sleep;
 
-@TeleOp(name="TeleOp - Test", group="Freight-Frenzy")
+
+@TeleOp(name="TeleOp", group="Freight-Frenzy")
 public class TeleOpCode extends LinearOpMode {
     //Initializes joystick storage variables
     private double leftStickX, leftStickY, rightStickX;
     private ElapsedTime runtime = new ElapsedTime();
 
     private static final double threshold = 0;
-    private double pos = 1;
 
     @Override
 
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(hardwareMap, telemetry, this);
-
+        StickyButton sb = new StickyButton();
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         telemetry.addLine("Waiting for start");
         telemetry.update();
-
         waitForStart();
 
         telemetry.addLine("Starting...");
@@ -68,164 +62,258 @@ public class TeleOpCode extends LinearOpMode {
         while (opModeIsActive()) {
 
             telemetry.addLine("Running...");
+            telemetry.addData("Turret Current - C", robot.turret.getCurrentPosition());
+
 
             leftStickX = gamepad1.left_stick_x * -1;
-            leftStickY = gamepad1.left_stick_y * 1;
+            leftStickY = gamepad1.left_stick_y * -1;
+
+            /*
+                D1 - Driver 1
+             */
 
 
-            telemetry.addData("left_stick_x", leftStickX);
-            telemetry.addData("left_stick_y", leftStickY);
+            // drive-train
+
+            drive.setWeightedDrivePower(
+                    new Pose2d(
+                            -gamepad1.left_stick_y,
+                            -gamepad1.left_stick_x,
+                            -gamepad1.right_stick_x
+                    )
+            );
+
+
+            drive.update();
+
+            Pose2d poseEstimate = drive.getPoseEstimate();
+            telemetry.addData("x", poseEstimate.getX());
+            telemetry.addData("y", poseEstimate.getY());
+            telemetry.addData("heading", poseEstimate.getHeading());
             telemetry.update();
 
 
 
-            if (Math.abs(gamepad1.right_stick_x) > threshold) {
-                if (gamepad1.right_stick_x < 0) {
-                    rightStickX = -gamepad1.right_stick_x * gamepad1.right_stick_x * -1 * (4.0 / 5.0) - (1.0 / 5.0);
-                } else {
-                    rightStickX = -gamepad1.right_stick_x * gamepad1.right_stick_x * 1 * (4.0 / 5.0) + (1.0 / 5.0);
+
+            // reset encoder
+            if (gamepad1.y){
+                robot.lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.extention.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            }
+
+            // swod
+            if (gamepad1.right_bumper) {
+                telemetry.addData("SWOD : ", "On");
+                telemetry.update();
+                double power = 0.20;
+                for (int i = 1; i < 3; i++) {
+                    robot.SWOD(-power);
+                    power += 0.15;
                 }
-            } else {
-                rightStickX = 0;
+            }
+
+            if (gamepad1.left_bumper) {
+                robot.SWOD(0);
+                telemetry.addData("SWOD : ", "Off");
+                telemetry.update();
             }
 
 
+            // capping
+            if (gamepad1.dpad_up) {
+                robot.linearActuator.setPosition(robot.linearActuator.getPosition() + 0.01);
+            }
+
+            if (gamepad1.dpad_down) {
+                robot.linearActuator.setPosition(robot.linearActuator.getPosition() - 0.01);
+            }
 
             /*
-
-            if ((Math.abs(gamepad1.left_stick_y) > threshold) || (Math.abs(gamepad1.left_stick_x) > threshold) || Math.abs(gamepad1.right_stick_x) > threshold) {
-                //Calculate formula for mecanum drive function
-                double addValue = (double) (Math.round((50 * (leftStickY * Math.abs(leftStickY) + leftStickX * Math.abs(leftStickX))))) / 50;
-                double subtractValue = (double) (Math.round((50 * (leftStickY * Math.abs(leftStickY) - leftStickX * Math.abs(leftStickX))))) / 50;
-
-                //Set motor speed variables
-                robot.setMotorPowers(addValue + rightStickX, subtractValue - rightStickX, subtractValue + rightStickX, addValue - rightStickX);
-            } else {
-                robot.stop();
-            }
-
+                         D2 - Driver 2
              */
 
 
-            if (gamepad1.left_bumper) {
-                robot.Collector(1);
+
+            // collector
+            while  (gamepad2.right_trigger > 0.2) {
+                robot.Collector(-1); // In
             }
-            if (gamepad1.right_bumper) {
-                robot.Collector(-1);
-            }
-            if (gamepad1.right_bumper && gamepad1.left_bumper) {
-                robot.Collector(0);
+            while  (gamepad2.left_trigger > 0.2) {
+                robot.Collector(1); // Out
             }
 
 
-            if (gamepad1.a) {
-                if (pos == 1) {
-                    robot.lift.setPower(0.2);
-                    sleep(200);
-                    robot.lift.setPower(0);
-                } else {
-                    telemetry.addData("Lift Positon", "Postion 1 - Lowest");
-                    telemetry.addData("Target Value", robot.newLeftTarget);
-                    telemetry.addData("Current Position", robot.lift.getCurrentPosition());
-                    robot.state = Robot.states.LIFTING_DOWN;
-                    pos = 1;
+
+            // main turret
+            if (gamepad2.right_bumper) {
+                robot.state = Robot.states.TURRET_LEFT;
+                telemetry.update();
+            }
+
+            if (gamepad2.left_bumper) {
+                robot.state = Robot.states.TURRET_RIGHT;
+                telemetry.update();
+            }
+
+            if (gamepad2.left_trigger > 0.2) {
+                robot.state = Robot.states.TURRET_MID;
+            }
+
+
+
+
+
+            // turret fine adjustment
+            if (gamepad2.dpad_left) {
+                robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                int ttarget;
+                ttarget = ((robot.turret.getCurrentPosition()) - (int) (65));
+                robot.turret.setTargetPosition((ttarget));
+                robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                robot.turret.setPower(-0.35);
+                if ((runtime.seconds() > 1)) {
+                    robot.turret.setPower(0);
+                    telemetry.addData("Status : ", "Complete");
                 }
-
+                telemetry.update();
+                robot.turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
-            if (gamepad1.b) {
-                if (pos == 2){
-                    robot.lift.setPower(-0.1);
-                    sleep(100);
-                    robot.lift.setPower(0);
-                } else {
-                    telemetry.addData("Lift Positon", "Postion 2 - Highest");
-                    telemetry.addData("Target Value", robot.nt);
-                    telemetry.addData("Current Position", robot.lift.getCurrentPosition());
-                    robot.state = Robot.states.LIFTING_UP;
-                    pos = 2;
+
+            sb.update(gamepad2.dpad_right);
+            if (sb.getState()) {
+                robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                int ttarget;
+                ttarget = ((robot.turret.getCurrentPosition()) + (int) (65));
+                robot.turret.setTargetPosition((ttarget));
+                robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                robot.turret.setPower(0.35);
+                if ((runtime.seconds() > 1)) {
+                    robot.turret.setPower(0);
+                    telemetry.addData("Status : ", "Complete");
                 }
+                telemetry.update();
+                robot.turret.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
             }
 
+
+
+
+
+
+            // lift
+
+            if (gamepad2.b) {
+                telemetry.addData("Highest Positon", "Postion 2 - Highest");
+                telemetry.addData("Target Value", robot.nt);
+                telemetry.addData("Current Position", robot.lift.getCurrentPosition());
+                robot.state = Robot.states.LIFT_MIDO;
+
+            }
+            if (gamepad2.a) {
+                telemetry.addData("Highest Positon", "Postion 2 - Highest");
+                telemetry.addData("Target Value", robot.nt);
+                telemetry.addData("Current Position", robot.lift.getCurrentPosition());
+                robot.state = Robot.states.LIFTING_DOWN;
+            }
+
+            if (gamepad2.x) {
+                telemetry.addData("Highest Positon", "Postion 2 - Highest");
+                telemetry.addData("Target Value", robot.nt);
+                telemetry.addData("Current Position", robot.lift.getCurrentPosition());
+                robot.state = Robot.states.LIFTING_UP;
+            }
             telemetry.update();
             robot.update();
 
 
-            if (gamepad1.left_trigger > 0.2) {
-                int ttarget;
-                ttarget = ((robot.turret.getCurrentPosition()) - (int) (323));
-                robot.turret.setTargetPosition((ttarget));
-                robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                if (robot.turret.getCurrentPosition() > robot.turret.getTargetPosition()) {
-                    robot.turret.setPower(-0.3);
+            // extension related stuff
+
+            if (gamepad2.left_stick_y > 0.2) {
+                robot.extention.setPower(0.55);
+                sleep(50);
+                robot.extention.setPower(0);
+            }
+
+            if (gamepad2.left_stick_y < -0.2) {
+                robot.extention.setPower(-0.75);
+                sleep(50);
+                robot.extention.setPower(0);
+            }
+
+            if (gamepad2.left_stick_y < 0.2) {
+                if (gamepad2.left_stick_y > 0.2) {
+                    robot.state = Robot.states.STOPPED_E;
                 }
             }
 
-
-            if (gamepad1.right_trigger > 0.2) {
-                int attarget;
-                attarget = ((robot.turret.getCurrentPosition()) + (int) (323));
-                robot.turret.setTargetPosition((attarget));
-                robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                if (robot.turret.getCurrentPosition() < robot.turret.getTargetPosition()) {
-                    robot.turret.setPower(0.3);
+            if (gamepad2.right_trigger > 0.2) {
+                robot.linearActuator.setPosition((0.79682527));
+                robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.extention.setTargetPosition((0));
+                robot.extention.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                robot.extention.setPower(-0.8);
+                if ((runtime.seconds() > 4)) {
+                    robot.extention.setPower(0);
                 }
+            }
+
+            if (gamepad2.dpad_down) {
+                robot.linearActuator.setPosition((0.39682527));
+                telemetry.addData("TLA", "Down");
             }
 
 
 
-                if (gamepad1.x) {
-
-                    telemetry.clearAll();
-                    int etarget;
-                    sleep(50);
-                    etarget = ((robot.extention.getCurrentPosition()) + (int) (200));
-                    robot.extention.setTargetPosition((etarget));
-                    robot.extention.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    runtime.reset();
-                    robot.extention.setPower(1);
-                    telemetry.addData("Target:", robot.extention.getTargetPosition());
-                    telemetry.addData("Current:", robot.extention.getCurrentPosition());
-                    telemetry.update();
-                    robot.extention.setPower(0);
-
-                    /*
-                    sleep(50);
-                    robot.extention.setPower(0.75);
-                    sleep(750);
-                    robot.extention.setPower(0);
-
-                     */
+            // Alliance Specific Hub
 
 
+            if (gamepad2.x) {
+                telemetry.clearAll();
+                runtime.reset();
+                robot.lift.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+                robot.lift.setPower(1);
+                sleep(500);
+                robot.LAup();
+                sleep(500);
+
+                telemetry.addLine();
+                telemetry.addData("status : ", " 1");
+                telemetry.update();
+                sleep(500);
+
+                while (robot.lift.getCurrentPosition() <= 1500 && runtime.milliseconds() < 1500 && opModeIsActive()) ;
+
+                robot.turret.setTargetPosition(-300);
+                robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                robot.turret.setPower(0.85);
+                robot.lift.setPower(0.05);
+                robot.extention.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                robot.extention.setTargetPosition(-490);
+                robot.extention.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                robot.extention.setPower(-0.65);
+            }
+
+
+            if (gamepad2.y) {
+                robot.turret.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+                robot.extention.setTargetPosition(0);
+                robot.extention.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+                robot.extention.setPower(1);
+                robot.LAdown();
+                runtime.reset();
+                while (!robot.cLimit.getState() && runtime.milliseconds() < 1300) {
+                    robot.turret.setPower(0.85);
                 }
-
-                if (gamepad1.y) {
-                    while (!robot.frontLimit.getState()) {
-                        robot.extention.setPower(-0.5);
-                    }
-                    robot.extention.setPower(0);
-
-                }
-
-
-                if (gamepad2.y) {
-                    robot.SWOD(0);
-                    telemetry.addData("y", "is true");
-                    telemetry.update();
-
-                }
-
-                if (gamepad2.x) {
-                    robot.SWOD(1);
-                    telemetry.addData("x", "is true");
-                    telemetry.update();
-
-                }
-
-
-
+                robot.lift.setPower(-0.55);
+                sleep(1300);
             }
         }
+
+        telemetry.update();
     }
+
+}
