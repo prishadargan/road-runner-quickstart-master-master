@@ -12,6 +12,7 @@ import static java.lang.Thread.sleep;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 public class DuckAuto {
     //Enums
@@ -46,20 +47,20 @@ public class DuckAuto {
     private static final int PIXY_BLUE_THRESHOLD_LOW = 185;
     private static final int PIXY_BLUE_THRESHOLD_HIGH = 190;
 
-    private static final int EXTEND_TARGET_POSITION_TOP = -370;
-    private static final int EXTEND_TARGET_POSITION_MID = -331;
-    private static final int EXTEND_TARGET_POSITION_LOW = -295;
+    private static final int EXTEND_TARGET_POSITION_TOP = -380;
+    private static final int EXTEND_TARGET_POSITION_MID = -304;
+    private static final int EXTEND_TARGET_POSITION_LOW = -269;
 
-    private static final int LIFT_TARGET_POSITION_TOP = 1450;
-    private static final int LIFT_TARGET_POSITION_MID = 884;
-    private static final int LIFT_TARGET_POSITION_LOW = 384;
+    private static final int LIFT_TARGET_POSITION_TOP = 1585;
+    private static final int LIFT_TARGET_POSITION_MID = 1000;
+    private static final int LIFT_TARGET_POSITION_LOW = 516;
 
     //Variable for target positions
     private int currentLiftTargetPosition;
     private int currentExtensionTargetPosition;
 
     //initialized for red, flipped to blue in constructor if needed
-    private int turretTargetPosition = 105;
+    private int turretTargetPosition = 115;
     private Pose2d startPosition = new Pose2d(-30.25, -63.75, Math.toRadians(-90.0));
     private Pose2d depositPreload = new Pose2d(startPosition.getX(), -50.5, Math.toRadians(-90.0));
     private Pose2d closeToCarousel = new Pose2d(-65.0, -47.0, Math.toRadians(0));
@@ -79,7 +80,7 @@ public class DuckAuto {
                 turretTargetPosition *= -1;
                 startPosition = new Pose2d(startPosition.getX(), -startPosition.getY(), startPosition.getHeading() + Math.toRadians(180));
                 depositPreload = new Pose2d(depositPreload.getX(), -depositPreload.getY(), depositPreload.getHeading() + Math.toRadians(180));
-                closeToCarousel = new Pose2d(closeToCarousel.getX(), -closeToCarousel.getY(), closeToCarousel.getHeading() + Math.toRadians(180));
+                closeToCarousel = new Pose2d(closeToCarousel.getX(), -closeToCarousel.getY(), closeToCarousel.getHeading());
                 break;
         }
     }
@@ -143,6 +144,8 @@ public class DuckAuto {
         drive.followTrajectoryAsync(depositPreloadTrajectory);
         //will happen while moving: tilt, lift, turn turret
         //robot.LAup();
+
+
         lift_up();
         runtime.reset();
 
@@ -155,6 +158,7 @@ public class DuckAuto {
             }
             drive.update();
         }
+        drive.waitForIdle();
 
         runtime.reset();
 
