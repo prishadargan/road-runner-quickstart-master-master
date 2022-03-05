@@ -14,6 +14,9 @@ other materials provided with the distribution.
 Neither the name of Robert Atkinson nor the names of his contributors may be used to
 endorse or promote products derived from this software without specific prior
 written permission.
+
+this policy is nice
+
 NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
 LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
 "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
@@ -99,6 +102,7 @@ public class TeleOpCode extends LinearOpMode {
             telemetry.addData("Lift Current - C", robot.lift.getCurrentPosition());
             telemetry.addData("Mode:", mode);
             telemetry.addData("Color:", color);
+            telemetry.addData("Lift Status :", robot.lift.isBusy());
 
 
             leftStickX = gamepad1.left_stick_x * -1;
@@ -148,11 +152,6 @@ public class TeleOpCode extends LinearOpMode {
                     SWODpower += SWODrampup;
                     sleep(500);
                 }
-
-
-
-
-
             }
 
             if (gamepad1.left_bumper) {
@@ -173,11 +172,9 @@ public class TeleOpCode extends LinearOpMode {
 
 
 
-
             /*
                          D2 - Driver 2
              */
-
 
 
             // collector
@@ -203,30 +200,34 @@ public class TeleOpCode extends LinearOpMode {
             }
 
 
-
             if(gamepad2.left_bumper) {
+                robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.extention.setTargetPosition(0);
                 robot.extention.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.extention.setPower(1);
+                while (robot.extention.getCurrentPosition() < -65);
+                robot.extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 robot.extention.setPower(.05);
             }
 
 
 
 
+            // khadified functions
+
             if(gamepad2.x) {
                 robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.turret.setTargetPosition(670);
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
                 robot.turret.setPower(-0.6);
-                sleep(1000);
+                while (runtime.seconds() < 1.5 && opModeIsActive() && robot.turret.getCurrentPosition() < 670);
                 robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.lift.setTargetPosition(0);
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.lift.setPower(0.6);
                 runtime.reset();
-                while (runtime.seconds() < 2 && robot.lift.isBusy());
-
+                robot.lift.setPower(0.6);
+                while (runtime.seconds() < 1.75 && robot.lift.isBusy());
 
             }
 
@@ -234,35 +235,35 @@ public class TeleOpCode extends LinearOpMode {
                 robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.turret.setTargetPosition(0);
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
                 robot.turret.setPower(0.6);
-                sleep(1000);
+                while (runtime.seconds() < 1.5 && opModeIsActive() && robot.turret.getCurrentPosition() > 45);
                 robot.lift.setTargetPosition(0);
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.lift.setPower(-0.6);
                 runtime.reset();
-                while (runtime.seconds() < 2 && robot.lift.isBusy());
-
+                robot.lift.setPower(-0.6);
+                while (runtime.seconds() < 1.75 && robot.lift.isBusy());
             }
+
 
 
             //shared hub position
-
             if (gamepad2.right_stick_button){
                 mode = "alliance";
             }
-
             if (gamepad2.left_stick_button){
                 mode = "shared";
             }
 
 
-            if(gamepad2.a && mode == "shared") {
+            if(gamepad2.a) {
                 runtime.reset();
                 robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.lift.setTargetPosition(650);
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
                 robot.lift.setPower(0.5);
-                sleep(500);
+                while (runtime.seconds() < 0.87 && opModeIsActive() && robot.lift.getCurrentPosition() < 600);
                 robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.turret.setTargetPosition(340);
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -270,28 +271,25 @@ public class TeleOpCode extends LinearOpMode {
                 while (runtime.seconds() < 3 && robot.lift.isBusy());
             }
 
-            if(gamepad2.a && mode == "alliance") {
-                robot.lift.setTargetPosition(2350);
+
+
+
+
+
+            if(gamepad2.y) {
+                robot.lift.setTargetPosition(1584);
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
                 robot.lift.setPower(1);
-                sleep(500);
+                while (runtime.seconds() < 0.85 && opModeIsActive() && robot.lift.getCurrentPosition() < 1400);
                 robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.turret.setTargetPosition(340);
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.turret.setPower(.85);
-                while (runtime.seconds() < 4 && robot.lift.isBusy());
-
+                while (runtime.seconds() < 4 && robot.turret.isBusy() && robot.lift.isBusy() && opModeIsActive());
             }
 
-            if (gamepad1.b) {
-                robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.lift.setTargetPosition(2500);
-                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.lift.setPower(1);
-                telemetry.addData("Lift Up", "doing that now");
-                sleep(2000000);
-                while(runtime.seconds() < 2 && robot.lift.isBusy());
-            }
+
 
 
 
@@ -305,25 +303,23 @@ public class TeleOpCode extends LinearOpMode {
                 robot.lift.setPower(0);
             }
 
-
             //turret
+
 
             if(gamepad2.dpad_left) {
                 robot.turret.setTargetPosition(robot.turret.getCurrentPosition() - (50));
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
                 robot.turret.setPower(0.5);
-                while(!robot.turret.isBusy() && runtime.seconds() > 1.5) {
-                    robot.turret.setPower(0);
-                }
+                while(runtime.seconds() < 0.25);
             }
 
             if(gamepad2.dpad_right) {
                 robot.turret.setTargetPosition(robot.turret.getCurrentPosition() + (50));
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
                 robot.turret.setPower(0.5);
-                while(!robot.turret.isBusy() && runtime.seconds() > 1.5) {
-                    robot.turret.setPower(0);
-                }
+                while(runtime.seconds() < 0.25);
             }
 
 
