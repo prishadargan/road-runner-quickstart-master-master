@@ -201,13 +201,7 @@ public class TeleOpCode extends LinearOpMode {
 
 
             if(gamepad2.left_bumper) {
-                robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.extention.setTargetPosition(0);
-                robot.extention.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.extention.setPower(1);
-                while (robot.extention.getCurrentPosition() < -65);
-                robot.extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                robot.extention.setPower(.05);
+                robot.state = Robot.states.G2LB;
             }
 
 
@@ -215,34 +209,14 @@ public class TeleOpCode extends LinearOpMode {
 
             // khadified functions
 
-            if(gamepad2.x) {
-                robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.turret.setTargetPosition(670);
-                robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                robot.turret.setPower(-0.6);
-                while (runtime.seconds() < 1.5 && opModeIsActive() && robot.turret.getCurrentPosition() < 670);
-                robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.lift.setTargetPosition(0);
-                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                robot.lift.setPower(0.6);
-                while (runtime.seconds() < 1.75 && robot.lift.isBusy());
+            robot.update();
 
+            if(gamepad2.x) {
+                robot.state = Robot.states.G2X;
             }
 
             if(gamepad2.b) {
-                robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.turret.setTargetPosition(0);
-                robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                robot.turret.setPower(0.6);
-                while (runtime.seconds() < 1.5 && opModeIsActive() && robot.turret.getCurrentPosition() > 45);
-                robot.lift.setTargetPosition(0);
-                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                robot.lift.setPower(-0.6);
-                while (runtime.seconds() < 1.75 && robot.lift.isBusy());
+                robot.state = Robot.states.G2B;
             }
 
 
@@ -257,36 +231,12 @@ public class TeleOpCode extends LinearOpMode {
 
 
             if(gamepad2.a) {
-                runtime.reset();
-                robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.lift.setTargetPosition(650);
-                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                robot.lift.setPower(0.5);
-                while (runtime.seconds() < 0.87 && opModeIsActive() && robot.lift.getCurrentPosition() < 600);
-                robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.turret.setTargetPosition(340);
-                robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.turret.setPower(.85);
-                while (runtime.seconds() < 3 && robot.lift.isBusy());
+                robot.state = Robot.states.G2A;
             }
 
 
-
-
-
-
             if(gamepad2.y) {
-                robot.lift.setTargetPosition(1584);
-                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                robot.lift.setPower(1);
-                while (runtime.seconds() < 0.85 && opModeIsActive() && robot.lift.getCurrentPosition() < 1400);
-                robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.turret.setTargetPosition(340);
-                robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.turret.setPower(.85);
-                while (runtime.seconds() < 4 && robot.turret.isBusy() && robot.lift.isBusy() && opModeIsActive());
+                robot.state = Robot.states.G2Y;
             }
 
 
