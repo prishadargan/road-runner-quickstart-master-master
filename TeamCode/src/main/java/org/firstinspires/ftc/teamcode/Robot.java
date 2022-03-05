@@ -36,7 +36,7 @@ public class Robot
     public Object drive;
 
     public enum states {
-        LIFTING_UP, LIFTING_UP_ACTION, LIFTING_DOWN, STOPPED_L, LIFTING_DOWN_ACTION, LIFT_MIDO, LIFT_MO_ACT, E_OUT, E_OUT_ACTION, E_IN, E_IN_ACTON, STOPPED_E,  TURRET_LEFT, TURRET_LEFT_ACTION, TURRET_RIGHT, TURRET_RIGHT_ACTON, STOPPED_T, TURRET_MID, T_MID_ACTION, FINE_ADJ_L, FAL_ACT, FINE_ADJ_R, FAR_ACT, LIFT_FAU, LFAU_ACT, LIFT_FAD, LFAD_ACT
+        STOPPED_L, G2X, G2X_ACT,GX2_ACT_2,G2B, G2B_ACT, G2B_ACT_2,  G2A, G2A_ACT,  G2Y, G2Y_ACT,  G2LB, G2LB_ACT,  G2DL, G2DL_ACT, G2DR, G2DR_ACT
     }
 
 
@@ -55,21 +55,20 @@ public class Robot
         this.telemetry = telemetry;
         this.opMode = opMode;
 
-        frontLeft = (DcMotorEx) hwMap.dcMotor.get("FL");
-        frontRight = (DcMotorEx) hwMap.dcMotor.get("FR");
-        backLeft = (DcMotorEx) hwMap.dcMotor.get("BL");
-        backRight = (DcMotorEx) hwMap.dcMotor.get("BR");
-        turret = (DcMotorEx) hwMap.dcMotor.get("Turret");
-        lift = (DcMotorEx) hwMap.dcMotor.get("Lift-Up");
-        extention = (DcMotorEx) hwMap.dcMotor.get("Lift-E");
-        collector = hwMap.dcMotor.get("Collector");
-        expanLimit = hwMap.digitalChannel.get("E-Limit");
-        cLimit = hwMap.digitalChannel.get("C-Limit");
-        frontLimit = hwMap.digitalChannel.get("F-Limit");
-        cServo = hwMap.servo.get("YesCap");
-        swod = hwMap.crservo.get("SWOD");
-        pixyCam = hwMap.i2cDeviceSynch.get("Pixy-Cam");
-        linearActuator = hwMap.servo.get("TLA");
+        frontLeft = (DcMotorEx) hwMap.dcMotor.get("FL"); //
+        frontRight = (DcMotorEx) hwMap.dcMotor.get("FR"); //
+        backLeft = (DcMotorEx) hwMap.dcMotor.get("BL"); //
+        backRight = (DcMotorEx) hwMap.dcMotor.get("BR"); //
+        turret = (DcMotorEx) hwMap.dcMotor.get("Turret"); //
+        lift = (DcMotorEx) hwMap.dcMotor.get("Lift-Up"); //
+        extention = (DcMotorEx) hwMap.dcMotor.get("Lift-E"); //
+        collector = hwMap.dcMotor.get("Collector"); //
+        expanLimit = hwMap.digitalChannel.get("E-Limit"); //
+        cLimit = hwMap.digitalChannel.get("C-Limit"); //
+//      frontLimit = hwMap.digitalChannel.get("F-Limit");
+        swod = hwMap.crservo.get("SWOD"); //
+        pixyCam = hwMap.i2cDeviceSynch.get("Pixy-Cam"); //
+        linearActuator = hwMap.servo.get("TLA"); //
 
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -94,200 +93,112 @@ public class Robot
             case STOPPED_L:
                 lift.setPower(0);
                 break;
-            case STOPPED_E:
-                extention.setPower(0);
-                break;
-            case STOPPED_T:
-                turret.setPower(0);
-                break;
-            case LIFTING_DOWN:
-                sleep(50);
-                newLeftTarget = ((lift.getCurrentPosition()) + (int) (-823));
-                lift.setTargetPosition((0));
-                lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                lift.setPower(-0.25);
-                state = states.LIFTING_DOWN_ACTION;
-                break;
-            case LIFTING_DOWN_ACTION:
-                if((runtime.seconds() > 4) || (!lift.isBusy())) {
-                    state = states.STOPPED_L;
-                    telemetry.addData("status", "complete");
-                    telemetry.update();
-                }
-                break;
-            case LIFTING_UP:
-                sleep(50);
-                nt = ((lift.getCurrentPosition()) + (int) (825));
-                lift.setTargetPosition((1420));
-                lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                lift.setPower((1));
-                state = states.LIFTING_UP_ACTION;
-                break;
-            case LIFTING_UP_ACTION:
-                if((runtime.seconds() > 4) || (!lift.isBusy())) {
-                    telemetry.addData("status", "complete");
-                    state = states.STOPPED_L;
-                }
-                break;
-            case LIFT_MIDO:
-                sleep(50);
-                lift.setTargetPosition((400));
-                lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                lift.setPower((0.45));
-                state = states.LIFT_MO_ACT;
-                break;
-            case LIFT_MO_ACT:
-                if((runtime.seconds() > 2) || (!lift.isBusy())) {
-                    telemetry.addData("status", "complete");
-                    state = states.STOPPED_L;
-                }
-                break;
-            case LIFT_FAD:
-                sleep(50);
-                lift.setTargetPosition((lift.getCurrentPosition() - 75));
-                lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                lift.setPower((0.3));
-                state = states.LFAD_ACT;
-                break;
-            case LFAD_ACT:
-                if((runtime.seconds() > 1) || (!lift.isBusy())) {
-                    telemetry.addData("status", "complete");
-                    state = states.STOPPED_L;
-                }
-                break;
-            case LIFT_FAU:
-                sleep(50);
-                lift.setTargetPosition((lift.getCurrentPosition() + 75));
-                lift.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                lift.setPower((0.3));
-                state = states.LFAD_ACT;
-                break;
-            case LFAU_ACT:
-                if((runtime.seconds() > 1) || (!lift.isBusy())) {
-                    telemetry.addData("status", "complete");
-                    state = states.STOPPED_L;
-                    telemetry.update();
-                }
-                break;
-
-            case E_IN:
-                linearActuator.setPosition(0.7936507924);
-                extention.setPower(0.8);
-                sleep(750);
-                extention.setPower(0);
-                extention.setPower(0.15);
-                state = states.E_IN_ACTON;
-                 break;
-            case E_IN_ACTON:
-                if((runtime.seconds() > 2) || (!frontLimit.getState())) {
-                    state = states.STOPPED_E;
-                }
-                break;
-            case E_OUT:
-                extention.setPower(-0.8);
-                sleep(50);
-                extention.setPower(0);
-                state = states.E_OUT_ACTION;
-                break;
-            case E_OUT_ACTION:
-                state = states.STOPPED_E;
-                break;
-            case TURRET_LEFT:
+            case G2X:
                 turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                turret.setTargetPosition((680));
-                turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                turret.setPower(0.3);
-                state = states.TURRET_LEFT_ACTION;
-                break;
-            case TURRET_LEFT_ACTION:
-                telemetry.addData("Turret Left to +330", turret.getCurrentPosition());
-                if ((runtime.seconds() > 3) || !turret.isBusy()) {
-                    state = states.STOPPED_T;
-                    telemetry.addData("Status : ", "Complete");
-                }
+                turret.setTargetPosition(670);
+                telemetry.addLine("1");
                 telemetry.update();
+                sleep(500);
+                turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                telemetry.addLine("2");
+                telemetry.update();
+                sleep(500);
+                turret.setPower(-0.6);
+                telemetry.addLine("3");
+                telemetry.update();
+                sleep(500);
+                state = states.G2X_ACT;
                 break;
-            case TURRET_RIGHT:
-                turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                turret.setTargetPosition((0));
-                turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+            case G2X_ACT:
                 runtime.reset();
-                turret.setPower(-0.25);
-                state = states.TURRET_RIGHT_ACTON;
-                break;
-            case TURRET_RIGHT_ACTON:
-                if(runtime.seconds() > 3 || !turret.isBusy()) {
-                    telemetry.addData("Turret Stat : ", "complete");
-                    state = states.STOPPED_T;
-                }
-                break;
-            case TURRET_MID:
-                turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                turret.setTargetPosition((330));
-                turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                if (turret.getCurrentPosition() > 330){
-                    turret.setPower(-0.25);
-                }
+                if (runtime.seconds() > 1.5 && turret.getCurrentPosition() > 670) {
+                    telemetry.addLine("4");
 
-                if (turret.getCurrentPosition() < 330){
-                    turret.setPower(0.25);
-                }
-                state = states.T_MID_ACTION;
-                break;
-            case T_MID_ACTION:
-                if(runtime.seconds() > 1.5 || !turret.isBusy()) {
-                    telemetry.addData("Turret Stat : ", "complete");
-                    state = states.STOPPED_T;
-                }
-                break;
-            case FINE_ADJ_L:
-                turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                turret.setTargetPosition((turret.getCurrentPosition() + 50));
-                turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                if (turret.getCurrentPosition() > turret.getTargetPosition()){
-                    turret.setPower(-0.2);
-                }
+                    sleep(500);
+                    lift.setTargetPosition(0);
+                    telemetry.addLine("5");
 
-                if (turret.getCurrentPosition() < turret.getTargetPosition()){
-                    turret.setPower(0.2);
-                }
-                state = states.FAL_ACT;
-                break;
-            case FAL_ACT:
-                if(runtime.seconds() > 1 || !turret.isBusy()) {
-                    telemetry.addData("Turret Stat : ", "complete");
-                    state = states.STOPPED_T;
-                }
-                break;
-            case FINE_ADJ_R:
-                turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                turret.setTargetPosition((turret.getCurrentPosition() - 50));
-                turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                if (turret.getCurrentPosition() > turret.getTargetPosition()){
-                    turret.setPower(-0.6);
-                }
+                    sleep(500);
+                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    telemetry.addLine("6");
 
-                if (turret.getCurrentPosition() < turret.getTargetPosition()){
-                    turret.setPower(0.6);
-                }
-                state = states.FAL_ACT;
-                break;
-            case FAR_ACT:
-                if(runtime.seconds() > 1 || !turret.isBusy()) {
-                    telemetry.addData("Turret Stat : ", "complete");
-                    state = states.STOPPED_T;
+                    sleep(500);
+                    lift.setPower(-0.6);
                     telemetry.update();
                 }
                 break;
+            case G2B_ACT_2:
+
+                break;
+            case G2B:
+                turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                turret.setTargetPosition(0);
+                turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                turret.setPower(0.6);
+                while (runtime.seconds() < 1.5 && turret.getCurrentPosition() > 45);
+                lift.setTargetPosition(0);
+                lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                lift.setPower(-0.6);
+                while (runtime.seconds() < 1.75 && lift.isBusy());
+                break;
+            case G2A:
+                runtime.reset();
+                lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                lift.setTargetPosition(650);
+                lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                lift.setPower(0.5);
+                while (runtime.seconds() < 0.87 && lift.getCurrentPosition() < 600);
+                turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                turret.setTargetPosition(340);
+                turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                turret.setPower(.85);
+                while (runtime.seconds() < 3 && lift.isBusy());
+                break;
+            case G2Y:
+                lift.setTargetPosition(1584);
+                lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                lift.setPower(1);
+                while (runtime.seconds() < 0.85 && lift.getCurrentPosition() < 1400);
+                turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                turret.setTargetPosition(340);
+                turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                turret.setPower(.85);
+                while (runtime.seconds() < 4 && turret.isBusy() && lift.isBusy());
+                break;
+            case G2LB:
+                extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                extention.setTargetPosition(0);
+                extention.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                extention.setPower(1);
+                while (extention.getCurrentPosition() < -65);
+                extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                extention.setPower(.05);
+                break;
+            case G2DL:
+                turret.setTargetPosition(turret.getCurrentPosition() - (50));
+                turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                turret.setPower(0.5);
+                while(runtime.seconds() < 0.25);
+                break;
+            case G2DR:
+                turret.setTargetPosition(turret.getCurrentPosition() + (50));
+                turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                turret.setPower(0.5);
+                while(runtime.seconds() < 0.25);
+                break;
+
+
+
+
+
+
+
         }
 
     }
