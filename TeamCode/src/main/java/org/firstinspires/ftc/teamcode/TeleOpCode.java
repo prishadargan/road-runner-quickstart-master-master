@@ -271,7 +271,7 @@ public class TeleOpCode extends LinearOpMode {
             }
 
             if(gamepad2.a && mode == "alliance") {
-                robot.lift.setTargetPosition(1585);
+                robot.lift.setTargetPosition(2350);
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.lift.setPower(1);
                 sleep(500);
@@ -279,8 +279,8 @@ public class TeleOpCode extends LinearOpMode {
                 robot.turret.setTargetPosition(340);
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.turret.setPower(.85);
+                while (runtime.seconds() < 4 && robot.lift.isBusy());
 
-                while (runtime.seconds() < 3 && robot.lift.isBusy());
             }
 
             if (gamepad1.b) {
