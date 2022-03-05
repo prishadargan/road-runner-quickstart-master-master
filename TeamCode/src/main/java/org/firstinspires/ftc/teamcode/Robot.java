@@ -36,7 +36,7 @@ public class Robot
     public Object drive;
 
     public enum states {
-        STOPPED_L, G2X, G2X_ACT,GX2_ACT_2,G2B, G2B_ACT, G2B_ACT_2,  G2A, G2A_ACT,  G2Y, G2Y_ACT,  G2LB, G2LB_ACT,  G2DL, G2DL_ACT, G2DR, G2DR_ACT
+        STOPPED_L, G2X, G2X_ACT,G2B, G2B_ACT, G2B_ACT_2,  G2A, G2A_ACT,  G2Y, G2Y_ACT,  G2LB, G2LB_ACT,  G2DL, G2DL_ACT, G2DR, G2DR_ACT
     }
 
 
@@ -95,41 +95,18 @@ public class Robot
                 break;
             case G2X:
                 turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                turret.setTargetPosition(670);
-                telemetry.addLine("1");
-                telemetry.update();
-                sleep(500);
+                turret.setTargetPosition(680);
                 turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                telemetry.addLine("2");
-                telemetry.update();
-                sleep(500);
                 turret.setPower(-0.6);
-                telemetry.addLine("3");
-                telemetry.update();
-                sleep(500);
                 state = states.G2X_ACT;
                 break;
             case G2X_ACT:
                 runtime.reset();
-                if (runtime.seconds() > 1.5 && turret.getCurrentPosition() > 670) {
-                    telemetry.addLine("4");
+                if (runtime.seconds() > 3){
 
-                    sleep(500);
-                    lift.setTargetPosition(0);
-                    telemetry.addLine("5");
-
-                    sleep(500);
-                    lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    telemetry.addLine("6");
-
-                    sleep(500);
-                    lift.setPower(-0.6);
-                    telemetry.update();
                 }
                 break;
-            case G2B_ACT_2:
 
-                break;
             case G2B:
                 turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 turret.setTargetPosition(0);
@@ -192,11 +169,6 @@ public class Robot
                 turret.setPower(0.5);
                 while(runtime.seconds() < 0.25);
                 break;
-
-
-
-
-
 
 
         }
