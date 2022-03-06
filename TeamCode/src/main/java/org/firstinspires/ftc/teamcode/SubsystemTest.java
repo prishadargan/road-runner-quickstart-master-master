@@ -24,7 +24,6 @@ public class SubsystemTest extends LinearOpMode {
 
         waitForStart();
 
-//        robot.turret.setPower(0.5);
         while(opModeIsActive()) {
             telemetry.addData("Lift encoder", robot.lift.getCurrentPosition());
             telemetry.addData("Turret encoder", robot.turret.getCurrentPosition());

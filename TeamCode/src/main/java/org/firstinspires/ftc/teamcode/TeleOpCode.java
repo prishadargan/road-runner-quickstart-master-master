@@ -38,6 +38,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import static java.lang.Thread.sleep;
 
+import android.util.Log;
+
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 
@@ -52,17 +54,29 @@ public class TeleOpCode extends LinearOpMode {
     public double SWODrampup;
     public String mode = "shared";
     public String color = "color";
+    private boolean liftingUp = false;
+    private boolean gotoleft = false;
+    private boolean gotoright = false;
+    private boolean goingallup = false;
+    private boolean extensionin = false;
+
 
     @Override
 
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(hardwareMap, telemetry, this);
-        StickyButton sb = new StickyButton();
+        StickyButton depositButton =     new StickyButton();
+        StickyButton controlButton = new StickyButton();
+        StickyButton expansionButton = new StickyButton();
+        StickyButton gamepad_y = new StickyButton();
+        StickyButton extendin = new StickyButton();
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         telemetry.addLine("Waiting for start");
         telemetry.update();
 
         while (!opModeIsActive()){
+            telemetry.addLine("PRESS X IF PLAYING BLUE ");
+            telemetry.addLine("PRESS B IF PLAYING RED ");
             robot.linearActuator.setPosition(0.7936507924);
             if (gamepad1.x){
                 SWODpower = 0.2;
@@ -96,7 +110,6 @@ public class TeleOpCode extends LinearOpMode {
 
 
         while (opModeIsActive()) {
-
             telemetry.addLine("Running...");
             telemetry.addData("Turret Current - C", robot.turret.getCurrentPosition());
             telemetry.addData("Lift Current - C", robot.lift.getCurrentPosition());
@@ -111,6 +124,7 @@ public class TeleOpCode extends LinearOpMode {
             /*
                 D1 - Driver 1
              */
+
 
 
             // drive-train
@@ -171,6 +185,17 @@ public class TeleOpCode extends LinearOpMode {
             }
 
 
+            if  (gamepad1.right_trigger > 0.2) {
+                robot.Collector(-1); // In
+            }
+
+            if  (gamepad1.left_trigger > 0.2) {
+                robot.Collector(1); // Out
+            }
+
+
+
+
 
             /*
                          D2 - Driver 2
@@ -183,12 +208,15 @@ public class TeleOpCode extends LinearOpMode {
             }
 
             if  (gamepad2.left_trigger > 0.2) {
-                robot.Collector(.5); // Out
+                robot.Collector(0.6); // Out
             }
 
-            if (!(gamepad2.left_trigger > 0.2) && !(gamepad2.right_trigger > 0.2)) {
+            if ((gamepad2.left_trigger > 0.2) && (gamepad2.right_trigger > 0.2)) {
                 robot.Collector(0);
+            }
 
+            if  (gamepad2.right_bumper) {
+                robot.Collector(1); // out overide
             }
 
 
@@ -199,9 +227,19 @@ public class TeleOpCode extends LinearOpMode {
                 robot.extention.setPower((gamepad2.left_stick_y)/2);
             }
 
-
-            if(gamepad2.left_bumper) {
-                robot.state = Robot.states.G2LB;
+            extendin.update(gamepad2.left_bumper);
+            if(extendin.getState()) {
+                robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.extention.setTargetPosition(0);
+                robot.extention.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                robot.extention.setPower(1);
+                extensionin = true;
+            }
+            if (goingallup && (robot.extention.getCurrentPosition() < 50 || runtime.seconds() > 5)) {
+                robot.extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                robot.extention.setPower(0.07);
+                extensionin = false;
             }
 
 
@@ -209,14 +247,36 @@ public class TeleOpCode extends LinearOpMode {
 
             // khadified functions
 
-            robot.update();
-
-            if(gamepad2.x) {
-                robot.state = Robot.states.G2X;
+            controlButton.update(gamepad2.x);
+            if(controlButton.getState()) {
+                robot.turret.setTargetPosition(680);
+                robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                robot.turret.setPower(0.3);
+                gotoleft = true;
+            }
+            if (gotoleft && (robot.turret.getCurrentPosition() > 650 || runtime.seconds() > 2)) {
+                robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.lift.setTargetPosition(0);
+                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.lift.setPower(0.5);
+                gotoleft = false;
             }
 
-            if(gamepad2.b) {
-                robot.state = Robot.states.G2B;
+            expansionButton.update(gamepad2.b);
+            if(expansionButton.getState()) {
+                robot.turret.setTargetPosition(0);
+                robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                robot.turret.setPower(0.3);
+                gotoright = true;
+            }
+            if (gotoright && (robot.turret.getCurrentPosition() < 50 || runtime.seconds() > 2)) {
+                robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.lift.setTargetPosition(0);
+                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.lift.setPower(0.5);
+                gotoright = false;
             }
 
 
@@ -229,31 +289,48 @@ public class TeleOpCode extends LinearOpMode {
                 mode = "shared";
             }
 
+            depositButton.update(gamepad2.a);
+            if(depositButton.getState()) {
+                robot.lift.setTargetPosition(680);
+                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                robot.lift.setPower(1);
+                liftingUp = true;
+            }
 
-            if(gamepad2.a) {
-                robot.state = Robot.states.G2A;
+            if (liftingUp && (robot.lift.getCurrentPosition() > 600 || runtime.seconds() > 2)) {
+                robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.turret.setTargetPosition(340);
+                robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.turret.setPower(0.5);
+                liftingUp = false;
             }
 
 
-            if(gamepad2.y) {
-                robot.state = Robot.states.G2Y;
+            gamepad_y.update(gamepad2.y);
+            if(gamepad_y.getState()) {
+                robot.lift.setTargetPosition(1622);
+                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                robot.lift.setPower(0.3);
+                goingallup = true;
             }
-
-
-
+            if (goingallup && (robot.lift.getCurrentPosition() > 300 || runtime.seconds() > 2)) {
+                robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.turret.setTargetPosition(340);
+                robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.turret.setPower(0.5);
+                goingallup = false;
+            }
 
 
             // lift
             if (gamepad2.right_stick_y < -0.2 || gamepad2.right_stick_y > 0.2) {
-                robot.lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                robot.lift.setPower((-gamepad2.right_stick_y)/2);
+                robot.lift.setTargetPosition((int) (robot.lift.getTargetPosition() + -gamepad2.right_stick_y * 10));
+                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.lift.setPower(0.7);
             }
 
-            if (gamepad2.right_stick_y < 0.2 && gamepad2.right_stick_y > -0.2){
-                robot.lift.setPower(0);
-            }
-
-            //turret
 
 
             if(gamepad2.dpad_left) {

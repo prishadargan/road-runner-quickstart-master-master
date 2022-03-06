@@ -64,8 +64,8 @@ public class DuckAuto {
     private int turretTargetPosition = 105;
     private Pose2d startPosition = new Pose2d(-30.25, -63.75, Math.toRadians(-90.0));
     private Pose2d depositPreload = new Pose2d(startPosition.getX(), -50.5, Math.toRadians(-90.0));
-    private Pose2d closeToCarousel = new Pose2d(-65.0, -47.0, Math.toRadians(0));
-    private Pose2d collectingDuck1 = new Pose2d(-46.0, -46.0, Math.toRadians(-90.0));
+    private Pose2d closeToCarousel = new Pose2d(-54.5, -56.0, Math.toRadians(-45.0));
+    private Pose2d collectingDuck1 = new Pose2d(-54.5, -56.0, Math.toRadians(-90.0));
     private Pose2d collectingDuck2 = new Pose2d(-52.0, -46.0, Math.toRadians(-90.0));
     private Pose2d depositDuck = new Pose2d(-35.0, -25.0, Math.toRadians(0));
     private Pose2d parkAtEnd = new Pose2d(-62.5, -35.0, Math.toRadians(0));
