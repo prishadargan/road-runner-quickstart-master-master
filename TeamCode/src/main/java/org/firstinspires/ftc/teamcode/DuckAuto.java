@@ -41,6 +41,7 @@ public class DuckAuto {
     private double current_duck_y;
     private double previous_duck_x;
     private boolean duckCollectStat = false;
+    private boolean see_duck = false;
 
     //Constants
     private static final int PIXY_RED_THRESHOLD_LOW = 35;
@@ -260,8 +261,9 @@ public class DuckAuto {
             telemetry.addData("Duck Collection Status (true means it goes to the second position)", duckCollectStat);
             telemetry.update();
             runtime.reset();
-            if (current_duck_x == 0 && runtime.seconds() < 0.5){
+            while (current_duck_x == 0 && runtime.seconds() < 0.5){
                 drive.turn(Math.toRadians(-20));
+                see_duck = true;
             }
 
 
@@ -276,7 +278,7 @@ public class DuckAuto {
                 telemetry.addLine("Moving Left");
                 telemetry.update();
             }
-            if (current_duck_x < 145 && current_duck_x > 125 && previous_duck_x == current_duck_x) {
+            if (current_duck_x < 145 && current_duck_x > 125 && previous_duck_x == current_duck_x && see_duck == true) {
                 telemetry.addLine("Collected");
                 telemetry.update();
                 i = 99;
@@ -379,6 +381,7 @@ public class DuckAuto {
 
  */
 
+        if (duckCollectStat == true && see_duck == true) {
 
             Trajectory depositTheDuck = drive.trajectoryBuilder(drive.getPoseEstimate())
                     .lineToLinearHeading(depositDuck)
@@ -400,6 +403,8 @@ public class DuckAuto {
             robot.collector.setPower(0.75);
             while (runtime.seconds() < 2) ;
             robot.collector.setPower(0);
+
+        }
 
 
 
