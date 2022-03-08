@@ -30,6 +30,9 @@ public class SubsystemTest extends LinearOpMode {
             telemetry.addData("Extension encoder", robot.extention.getCurrentPosition());
             telemetry.addLine();
             telemetry.addData("Control Hub Limit (Blue) is pressed?", robot.cLimit.getState());
+            telemetry.addData("left_stick_x", gamepad1.left_stick_x);
+            telemetry.addData("left_stick_y", gamepad1.left_stick_y);
+
             telemetry.addData("Expansion Hub Limit (Red) is pressed?", robot.expanLimit.getState());
             telemetry.update();
         }

@@ -109,7 +109,7 @@ public class TeleOpCode extends LinearOpMode {
 
 
 
-        while (opModeIsActive()) {
+         while (opModeIsActive()) {
             telemetry.addLine("Running...");
             telemetry.addData("Turret Current - C", robot.turret.getCurrentPosition());
             telemetry.addData("Lift Current - C", robot.lift.getCurrentPosition());
@@ -182,15 +182,6 @@ public class TeleOpCode extends LinearOpMode {
 
             if (gamepad1.dpad_down) {
                 robot.linearActuator.setPosition(robot.linearActuator.getPosition() + 0.005);
-            }
-
-
-            if  (gamepad1.right_trigger > 0.2) {
-                robot.Collector(-1); // In
-            }
-
-            if  (gamepad1.left_trigger > 0.2) {
-                robot.Collector(1); // Out
             }
 
 
@@ -338,7 +329,6 @@ public class TeleOpCode extends LinearOpMode {
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 runtime.reset();
                 robot.turret.setPower(0.5);
-                while(runtime.seconds() < 0.25);
             }
 
             if(gamepad2.dpad_right) {
@@ -346,7 +336,6 @@ public class TeleOpCode extends LinearOpMode {
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 runtime.reset();
                 robot.turret.setPower(0.5);
-                while(runtime.seconds() < 0.25);
             }
 
 
