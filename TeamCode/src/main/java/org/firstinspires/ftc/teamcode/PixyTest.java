@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class PixyTest extends LinearOpMode {
     private  double duck_x;
     private double duck_y;
+    private double teamelement_x;
+    private double teamelement_y;
     @Override
 
     public void runOpMode() throws InterruptedException {
@@ -31,12 +33,17 @@ public class PixyTest extends LinearOpMode {
 
         while(opModeIsActive()) {
             robot.pixyCam.engage();
-            duck_x = 0xff & robot.pixyCam.read(0x51, 5)[1];
-            duck_y = 0xff & robot.pixyCam.read(0x51, 5)[2];
+            duck_x = 0xff & robot.pixyCam.read(0x52, 5)[1];
+            duck_y = 0xff & robot.pixyCam.read(0x52, 5)[2];
             telemetry.addData("Pixy Health : ", robot.pixyCam.getHealthStatus());
-            telemetry.addLine(" " + duck_x);
-            telemetry.addLine(" " + duck_y);
+            telemetry.addLine("Duck x:" + duck_x);
+            telemetry.addLine("Duck y: " + duck_y);
             telemetry.update();
+            teamelement_x = 0xff & robot.pixyCam.read(0x51, 5)[1];
+            teamelement_y = 0xff & robot.pixyCam.read(0x51, 5)[2];
+            telemetry.addData("Pixy Health : ", robot.pixyCam.getHealthStatus());
+            telemetry.addLine("Team element x: " + teamelement_x);
+            telemetry.addLine("Team element y: " + teamelement_y);
 
         }
     }
