@@ -79,15 +79,15 @@ public class TeleOpCode extends LinearOpMode {
             telemetry.addLine("PRESS B IF PLAYING RED ");
             robot.linearActuator.setPosition(0.7936507924);
             if (gamepad1.x){
-                SWODpower = 0.2;
-                SWODrampup = 0.15;
+                SWODpower = 0.15;
+                SWODrampup = 0.09;
                 color = "blue";
                 telemetry.addLine("Blue");
             }
 
             if (gamepad1.b){
-                SWODpower = -0.2;
-                SWODrampup = -0.15;
+                SWODpower = -0.15;
+                SWODrampup = -0.09;
                 color = "red";
                 telemetry.addLine("Red");
             }
