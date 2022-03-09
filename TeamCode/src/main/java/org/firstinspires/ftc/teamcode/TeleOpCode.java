@@ -79,15 +79,15 @@ public class TeleOpCode extends LinearOpMode {
             telemetry.addLine("PRESS B IF PLAYING RED ");
             robot.linearActuator.setPosition(0.7936507924);
             if (gamepad1.x){
-                SWODpower = 0.2;
-                SWODrampup = 0.15;
+                SWODpower = 0.15;
+                SWODrampup = 0.09;
                 color = "blue";
                 telemetry.addLine("Blue");
             }
 
             if (gamepad1.b){
-                SWODpower = -0.2;
-                SWODrampup = -0.15;
+                SWODpower = -0.15;
+                SWODrampup = -0.09;
                 color = "red";
                 telemetry.addLine("Red");
             }
@@ -109,7 +109,7 @@ public class TeleOpCode extends LinearOpMode {
 
 
 
-        while (opModeIsActive()) {
+         while (opModeIsActive()) {
             telemetry.addLine("Running...");
             telemetry.addData("Turret Current - C", robot.turret.getCurrentPosition());
             telemetry.addData("Lift Current - C", robot.lift.getCurrentPosition());
@@ -134,6 +134,7 @@ public class TeleOpCode extends LinearOpMode {
                             -gamepad1.left_stick_y,
                             -gamepad1.left_stick_x,
                             -gamepad1.right_stick_x
+
                     )
             );
 
@@ -173,7 +174,9 @@ public class TeleOpCode extends LinearOpMode {
                 telemetry.addData("SWOD : ", "Off");
                 telemetry.update();
             }
-
+              if(gamepad1.dpad_right) {
+                  robot.Cap.setPosition(0.65);
+              }
 
             // capping
             if (gamepad1.dpad_up) {
@@ -182,15 +185,6 @@ public class TeleOpCode extends LinearOpMode {
 
             if (gamepad1.dpad_down) {
                 robot.linearActuator.setPosition(robot.linearActuator.getPosition() + 0.005);
-            }
-
-
-            if  (gamepad1.right_trigger > 0.2) {
-                robot.Collector(-1); // In
-            }
-
-            if  (gamepad1.left_trigger > 0.2) {
-                robot.Collector(1); // Out
             }
 
 
@@ -338,7 +332,6 @@ public class TeleOpCode extends LinearOpMode {
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 runtime.reset();
                 robot.turret.setPower(0.5);
-                while(runtime.seconds() < 0.25);
             }
 
             if(gamepad2.dpad_right) {
@@ -346,7 +339,6 @@ public class TeleOpCode extends LinearOpMode {
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 runtime.reset();
                 robot.turret.setPower(0.5);
-                while(runtime.seconds() < 0.25);
             }
 
 

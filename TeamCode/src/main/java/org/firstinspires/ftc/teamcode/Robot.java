@@ -34,7 +34,7 @@ public class Robot
     public Servo linearActuator;
     public Servo cServo;
     public Object drive;
-
+      public Servo Cap;
     public enum states {
         STOPPED_L,STOPPED_T,TURRET_SHARED,TURRET_SHARED_ACT, LIFT_UP, LIFT_UP_ACT
     }
@@ -69,6 +69,7 @@ public class Robot
         swod = hwMap.crservo.get("SWOD"); //
         pixyCam = hwMap.i2cDeviceSynch.get("Pixy-Cam"); //
         linearActuator = hwMap.servo.get("TLA"); //
+        Cap = hwMap.servo.get("YesCap");
 
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
