@@ -10,6 +10,8 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 
 import static java.lang.Thread.sleep;
 
+import android.util.Log;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
@@ -34,6 +36,9 @@ public class DuckAuto {
     private String te_Stat = "Not-Collected";
     private int[] pixyThresholds = new int[2];
 
+    // Other
+    private double extensionTime = 0.35;
+
     //Pixy code values
     private double team_element_x;
     private double team_element_y;
@@ -54,7 +59,7 @@ public class DuckAuto {
     private static final int EXTEND_TARGET_POSITION_MID = -335;
     private static final int EXTEND_TARGET_POSITION_LOW = -300;
 
-    private static final int LIFT_TARGET_POSITION_TOP = 1520;
+    private static final int LIFT_TARGET_POSITION_TOP = 1540;
     private static final int LIFT_TARGET_POSITION_MID = 1050;
     private static final int LIFT_TARGET_POSITION_LOW = 520;
 
@@ -70,7 +75,7 @@ public class DuckAuto {
     private Pose2d collectingDuck1 = new Pose2d(-50.0, -54.0, Math.toRadians(-90.0));
     private Pose2d collectingDuck2 = new Pose2d(-52.0, -46.0, Math.toRadians(-90.0));
     private Pose2d depositDuck = new Pose2d(-33.0, -25.0, Math.toRadians(0));
-    private Pose2d parkAtEnd = new Pose2d(-60.0, -35.0, Math.toRadians(0));
+    private Pose2d parkAtEnd = new Pose2d(-61.8393, -35.0, Math.toRadians(0));
 
 
 
@@ -132,7 +137,7 @@ public class DuckAuto {
                 currentLiftTargetPosition = LIFT_TARGET_POSITION_LOW;
                 currentExtensionTargetPosition = EXTEND_TARGET_POSITION_LOW;
             } else {
-              //detecting mid
+                //detecting mid
                 height = LiftHeight.MID;
                 currentLiftTargetPosition = LIFT_TARGET_POSITION_MID;
                 currentExtensionTargetPosition = EXTEND_TARGET_POSITION_MID;
@@ -169,10 +174,10 @@ public class DuckAuto {
 
         lift_up();
         runtime.reset();
-        sleep(100);
+        sleep(500);
         boolean firstTime = true;
         while(drive.isBusy() || firstTime) {
-            if (firstTime && runtime.seconds() > 0.8) {
+            if (firstTime && runtime.seconds() > 1) {
                 turret_turn_deposit_preload();
                 firstTime = false;
             }
@@ -183,10 +188,10 @@ public class DuckAuto {
         runtime.reset();
         extend_to_target(currentExtensionTargetPosition);
         //wait for extension to reach position (or timeout)
-        while((robot.extention.isBusy() && runtime.seconds() < 0.8) && opMode.opModeIsActive());
+        while(runtime.seconds() < 1.5 && opMode.opModeIsActive());
 
         //deposit preload block
-        robot.collector.setPower(0.65); // minimum depositing speed
+        robot.collector.setPower(0.6); // minimum depositing speed
         sleep(500);
         robot.collector.setPower(0);
 
@@ -247,60 +252,76 @@ public class DuckAuto {
 
 
         runtime.reset();
-        while (runtime.seconds() < 10)
-        for (int i = 0; i < 12; i++) {
-            robot.pixyCam.engage();
-            current_duck_x = 0xff & robot.pixyCam.read(0x52, 5)[1];
-            current_duck_y = 0xff & robot.pixyCam.read(0x52, 5)[2];
-            telemetry.addData("Variant : ", i);
-            telemetry.addData("PIXY-D-C-X :", current_duck_x);
-            telemetry.addData("PIXY-D-P-X :", previous_duck_x);
-            telemetry.addData("PIXY-D-Y : ", current_duck_y);
-            telemetry.addData("PIXY STAT : ", robot.pixyCam.getHealthStatus());
-            telemetry.addData("TE-STAT :", te_Stat);
-            telemetry.addData("Duck Collection Status (true means it goes to the second position)", duckCollectStat);
-            telemetry.update();
-            runtime.reset();
-            while (current_duck_x == 0 && runtime.seconds() < 0.5){
-                drive.turn(Math.toRadians(-20));
-                see_duck = true;
-            }
-
-
-
-            if (current_duck_x < 125 && current_duck_x != 0) { // move right
-                drive.turn(Math.toRadians(10));
-                telemetry.addLine("Moving Right");
+        while (runtime.seconds() < 10) {
+            for (int i = 0; i < 50; i++) {
+                robot.pixyCam.engage();
+                current_duck_x = 0xff & robot.pixyCam.read(0x52, 5)[1];
+                current_duck_y = 0xff & robot.pixyCam.read(0x52, 5)[2];
+                telemetry.addData("Loop  : ", i);
+                telemetry.addData("PIXY-D-C-X :", current_duck_x);
+                telemetry.addData("PIXY-D-P-X :", previous_duck_x);
+                telemetry.addData("PIXY STAT : ", robot.pixyCam.getHealthStatus());
+                telemetry.addData("TE-STAT :", te_Stat);
+                telemetry.addData("Duck Collection Status (true means it goes to the second position)", duckCollectStat);
                 telemetry.update();
-            }
-            if (current_duck_x > 145 && current_duck_x != 0) { // move left
-                drive.turn(Math.toRadians(-10));
-                telemetry.addLine("Moving Left");
-                telemetry.update();
-            }
-            if (current_duck_x < 145 && current_duck_x > 125 && previous_duck_x == current_duck_x && see_duck == true) {
-                telemetry.addLine("Collected");
-                telemetry.update();
-                i = 99;
-                robot.collector.setPower(-1);
-                robot.extention.setTargetPosition(-374);
-                robot.extention.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
                 runtime.reset();
-                robot.extention.setPower(0.4);
-                while (runtime.seconds() < 1.75);
-                robot.extention.setTargetPosition(0);
-                robot.extention.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.extention.setPower(0.75);
-                runtime.reset();
-                sleep(250);
-                duckCollectStat = true;
+                while (current_duck_x == 0 && runtime.seconds() < 0.5) {
+                    drive.turn(Math.toRadians(-10));
 
+                    Log.d("KARTHIKS MACBOOK AIR ", "Finding the duck");
+                }
+
+                if (current_duck_x != 0){
+                    see_duck = true;
+                }
+
+                while (current_duck_y > 130){
+                    Trajectory duckCollectionAdjustment = drive.trajectoryBuilder(drive.getPoseEstimate())
+                            .back(1,
+                                    SampleMecanumDrive.getVelocityConstraint(4, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                                    SampleMecanumDrive.getAccelerationConstraint(7))
+                            .build();
+
+                    drive.followTrajectory(duckCollectionAdjustment);
+                }
+                if (current_duck_x < 125 && current_duck_x != 0) { // move right
+                    drive.turn(Math.toRadians(5));
+                    telemetry.addLine("Moving Right");
+                    telemetry.update();
+                    Log.d("KARTHIKS MACBOOK AIR ", "Adjusting Right");
+                }
+                if (current_duck_x > 135 && current_duck_x != 0) { // move left
+                    drive.turn(Math.toRadians(-5));
+                    telemetry.addLine("Moving Left");
+                    telemetry.update();
+                    Log.d("KARTHIKS MACBOOK AIR ", "Adjusting Left");
+                }
+                if ((current_duck_x <= 135) && (current_duck_x >= 125) && (previous_duck_x == current_duck_x)){
+                    telemetry.addLine("Collected");
+                    telemetry.update();
+                    robot.collector.setPower(-1);
+                    robot.extention.setTargetPosition(-374);
+                    robot.extention.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    runtime.reset();
+                    robot.extention.setPower(0.4);
+                    while (runtime.seconds() < 1.75) ;
+                    robot.extention.setTargetPosition(0);
+                    robot.extention.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    robot.extention.setPower(0.75);
+                    runtime.reset();
+                    sleep(250);
+                    duckCollectStat = true;
+                    Log.d("KARTHIKS MACBOOK AIR ", "picking up the duck");
+                    i = 99;
+                }
+                previous_duck_x = current_duck_x;
+                sleep(100);
+                telemetry.update();
             }
 
-            sleep(100);
-            previous_duck_x = current_duck_x;
+            break;
 
-            telemetry.update();
         }
 
 /*
@@ -381,27 +402,37 @@ public class DuckAuto {
 
  */
 
-        if (duckCollectStat == true && see_duck == true) {
+        if (duckCollectStat){
+            Log.d("KARTHIKS MACBOOK AIR ", "line 388");
 
+        }
+        sleep(5000);
+        Log.d("KARTHIKS MACBOOK AIR ", "5 sec wait! - not broken");
+
+
+
+        if (duckCollectStat) {
+            Log.d("KARTHIKS MACBOOK AIR ", "Depositing the duck!");
             Trajectory depositTheDuck = drive.trajectoryBuilder(drive.getPoseEstimate())
                     .lineToLinearHeading(depositDuck)
                     .build();
             drive.followTrajectoryAsync(depositTheDuck);
 
-            move_lift(1580);
+            move_lift(1560);
             runtime.reset();
             while (!robot.cLimit.getState() && runtime.seconds() < 4 && opMode.opModeIsActive()) {
                 drive.update();
             }
             drive.waitForIdle();
 
+
             robot.extention.setTargetPosition(-100);
             robot.extention.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.extention.setPower(0.75);
             runtime.reset();
-
-            robot.collector.setPower(0.75);
-            while (runtime.seconds() < 2) ;
+            while (runtime.seconds() < extensionTime);
+            robot.collector.setPower(0.5);
+            while (runtime.seconds() < 2 + extensionTime) ;
             robot.collector.setPower(0);
 
         }
@@ -419,12 +450,13 @@ public class DuckAuto {
         robot.extention.setPower(0.75);
 
         runtime.reset();
-        telemetry.addLine("Moving  Turret");
-        move_turret(-50);
-        while (robot.turret.isBusy() && runtime.seconds() < 1 && opMode.opModeIsActive()){
-            telemetry.addLine("In while loop");
-        }
+        move_lift(1000);
+        while (runtime.seconds() < 3 && (robot.lift.getCurrentPosition() > 450));
+        runtime.reset();
+        move_turret(-10);
+        while (runtime.seconds() < 4 && (robot.turret.getCurrentPosition() < 50));
         lift_down();
+
         telemetry.addLine("Lift Down");
         runtime.reset();
         while(!robot.cLimit.getState() && runtime.seconds() < 2 && opMode.opModeIsActive()) {
