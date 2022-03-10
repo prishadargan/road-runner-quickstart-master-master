@@ -48,6 +48,7 @@ public class TeleOpCode extends LinearOpMode {
     //Initializes joystick storage variables    2t
     private double leftStickX, leftStickY, rightStickX;
     private ElapsedTime runtime = new ElapsedTime();
+    private ElapsedTime opmodetime = new ElapsedTime();
 
     private static final double threshold = 0;
     public  double SWODpower;
@@ -74,7 +75,8 @@ public class TeleOpCode extends LinearOpMode {
         telemetry.addLine("Waiting for start");
         telemetry.update();
 
-        while (!opModeIsActive()){
+
+        while (!opModeIsActive() && !isStopRequested()){
             telemetry.addLine("PRESS X IF PLAYING BLUE ");
             telemetry.addLine("PRESS B IF PLAYING RED ");
             robot.linearActuator.setPosition(0.7936507924);
@@ -82,20 +84,25 @@ public class TeleOpCode extends LinearOpMode {
                 SWODpower = 0.15;
                 SWODrampup = 0.09;
                 color = "blue";
-                telemetry.addLine("Blue");
+                telemetry.clearAll();
+                telemetry.addLine("Alliance Color:  Blue");
             }
 
-            if (gamepad1.b){
+            if (gamepad1.b) {
                 SWODpower = -0.15;
                 SWODrampup = -0.09;
                 color = "red";
-                telemetry.addLine("Red");
+                telemetry.clearAll();
+                telemetry.addLine("Alliance Color:  Red");
             }
 
             telemetry.update();
 
         }
+
+
         waitForStart();
+        opmodetime.reset();
 
         telemetry.addLine("Starting...");
         telemetry.update();
@@ -116,6 +123,7 @@ public class TeleOpCode extends LinearOpMode {
             telemetry.addData("Mode:", mode);
             telemetry.addData("Color:", color);
             telemetry.addData("Lift Status :", robot.lift.isBusy());
+            telemetry.addData("Time (s)", opmodetime.seconds());
 
 
             leftStickX = gamepad1.left_stick_x * -1;
@@ -151,6 +159,19 @@ public class TeleOpCode extends LinearOpMode {
 
 
             // reset encoder
+             if (gamepad1.x){
+                 SWODpower = 0.15;
+                 SWODrampup = 0.09;
+                 color = "blue";
+                 telemetry.addLine("Blue");
+             }
+
+             if (gamepad1.b){
+                 SWODpower = -0.15;
+                 SWODrampup = -0.09;
+                 color = "red";
+                 telemetry.addLine("Red");
+             }
             if (gamepad1.y){
                 robot.lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 robot.extention.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -174,8 +195,8 @@ public class TeleOpCode extends LinearOpMode {
                 telemetry.addData("SWOD : ", "Off");
                 telemetry.update();
             }
-              if(gamepad1.dpad_right) {
-                  robot.Cap.setPosition(0.65);
+            if(gamepad1.dpad_right) {
+                  robot.LetsCap(1200);
               }
 
             // capping
@@ -341,10 +362,10 @@ public class TeleOpCode extends LinearOpMode {
                 robot.turret.setPower(0.5);
             }
 
+             telemetry.update();
 
         }
 
-        telemetry.update();
     }
 
 }

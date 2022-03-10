@@ -52,8 +52,8 @@ public class DuckAuto {
     private static final int PIXY_RED_THRESHOLD_LOW = 35;
     private static final int PIXY_RED_THRESHOLD_HIGH = 115;
 
-    private static final int PIXY_BLUE_THRESHOLD_LOW = 185;
-    private static final int PIXY_BLUE_THRESHOLD_HIGH = 190;
+    private static final int PIXY_BLUE_THRESHOLD_LOW = 35;
+    private static final int PIXY_BLUE_THRESHOLD_HIGH = 115;
 
     private static final int EXTEND_TARGET_POSITION_TOP = -365;
     private static final int EXTEND_TARGET_POSITION_MID = -335;
@@ -72,11 +72,15 @@ public class DuckAuto {
     private Pose2d startPosition = new Pose2d(-30.25, -63.75, Math.toRadians(-90.0));
     private Pose2d depositPreload = new Pose2d(startPosition.getX(), -48.5, Math.toRadians(0));
     private Pose2d closeToCarousel = new Pose2d(-55.0, -56.0, Math.toRadians(-32.5));
+    private static double StrafeAmount = 5.75;
     private Pose2d collectingDuck1 = new Pose2d(-50.0, -54.0, Math.toRadians(-90.0));
     private Pose2d collectingDuck2 = new Pose2d(-52.0, -46.0, Math.toRadians(-90.0));
     private Pose2d depositDuck = new Pose2d(-33.0, -25.0, Math.toRadians(0));
     private Pose2d parkAtEnd1 = new Pose2d(-39.25, -13.5, Math.toRadians(0));
     private Pose2d parkAtEnd2 = new Pose2d(-59.5, -35.0, Math.toRadians(0));
+    private static double pixyturn = -10;
+    private static double pixyrightturn = 5;
+    private static double pixyleftturn = -5;
 
 
 
@@ -95,11 +99,17 @@ public class DuckAuto {
                 turretTargetPosition *= -1;
                 startPosition = new Pose2d(startPosition.getX(), -startPosition.getY(), startPosition.getHeading());
                 depositPreload = new Pose2d(depositPreload.getX(), -depositPreload.getY(), depositPreload.getHeading() + Math.toRadians(180));
-                closeToCarousel = new Pose2d(-53.25, 55.5, depositPreload.getHeading() + Math.toRadians(180));
-                collectingDuck1 = new Pose2d(collectingDuck1.getX(), -collectingDuck1.getY(), collectingDuck1.getHeading());
-                collectingDuck2 = new Pose2d(collectingDuck2.getX(), -collectingDuck2.getY(),collectingDuck2.getHeading());
-                depositDuck = new Pose2d(depositDuck.getX(), -depositDuck.getY(), depositDuck.getHeading());
-                parkAtEnd1 = new Pose2d(depositDuck.getX(), -depositDuck.getY(), depositDuck.getHeading() + Math.toRadians(180));
+                closeToCarousel = new Pose2d(-56.25, 58.25, closeToCarousel.getHeading() - Math.toRadians(45));
+                StrafeAmount = 1.25;
+                collectingDuck1 = new Pose2d(collectingDuck1.getX(), -collectingDuck1.getY(), collectingDuck1.getHeading() + Math.toRadians(180));
+                collectingDuck2 = new Pose2d(collectingDuck2.getX(), -collectingDuck2.getY(),collectingDuck2.getHeading() + Math.toRadians(180));
+                depositDuck = new Pose2d(depositDuck.getX(), -depositDuck.getY(), depositDuck.getHeading() + Math.toRadians(180));
+               parkAtEnd1 = new Pose2d(parkAtEnd1.getX(), -parkAtEnd1.getY(), parkAtEnd1.getHeading() + Math.toRadians(180));
+                parkAtEnd2 = new Pose2d(parkAtEnd2.getX() -(1), -parkAtEnd2.getY(),parkAtEnd2.getHeading() + Math.toRadians(180));
+                pixyturn = 10;
+                pixyrightturn = -5;
+                pixyleftturn = 5;
+
 
 
                 break;
@@ -224,11 +234,10 @@ public class DuckAuto {
 
         //slowly move to press wheel against carousel
         Trajectory pressWheelAgainstCarousel = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .strafeRight(5.75,
+                .strafeRight(StrafeAmount,
                         SampleMecanumDrive.getVelocityConstraint(7, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(7))
                 .build();
-
         drive.followTrajectory(pressWheelAgainstCarousel);
 
         robot.SWOD(-0.15);
@@ -242,7 +251,6 @@ public class DuckAuto {
                 .build();
         drive.followTrajectoryAsync(collectingTheDuck);
 
-        move_lift(0);
         //  extension out here
         runtime.reset();
         while(!robot.cLimit.getState() && runtime.seconds() < 4 && opMode.opModeIsActive()) {
