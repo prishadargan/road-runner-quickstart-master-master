@@ -33,8 +33,9 @@ public class Robot
     public CRServo swod;
     public Servo linearActuator;
     public Servo cServo;
+    public Servo cap;
     public Object drive;
-      public Servo Cap;
+
     public enum states {
         STOPPED_L,STOPPED_T,TURRET_SHARED,TURRET_SHARED_ACT, LIFT_UP, LIFT_UP_ACT
     }
@@ -69,7 +70,7 @@ public class Robot
         swod = hwMap.crservo.get("SWOD"); //
         pixyCam = hwMap.i2cDeviceSynch.get("Pixy-Cam"); //
         linearActuator = hwMap.servo.get("TLA"); //
-        Cap = hwMap.servo.get("YesCap");
+        cap = hwMap.servo.get("YesCap");
 
 
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -176,12 +177,10 @@ public class Robot
 
     public void SWOD (double power) { swod.setPower(power);}
 
-    public void CapUp() {cServo.setPosition(0.9999999);}
-
-    public void CapDown() {cServo.setPosition(0.20618);}
-
     public void LAdown() { linearActuator.setPosition((0.79682527)); }
 
     public void LAup() { linearActuator.setPosition((0.39682527)); }
+
+    public void LetsCap(int position)  {cap.setPosition(position/2521);}
 
 }

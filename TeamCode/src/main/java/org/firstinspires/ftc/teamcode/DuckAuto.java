@@ -57,11 +57,11 @@ public class DuckAuto {
 
     private static final int EXTEND_TARGET_POSITION_TOP = -365;
     private static final int EXTEND_TARGET_POSITION_MID = -335;
-    private static final int EXTEND_TARGET_POSITION_LOW = -300;
+    private static final int EXTEND_TARGET_POSITION_LOW = -285;
 
     private static final int LIFT_TARGET_POSITION_TOP = 1540;
     private static final int LIFT_TARGET_POSITION_MID = 1050;
-    private static final int LIFT_TARGET_POSITION_LOW = 520;
+    private static final int LIFT_TARGET_POSITION_LOW = 530;
 
     //Variable for target positions
     private int currentLiftTargetPosition;
@@ -75,7 +75,8 @@ public class DuckAuto {
     private Pose2d collectingDuck1 = new Pose2d(-50.0, -54.0, Math.toRadians(-90.0));
     private Pose2d collectingDuck2 = new Pose2d(-52.0, -46.0, Math.toRadians(-90.0));
     private Pose2d depositDuck = new Pose2d(-33.0, -25.0, Math.toRadians(0));
-    private Pose2d parkAtEnd = new Pose2d(-61.8393, -35.0, Math.toRadians(0));
+    private Pose2d parkAtEnd1 = new Pose2d(-39.25, -13.5, Math.toRadians(0));
+    private Pose2d parkAtEnd2 = new Pose2d(-59.5, -35.0, Math.toRadians(0));
 
 
 
@@ -98,7 +99,7 @@ public class DuckAuto {
                 collectingDuck1 = new Pose2d(collectingDuck1.getX(), -collectingDuck1.getY(), collectingDuck1.getHeading());
                 collectingDuck2 = new Pose2d(collectingDuck2.getX(), -collectingDuck2.getY(),collectingDuck2.getHeading());
                 depositDuck = new Pose2d(depositDuck.getX(), -depositDuck.getY(), depositDuck.getHeading());
-                parkAtEnd = new Pose2d(depositDuck.getX(), -depositDuck.getY(), depositDuck.getHeading() + Math.toRadians(180));
+                parkAtEnd1 = new Pose2d(depositDuck.getX(), -depositDuck.getY(), depositDuck.getHeading() + Math.toRadians(180));
 
 
                 break;
@@ -265,39 +266,29 @@ public class DuckAuto {
                 telemetry.addData("Duck Collection Status (true means it goes to the second position)", duckCollectStat);
                 telemetry.update();
 
-                runtime.reset();
-                while (current_duck_x == 0 && runtime.seconds() < 0.5) {
+                while (current_duck_x == 0 && runtime.seconds() < 1.5) {
                     drive.turn(Math.toRadians(-10));
 
-                    Log.d("KARTHIKS MACBOOK AIR ", "Finding the duck");
+                    Log.d("BrainSTEM", "Finding the duck");
                 }
 
                 if (current_duck_x != 0){
                     see_duck = true;
                 }
 
-                while (current_duck_y > 130){
-                    Trajectory duckCollectionAdjustment = drive.trajectoryBuilder(drive.getPoseEstimate())
-                            .back(1,
-                                    SampleMecanumDrive.getVelocityConstraint(4, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                                    SampleMecanumDrive.getAccelerationConstraint(7))
-                            .build();
-
-                    drive.followTrajectory(duckCollectionAdjustment);
-                }
-                if (current_duck_x < 125 && current_duck_x != 0) { // move right
+                if (current_duck_x < 120 && current_duck_x != 0) { // move right
                     drive.turn(Math.toRadians(5));
                     telemetry.addLine("Moving Right");
                     telemetry.update();
-                    Log.d("KARTHIKS MACBOOK AIR ", "Adjusting Right");
+                    Log.d("BrainSTEM", "Adjusting Right");
                 }
-                if (current_duck_x > 135 && current_duck_x != 0) { // move left
+                if (current_duck_x > 140 && current_duck_x != 0) { // move left
                     drive.turn(Math.toRadians(-5));
                     telemetry.addLine("Moving Left");
                     telemetry.update();
-                    Log.d("KARTHIKS MACBOOK AIR ", "Adjusting Left");
+                    Log.d("BrainSTEM", "Adjusting Left");
                 }
-                if ((current_duck_x <= 135) && (current_duck_x >= 125) && (previous_duck_x == current_duck_x)){
+                if ((current_duck_x <= 140) && (current_duck_x >= 120) && (previous_duck_x == current_duck_x)){
                     telemetry.addLine("Collected");
                     telemetry.update();
                     robot.collector.setPower(-1);
@@ -310,13 +301,12 @@ public class DuckAuto {
                     robot.extention.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     robot.extention.setPower(0.75);
                     runtime.reset();
-                    sleep(250);
+                    sleep(10);
                     duckCollectStat = true;
-                    Log.d("KARTHIKS MACBOOK AIR ", "picking up the duck");
+                    Log.d("BrainSTEM", "picking up the duck");
                     i = 99;
                 }
                 previous_duck_x = current_duck_x;
-                sleep(100);
                 telemetry.update();
             }
 
@@ -403,11 +393,10 @@ public class DuckAuto {
  */
 
         if (duckCollectStat){
-            Log.d("KARTHIKS MACBOOK AIR ", "line 388");
+            Log.d("BrainSTEM", "line 388");
 
         }
-        sleep(5000);
-        Log.d("KARTHIKS MACBOOK AIR ", "5 sec wait! - not broken");
+        Log.d("BrainSTEM", "5 sec wait! - not broken");
 
 
 
@@ -441,7 +430,7 @@ public class DuckAuto {
 
 
         Trajectory parkingAtTheEnd = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .lineToLinearHeading(parkAtEnd)
+                .lineToLinearHeading(parkAtEnd1)
                 .build();
         drive.followTrajectoryAsync(parkingAtTheEnd);
 
@@ -451,11 +440,9 @@ public class DuckAuto {
 
         runtime.reset();
         move_lift(1000);
-        while (runtime.seconds() < 3 && (robot.lift.getCurrentPosition() > 450));
+        while (runtime.seconds() < 1 && (robot.lift.getCurrentPosition() > 450));
         runtime.reset();
         move_turret(-10);
-        while (runtime.seconds() < 4 && (robot.turret.getCurrentPosition() < 50));
-        lift_down();
 
         telemetry.addLine("Lift Down");
         runtime.reset();
@@ -464,9 +451,11 @@ public class DuckAuto {
         }
         drive.waitForIdle();
 
-
-
-
+        lift_down();
+        Trajectory parkingAtTheEnd2 = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .lineToLinearHeading(parkAtEnd2)
+                .build();
+        drive.followTrajectory(parkingAtTheEnd2);
 
     }
 
