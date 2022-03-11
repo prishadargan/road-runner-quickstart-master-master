@@ -101,6 +101,7 @@ public class TeleOpCode extends LinearOpMode {
         }
 
 
+
         waitForStart();
         opmodetime.reset();
 
@@ -147,6 +148,7 @@ public class TeleOpCode extends LinearOpMode {
             );
 
 
+
             drive.update();
 
             Pose2d poseEstimate = drive.getPoseEstimate();
@@ -156,7 +158,7 @@ public class TeleOpCode extends LinearOpMode {
             telemetry.update();
 
 
-
+//
 
             // reset encoder
              if (gamepad1.x){
@@ -239,7 +241,7 @@ public class TeleOpCode extends LinearOpMode {
             // extension
             if (gamepad2.left_stick_y < -0.1 || gamepad2.left_stick_y > 0.1) {
                 robot.extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                robot.extention.setPower((gamepad2.left_stick_y)/2);
+                robot.extention.setPower((gamepad2.left_stick_y)/1.33);
             }
 
             extendin.update(gamepad2.left_bumper);
@@ -343,20 +345,20 @@ public class TeleOpCode extends LinearOpMode {
             if (gamepad2.right_stick_y < -0.2 || gamepad2.right_stick_y > 0.2) {
                 robot.lift.setTargetPosition((int) (robot.lift.getTargetPosition() + -gamepad2.right_stick_y * 10));
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.lift.setPower(0.7);
+                robot.lift.setPower(1);
             }
 
 
 
             if(gamepad2.dpad_left) {
-                robot.turret.setTargetPosition(robot.turret.getCurrentPosition() - (50));
+                robot.turret.setTargetPosition(robot.turret.getCurrentPosition() - (20));
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 runtime.reset();
                 robot.turret.setPower(0.5);
             }
 
             if(gamepad2.dpad_right) {
-                robot.turret.setTargetPosition(robot.turret.getCurrentPosition() + (50));
+                robot.turret.setTargetPosition(robot.turret.getCurrentPosition() + (20));
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 runtime.reset();
                 robot.turret.setPower(0.5);
