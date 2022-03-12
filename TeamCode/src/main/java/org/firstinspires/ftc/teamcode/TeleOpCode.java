@@ -117,7 +117,9 @@ public class TeleOpCode extends LinearOpMode {
 
 
 
-         while (opModeIsActive()) {
+
+        while (opModeIsActive()) {
+
             telemetry.addLine("Running...");
             telemetry.addData("Turret Current - C", robot.turret.getCurrentPosition());
             telemetry.addData("Lift Current - C", robot.lift.getCurrentPosition());
@@ -130,9 +132,7 @@ public class TeleOpCode extends LinearOpMode {
             leftStickX = gamepad1.left_stick_x * -1;
             leftStickY = gamepad1.left_stick_y * -1;
 
-            /*
-                D1 - Driver 1
-             */
+
 
 
 
@@ -161,19 +161,19 @@ public class TeleOpCode extends LinearOpMode {
 //
 
             // reset encoder
-             if (gamepad1.x){
-                 SWODpower = 0.15;
-                 SWODrampup = 0.09;
-                 color = "blue";
-                 telemetry.addLine("Blue");
-             }
+            if (gamepad1.x){
+                SWODpower = 0.15;
+                SWODrampup = 0.09;
+                color = "blue";
+                telemetry.addLine("Blue");
+            }
 
-             if (gamepad1.b){
-                 SWODpower = -0.15;
-                 SWODrampup = -0.09;
-                 color = "red";
-                 telemetry.addLine("Red");
-             }
+            if (gamepad1.b){
+                SWODpower = -0.15;
+                SWODrampup = -0.09;
+                color = "red";
+                telemetry.addLine("Red");
+            }
             if (gamepad1.y){
                 robot.lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 robot.extention.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -198,8 +198,8 @@ public class TeleOpCode extends LinearOpMode {
                 telemetry.update();
             }
             if(gamepad1.dpad_right) {
-                  robot.LetsCap(1200);
-              }
+                robot.LetsCap(1200);
+            }
 
             // capping
             if (gamepad1.dpad_up) {
@@ -214,9 +214,6 @@ public class TeleOpCode extends LinearOpMode {
 
 
 
-            /*
-                         D2 - Driver 2
-             */
 
 
             // collector
@@ -235,6 +232,8 @@ public class TeleOpCode extends LinearOpMode {
             if  (gamepad2.right_bumper) {
                 robot.Collector(1); // out overide
             }
+
+
 
 
 
@@ -262,6 +261,10 @@ public class TeleOpCode extends LinearOpMode {
 
 
 
+
+
+
+
             // khadified functions
 
             controlButton.update(gamepad2.x);
@@ -272,6 +275,8 @@ public class TeleOpCode extends LinearOpMode {
                 robot.turret.setPower(0.3);
                 gotoleft = true;
             }
+
+
             if (gotoleft && (robot.turret.getCurrentPosition() > 650 || runtime.seconds() > 2)) {
                 robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.lift.setTargetPosition(0);
@@ -279,6 +284,8 @@ public class TeleOpCode extends LinearOpMode {
                 robot.lift.setPower(0.5);
                 gotoleft = false;
             }
+
+
 
             expansionButton.update(gamepad2.b);
             if(expansionButton.getState()) {
@@ -341,12 +348,15 @@ public class TeleOpCode extends LinearOpMode {
             }
 
 
+
+
             // lift
             if (gamepad2.right_stick_y < -0.2 || gamepad2.right_stick_y > 0.2) {
                 robot.lift.setTargetPosition((int) (robot.lift.getTargetPosition() + -gamepad2.right_stick_y * 10));
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.lift.setPower(1);
             }
+
 
 
 
@@ -364,8 +374,10 @@ public class TeleOpCode extends LinearOpMode {
                 robot.turret.setPower(0.5);
             }
 
-             telemetry.update();
+            telemetry.update();
+            /*
 
+*/
         }
 
     }

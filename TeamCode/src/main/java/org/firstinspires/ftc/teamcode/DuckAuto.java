@@ -36,6 +36,7 @@ public class DuckAuto {
     private String te_Stat = "Not-Collected";
     private int[] pixyThresholds = new int[2];
     private int[] pixyDuckThresholds = new int[2];
+    private int turretFinalPos = -10;
 
     // Other
     private double extensionTime = 0.35;
@@ -59,8 +60,8 @@ public class DuckAuto {
     private static final int PIXY_BLUE_THRESHOLD_HIGH = 135;
 
     private static final int EXTEND_TARGET_POSITION_TOP = -365;
-    private static final int EXTEND_TARGET_POSITION_MID = -335;
-    private static final int EXTEND_TARGET_POSITION_LOW = -285;
+    private static final int EXTEND_TARGET_POSITION_MID = -315;
+    private static final int EXTEND_TARGET_POSITION_LOW = -273;
 
     private static final int LIFT_TARGET_POSITION_TOP = 1540;
     private static final int LIFT_TARGET_POSITION_MID = 1050;
@@ -75,12 +76,12 @@ public class DuckAuto {
     private Pose2d startPosition = new Pose2d(-30.25, -63.75, Math.toRadians(-90.0));
     private Pose2d depositPreload = new Pose2d(startPosition.getX(), -48.5, Math.toRadians(0));
     private Pose2d closeToCarousel = new Pose2d(-55.0, -56.0, Math.toRadians(-32.5));
-    private static double StrafeAmount = 6.25;
+    private static double StrafeAmount = 6;
     private Pose2d collectingDuck1 = new Pose2d(-50.0, -54.0, Math.toRadians(-90.0));
     private Pose2d collectingDuck2 = new Pose2d(-52.0, -46.0, Math.toRadians(-90.0));
     private Pose2d depositDuck = new Pose2d(-33.0, -25.0, Math.toRadians(0));
     private Pose2d parkAtEnd1 = new Pose2d(-39.25, -13.5, Math.toRadians(0));
-    private Pose2d parkAtEnd2 = new Pose2d(-60, -35.0, Math.toRadians(0));
+    private Pose2d parkAtEnd2 = new Pose2d(-62.5, -35.0, Math.toRadians(0));
     private static double swodpower = -0.15;
 
 
@@ -101,19 +102,16 @@ public class DuckAuto {
                 turretTargetPosition *= -1;
                 startPosition = new Pose2d(startPosition.getX(), -startPosition.getY(), startPosition.getHeading());
                 depositPreload = new Pose2d(depositPreload.getX(), -depositPreload.getY(), depositPreload.getHeading() + Math.toRadians(180));
-                closeToCarousel = new Pose2d(-55.0, 60.0, closeToCarousel.getHeading() - Math.toRadians(45));
+                closeToCarousel = new Pose2d(-56.0, 60.5, closeToCarousel.getHeading() - Math.toRadians(45));
                 StrafeAmount = 2;
                 collectingDuck1 = new Pose2d(collectingDuck1.getX(), -collectingDuck1.getY(), collectingDuck1.getHeading());
                 collectingDuck2 = new Pose2d(collectingDuck2.getX(), -collectingDuck2.getY(),collectingDuck2.getHeading());
                 depositDuck = new Pose2d(depositDuck.getX(), -depositDuck.getY(), depositDuck.getHeading() + Math.toRadians(180));
-               parkAtEnd1 = new Pose2d(parkAtEnd1.getX(), -parkAtEnd1.getY(), parkAtEnd1.getHeading() + Math.toRadians(180));
+                parkAtEnd1 = new Pose2d(parkAtEnd1.getX(), -parkAtEnd1.getY(), parkAtEnd1.getHeading() + Math.toRadians(180));
                 parkAtEnd2 = new Pose2d(parkAtEnd2.getX() -(1), -parkAtEnd2.getY(),parkAtEnd2.getHeading() + Math.toRadians(180));
                 swodpower = 0.15;
                 acolor = 1;
-
-
-
-
+                turretFinalPos = -680;
                 break;
         }
     }
@@ -134,7 +132,11 @@ public class DuckAuto {
         telemetry.addLine("Robot is ready.");
         telemetry.update();
 
+        robot.pixyCam.disengage();
+        robot.pixyCam.engage();
+
         while(!opMode.opModeIsActive()) {
+
             team_element_x = 0xff & robot.pixyCam.read(0x51, 5)[1];
             team_element_y = 0xff & robot.pixyCam.read(0x51, 5)[2];
 
@@ -163,14 +165,14 @@ public class DuckAuto {
 
                 }
             } if (acolor == 1) {
-                if (team_element_x == 0 || team_element_x < pixyThresholds[1]) {
+                if (team_element_x == 0 || team_element_x > pixyThresholds[0]) {
                     //detecting top
                     height = LiftHeight.TOP;
                     currentLiftTargetPosition = LIFT_TARGET_POSITION_TOP;
                     currentExtensionTargetPosition = EXTEND_TARGET_POSITION_TOP;
                     Log.d("Laptop", "Blue Top");
 
-                } else if (team_element_x > pixyThresholds[0]) {
+                } else if (team_element_x < pixyThresholds[1]) {
                     //detecting low
                     height = LiftHeight.LOW;
                     currentLiftTargetPosition = LIFT_TARGET_POSITION_LOW;
@@ -190,9 +192,9 @@ public class DuckAuto {
             }
 
             telemetry.addLine();
-            telemetry.addData("Pixy Health :", robot.pixyCam.getHealthStatus());
+            //telemetry.addData("Pixy Health :", robot.pixyCam.getHealthStatus());
             telemetry.addLine();
-            telemetry.addData("Pixy Connection : ", robot.pixyCam.getConnectionInfo());
+            //telemetry.addData("Pixy Connection : ", robot.pixyCam.getConnectionInfo());
             telemetry.addLine();
             telemetry.addData("Completion Status : ", "Innit");
             telemetry.addLine();
@@ -307,7 +309,7 @@ public class DuckAuto {
 
 
         runtime.reset();
-        while (runtime.seconds() < 10) {
+        while (runtime.seconds() < 6) {
             for (int i = 0; i < 50; i++) {
                 robot.pixyCam.engage();
                 current_duck_x = 0xff & robot.pixyCam.read(0x52, 5)[1];
@@ -321,7 +323,7 @@ public class DuckAuto {
                 telemetry.update();
 
                 if (acolor == 0) {
-                    while (current_duck_x == 0 && runtime.seconds() < 1.5) {
+                    while (current_duck_x == 0 && runtime.seconds() < 1) {
                         drive.turn(Math.toRadians(-10));
 
                         Log.d("BrainSTEM", "Finding the duck red");
@@ -340,19 +342,19 @@ public class DuckAuto {
                     see_duck = true;
                 }
 
-                if (current_duck_x < 120 && current_duck_x != 0) { // move right
+                if (current_duck_x < 110 && current_duck_x != 0) { // move right
                     drive.turn(Math.toRadians(5));
                     telemetry.addLine("Moving Right");
                     telemetry.update();
                     Log.d("BrainSTEM", "Adjusting Right");
                 }
-                if (current_duck_x > 140 && current_duck_x != 0) { // move left
+                if (current_duck_x > 130 && current_duck_x != 0) { // move left
                     drive.turn(Math.toRadians(-5));
                     telemetry.addLine("Moving Left");
                     telemetry.update();
                     Log.d("BrainSTEM", "Adjusting Left");
                 }
-                if ((current_duck_x <= 140) && (current_duck_x >= 120) && (previous_duck_x == current_duck_x)){
+                if ((current_duck_x <= 130) && (current_duck_x >= 110) && (previous_duck_x == current_duck_x)){
                     telemetry.addLine("Collected");
                     telemetry.update();
                     robot.collector.setPower(-1);
@@ -383,8 +385,8 @@ public class DuckAuto {
 
 
 
+
         if (duckCollectStat) {
-            robot.pixyCam.disengage();
             Trajectory depositTheDuck = drive.trajectoryBuilder(drive.getPoseEstimate())
                     .lineToLinearHeading(depositDuck)
                     .build();
@@ -423,9 +425,9 @@ public class DuckAuto {
 
         runtime.reset();
         move_lift(1000);
-        while (runtime.seconds() < 1 && (robot.lift.getCurrentPosition() > 450));
+        while (runtime.seconds() < 0.75 && (robot.lift.getCurrentPosition() > 450));
         runtime.reset();
-        move_turret(-10);
+        move_turret(turretFinalPos);
 
         telemetry.addLine("Lift Down");
         runtime.reset();
@@ -470,10 +472,10 @@ public class DuckAuto {
         robot.turret.setPower(0.6);
     }
     private void turret_duck() {
-            robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            robot.turret.setTargetPosition(-685);
-            robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            robot.turret.setPower(0.5);
+        robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.turret.setTargetPosition(-685);
+        robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        robot.turret.setPower(0.5);
 
     }
 
