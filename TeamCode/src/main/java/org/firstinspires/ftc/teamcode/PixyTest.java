@@ -34,21 +34,27 @@ public class PixyTest extends LinearOpMode {
 
         pixyCam.engage();
 
-
         telemetry.addLine("Ready for start");
         telemetry.update();
+
 
 
         waitForStart();
 
         while(opModeIsActive()) {
+            for (int i =1; i != 0; i++) {
+                duck_x = 0xff & pixyCam.read(0x52, 5)[1];
+                duck_y = 0xff & pixyCam.read(0x52, 5)[2];
+                teameX = 0xff & pixyCam.read(0x51, 5)[1];
 
-            duck_x = 0xff & pixyCam.read(0x52, 5)[1];
-            duck_y = 0xff & pixyCam.read(0x52, 5)[2];
-            telemetry.addData("Pixy Health : ", pixyCam.getHealthStatus());
-            telemetry.addLine(" " + duck_x);
-            telemetry.addLine(" " + duck_y);
-            telemetry.update();
+                telemetry.addData("Pixy Health : ", pixyCam.getHealthStatus());
+                telemetry.addLine("duck x  " + duck_x);
+                telemetry.addLine(" duck y  " + duck_y);
+                telemetry.addLine("team-e x  " + teameX);
+                telemetry.addLine("loop cycle   " + i);
+
+                telemetry.update();
+            }
 
 
 // think about it logically
