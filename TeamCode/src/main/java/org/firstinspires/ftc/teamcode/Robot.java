@@ -25,7 +25,7 @@ public class Robot
     public DcMotorEx turret;
     public DcMotorEx lift;
     public DcMotorEx extention;
-    public DcMotor collector;
+    public DcMotorEx collector;
     public I2cDeviceSynch pixyCam;
     public DigitalChannel expanLimit;
     public DigitalChannel cLimit;
@@ -63,7 +63,7 @@ public class Robot
         turret = (DcMotorEx) hwMap.dcMotor.get("Turret"); //
         lift = (DcMotorEx) hwMap.dcMotor.get("Lift-Up"); //
         extention = (DcMotorEx) hwMap.dcMotor.get("Lift-E"); //
-        collector = hwMap.dcMotor.get("Collector"); //
+        collector = (DcMotorEx) hwMap.dcMotor.get("Collector"); //
         expanLimit = hwMap.digitalChannel.get("E-Limit"); //
         cLimit = hwMap.digitalChannel.get("C-Limit"); //
 //      frontLimit = hwMap.digitalChannel.get("F-Limit");
