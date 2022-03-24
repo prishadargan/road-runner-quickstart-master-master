@@ -76,15 +76,15 @@ public class WharehouseAuto {
     private int currentExtensionTargetPosition;
 
     //initialized for red, flipped to blue in constructor if needed
-    private int turretTargetPosition = -590;
+    private int turretTargetPosition = -565;
     private Pose2d startPosition = new Pose2d(6.5, -64, Math.toRadians(90.0));
-    private Pose2d depositPreload = new Pose2d(10.0, -44.5, Math.toRadians(0));
+    private Pose2d depositPreload = new Pose2d(10.0, -37.0, Math.toRadians(0));
     private Pose2d startCycle1 = new Pose2d(6.5, -65, Math.toRadians(0));
     private Pose2d startCycle2 = new Pose2d(6.5, -65, Math.toRadians(0));
     private Pose2d startCycle3 = new Pose2d(6.5, -65, Math.toRadians(0));
-    private Pose2d collectingCycle1 = new Pose2d(42.0, -65, Math.toRadians(0));
-    private Pose2d collectingCycle2 = new Pose2d(42.0, -65, Math.toRadians(0));
-    private Pose2d collectingCycle3 = new Pose2d(42.0, -65, Math.toRadians(0));
+    private Pose2d collectingCycle1 = new Pose2d(42.0, -67.0, Math.toRadians(0));
+    private Pose2d collectingCycle2 = new Pose2d(42.0, -69.0, Math.toRadians(0));
+    private Pose2d collectingCycle3 = new Pose2d(42.0, -72.0, Math.toRadians(0));
 
 
 
@@ -293,7 +293,7 @@ public class WharehouseAuto {
         robot.collector.setPower(-1);
         extend_to_target(-200);
         runtime.reset();
-        while(!robot.cLimit.getState() && runtime.seconds() < 0.6 && opMode.opModeIsActive()) {
+        while(!robot.cLimit.getState() && runtime.seconds() < 0.4 && opMode.opModeIsActive()) {
             drive.update();
         }
         drive.waitForIdle();
@@ -303,19 +303,32 @@ public class WharehouseAuto {
         telemetry.addData("Collector Current Draw (mA) ", robot.collector.getCurrent(CurrentUnit.MILLIAMPS));
         telemetry.update();
         runtime.reset();
-        while ((robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1150) && runtime.seconds() < 2){
+        while ((robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1150) && runtime.seconds() < 0.5){
             telemetry.update();
         }
         while (robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1150){
             drive.turn(Math.toRadians(5));
-            extend_to_target(robot.extention.getCurrentPosition() + 10);
-            sleep(500);
+            extend_to_target(robot.extention.getCurrentPosition() - 50);
+            sleep(100);
             telemetry.addLine("Current Draw is below 1000");
             telemetry.update();
         }
-        sleep(500);
+        sleep(100);
         telemetry.addLine("collected");
         telemetry.update();
+
+        Trajectory goBacktoCheck = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .back(5)
+                .build();
+        drive.followTrajectoryAsync(goBacktoCheck);
+
+
+        if (robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1150) {
+            Trajectory adjustToGettheBlock = drive.trajectoryBuilder(drive.getPoseEstimate())
+                    .forward(8.5)
+                    .build();
+            drive.followTrajectoryAsync(adjustToGettheBlock);
+        }
 
         // exit the warehouse
         Trajectory leaveWarehouse1 = drive.trajectoryBuilder(drive.getPoseEstimate())
@@ -398,6 +411,9 @@ public class WharehouseAuto {
 
 
 
+
+
+
         // cycle 2
 
         Trajectory driveIntoWareHouse2 = drive.trajectoryBuilder(drive.getPoseEstimate())
@@ -409,10 +425,7 @@ public class WharehouseAuto {
                 .build();
         drive.followTrajectoryAsync(driveIntoWareHouse2);
 
-        if (totaltime.seconds() > 23){
-            while(opMode.opModeIsActive());
-            // end of auto with 2 cycles
-        }
+
 
         //collection
         robot.collector.setPower(-1);
@@ -423,16 +436,21 @@ public class WharehouseAuto {
         }
         drive.waitForIdle();
 
+        if (totaltime.seconds() > 23){
+            while(opMode.opModeIsActive());
+            // end of auto with 2 cycles
+        }
+
         // current draw for collecting cargo in warehouse
         telemetry.addData("Collector Current Draw (mA) ", robot.collector.getCurrent(CurrentUnit.MILLIAMPS));
         telemetry.update();
         runtime.reset();
-        while ((robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1150) && runtime.seconds() < 2){
+        while ((robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1150) && runtime.seconds() < 0.5){
             telemetry.update();
         }
         while (robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1150){
             drive.turn(Math.toRadians(5));
-            extend_to_target(robot.extention.getCurrentPosition() + 10);
+            extend_to_target(robot.extention.getCurrentPosition() - 50);
             sleep(500);
             telemetry.addLine("Current Draw is below 1000");
             telemetry.update();
@@ -508,6 +526,10 @@ public class WharehouseAuto {
 
 
         //park if not enough time to do 3rd cycle
+        Trajectory adjustfor3 = drive.trajectoryBuilder(drive.getPoseEstimate())
+                .strafeRight(7)
+                .build();
+        drive.followTrajectory(adjustfor3);
 
         if (totaltime.seconds() > 23){
             Trajectory driveForward = drive.trajectoryBuilder(drive.getPoseEstimate())
@@ -546,12 +568,12 @@ public class WharehouseAuto {
         telemetry.addData("Collector Current Draw (mA) ", robot.collector.getCurrent(CurrentUnit.MILLIAMPS));
         telemetry.update();
         runtime.reset();
-        while ((robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1150) && runtime.seconds() < 2){
+        while ((robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1150) && runtime.seconds() < 0.25){
             telemetry.update();
         }
         while (robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1150){
             drive.turn(Math.toRadians(5));
-            extend_to_target(robot.extention.getCurrentPosition() + 10);
+            extend_to_target(robot.extention.getCurrentPosition() - 50);
             sleep(500);
             telemetry.addLine("Current Draw is below 1000");
             telemetry.update();
