@@ -2,23 +2,20 @@ package org.firstinspires.ftc.teamcode;
 
 /*
 Copyright (c) 2016 Robert Atkinson
-
 All rights reserved.
-
 Redistribution and use in source and binary forms, with or without modification,
 are permitted (subject to the limitations in the disclaimer below) provided that
 the following conditions are met:
-
 Redistributions of source code must retain the above copyright notice, this list
 of conditions and the following disclaimer.
-
 Redistributions in binary form must reproduce the above copyright notice, this
 list of conditions and the following disclaimer in the documentation and/or
 other materials provided with the distribution.
-
 Neither the name of Robert Atkinson nor the names of his contributors may be used to
 endorse or promote products derived from this software without specific prior
 written permission.
+
+this policy is nice
 
 NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
 LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
@@ -33,199 +30,358 @@ TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
-
-import java.util.stream.Collector;
 
 import static java.lang.Thread.sleep;
 
-@TeleOp(name="TeleOp - Test", group="Freight-Frenzy")
+import android.util.Log;
+
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+
+
+@TeleOp(name="TeleOp", group="Freight-Frenzy")
 public class TeleOpCode extends LinearOpMode {
-    //Initializes joystick storage variables
+    //Initializes joystick storage variables    2t
     private double leftStickX, leftStickY, rightStickX;
     private ElapsedTime runtime = new ElapsedTime();
+    private ElapsedTime opmodetime = new ElapsedTime();
 
     private static final double threshold = 0;
-    private double pos = 1;
+    public  double SWODpower;
+    public double SWODrampup;
+    public String mode = "shared";
+    public String color = "color";
+    private boolean liftingUp = false;
+    private boolean gotoleft = false;
+    private boolean gotoright = false;
+    private boolean goingallup = false;
+    private boolean extensionin = false;
+
 
     @Override
 
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(hardwareMap, telemetry, this);
-
+        StickyButton depositButton =     new StickyButton();
+        StickyButton controlButton = new StickyButton();
+        StickyButton expansionButton = new StickyButton();
+        StickyButton gamepad_y = new StickyButton();
+        StickyButton extendin = new StickyButton();
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         telemetry.addLine("Waiting for start");
         telemetry.update();
 
+
+        while (!opModeIsActive() && !isStopRequested()){
+            telemetry.addLine("PRESS X IF PLAYING BLUE ");
+            telemetry.addLine("PRESS B IF PLAYING RED ");
+            robot.linearActuator.setPosition(0.7936507924);
+            if (gamepad1.x){
+                SWODpower = 0.15;
+                SWODrampup = 0.09;
+                color = "blue";
+                telemetry.clearAll();
+                telemetry.addLine("Alliance Color:  Blue");
+            }
+
+            if (gamepad1.b) {
+                SWODpower = -0.15;
+                SWODrampup = -0.09;
+                color = "red";
+                telemetry.clearAll();
+                telemetry.addLine("Alliance Color:  Red");
+            }
+
+            telemetry.update();
+
+        }
+
+
+
         waitForStart();
+        opmodetime.reset();
 
         telemetry.addLine("Starting...");
         telemetry.update();
 
+
+        //reset encoders
+        robot.extention.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+
+
+
+
         while (opModeIsActive()) {
 
             telemetry.addLine("Running...");
+            telemetry.addData("Turret Current - C", robot.turret.getCurrentPosition());
+            telemetry.addData("Lift Current - C", robot.lift.getCurrentPosition());
+            telemetry.addData("Mode:", mode);
+            telemetry.addData("Color:", color);
+            telemetry.addData("Lift Status :", robot.lift.isBusy());
+            telemetry.addData("Time (s)", opmodetime.seconds());
+
 
             leftStickX = gamepad1.left_stick_x * -1;
-            leftStickY = gamepad1.left_stick_y * 1;
+            leftStickY = gamepad1.left_stick_y * -1;
 
 
-            telemetry.addData("left_stick_x", leftStickX);
-            telemetry.addData("left_stick_y", leftStickY);
+
+
+
+            // drive-train
+
+
+            drive.setWeightedDrivePower(
+                    new Pose2d(
+                            -(gamepad1.left_stick_y * 0.75),
+                            -(gamepad1.left_stick_x * 0.75),
+                            -(gamepad1.right_stick_x * 0.75)
+
+                    )
+            );
+
+
+
+            drive.update();
+
+            Pose2d poseEstimate = drive.getPoseEstimate();
+            telemetry.addData("x", poseEstimate.getX());
+            telemetry.addData("y", poseEstimate.getY());
+            telemetry.addData("heading", poseEstimate.getHeading());
             telemetry.update();
 
 
+//
 
-            if (Math.abs(gamepad1.right_stick_x) > threshold) {
-                if (gamepad1.right_stick_x < 0) {
-                    rightStickX = -gamepad1.right_stick_x * gamepad1.right_stick_x * -1 * (4.0 / 5.0) - (1.0 / 5.0);
-                } else {
-                    rightStickX = -gamepad1.right_stick_x * gamepad1.right_stick_x * 1 * (4.0 / 5.0) + (1.0 / 5.0);
+            // reset encoder
+            if (gamepad1.x){
+                SWODpower = 0.15;
+                SWODrampup = 0.09;
+                color = "blue";
+                telemetry.addLine("Blue");
+            }
+
+            if (gamepad1.b){
+                SWODpower = -0.15;
+                SWODrampup = -0.09;
+                color = "red";
+                telemetry.addLine("Red");
+            }
+            if (gamepad1.y){
+                robot.lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.extention.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            }
+
+            // swod
+            if (gamepad1.right_bumper) {
+                telemetry.addData("SWOD : ", "On");
+                telemetry.update();
+
+                for (int i = 1; i < 3; i++) {
+                    robot.SWOD(SWODpower);
+                    SWODpower += SWODrampup;
+                    sleep(500);
                 }
-            } else {
-                rightStickX = 0;
             }
-
-
-
-            /*
-
-            if ((Math.abs(gamepad1.left_stick_y) > threshold) || (Math.abs(gamepad1.left_stick_x) > threshold) || Math.abs(gamepad1.right_stick_x) > threshold) {
-                //Calculate formula for mecanum drive function
-                double addValue = (double) (Math.round((50 * (leftStickY * Math.abs(leftStickY) + leftStickX * Math.abs(leftStickX))))) / 50;
-                double subtractValue = (double) (Math.round((50 * (leftStickY * Math.abs(leftStickY) - leftStickX * Math.abs(leftStickX))))) / 50;
-
-                //Set motor speed variables
-                robot.setMotorPowers(addValue + rightStickX, subtractValue - rightStickX, subtractValue + rightStickX, addValue - rightStickX);
-            } else {
-                robot.stop();
-            }
-
-             */
-
 
             if (gamepad1.left_bumper) {
-                robot.Collector(1);
+                robot.SWOD(0);
+                telemetry.addData("SWOD : ", "Off");
+                telemetry.update();
             }
-            if (gamepad1.right_bumper) {
-                robot.Collector(-1);
+            if(gamepad1.dpad_right) {
+                robot.LetsCap(1200);
             }
-            if (gamepad1.right_bumper && gamepad1.left_bumper) {
+
+            // capping
+            if (gamepad1.dpad_up) {
+                robot.linearActuator.setPosition(robot.linearActuator.getPosition() - 0.005);
+            }
+
+            if (gamepad1.dpad_down) {
+                robot.linearActuator.setPosition(robot.linearActuator.getPosition() + 0.005);
+            }
+
+
+
+
+
+
+
+            // collector
+            if  (gamepad2.right_trigger > 0.2) {
+                robot.Collector(-1); // In
+            }
+
+            if  (gamepad2.left_trigger > 0.2) {
+                robot.Collector(0.6); // Out
+            }
+
+            if ((gamepad2.left_trigger > 0.2) && (gamepad2.right_trigger > 0.2)) {
                 robot.Collector(0);
             }
 
-
-            if (gamepad1.a) {
-                if (pos == 1) {
-                    robot.lift.setPower(0.2);
-                    sleep(200);
-                    robot.lift.setPower(0);
-                } else {
-                    telemetry.addData("Lift Positon", "Postion 1 - Lowest");
-                    telemetry.addData("Target Value", robot.newLeftTarget);
-                    telemetry.addData("Current Position", robot.lift.getCurrentPosition());
-                    robot.state = Robot.states.LIFTING_DOWN;
-                    pos = 1;
-                }
-
+            if  (gamepad2.right_bumper) {
+                robot.Collector(1); // out overide
             }
-            if (gamepad1.b) {
-                if (pos == 2){
-                    robot.lift.setPower(-0.1);
-                    sleep(100);
-                    robot.lift.setPower(0);
-                } else {
-                    telemetry.addData("Lift Positon", "Postion 2 - Highest");
-                    telemetry.addData("Target Value", robot.nt);
-                    telemetry.addData("Current Position", robot.lift.getCurrentPosition());
-                    robot.state = Robot.states.LIFTING_UP;
-                    pos = 2;
-                }
+
+
+
+
+
+            // extension
+            if (gamepad2.left_stick_y < -0.1 || gamepad2.left_stick_y > 0.1) {
+                robot.extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                robot.extention.setPower((gamepad2.left_stick_y)/1.33);
+            }
+
+            extendin.update(gamepad2.left_bumper);
+            if(extendin.getState()) {
+                robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.extention.setTargetPosition(0);
+                robot.extention.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                robot.extention.setPower(1);
+                extensionin = true;
+            }
+            if (goingallup && (robot.extention.getCurrentPosition() < 50 || runtime.seconds() > 5)) {
+                robot.extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                robot.extention.setPower(0.07);
+                extensionin = false;
+            }
+
+
+
+
+
+
+
+
+            // khadified functions
+
+            controlButton.update(gamepad2.x);
+            if(controlButton.getState()) {
+                robot.turret.setTargetPosition(680);
+                robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                robot.turret.setPower(0.3);
+                gotoleft = true;
+            }
+
+
+            if (gotoleft && (robot.turret.getCurrentPosition() > 650 || runtime.seconds() > 2)) {
+                robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.lift.setTargetPosition(0);
+                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.lift.setPower(0.5);
+                gotoleft = false;
+            }
+
+
+
+            expansionButton.update(gamepad2.b);
+            if(expansionButton.getState()) {
+                robot.turret.setTargetPosition(0);
+                robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                robot.turret.setPower(0.3);
+                gotoright = true;
+            }
+            if (gotoright && (robot.turret.getCurrentPosition() < 50 || runtime.seconds() > 2)) {
+                robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.lift.setTargetPosition(0);
+                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.lift.setPower(0.5);
+                gotoright = false;
+            }
+
+
+
+            //shared hub position
+            if (gamepad2.right_stick_button){
+                mode = "alliance";
+            }
+            if (gamepad2.left_stick_button){
+                mode = "shared";
+            }
+
+            depositButton.update(gamepad2.a);
+            if(depositButton.getState()) {
+                robot.lift.setTargetPosition(680);
+                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                robot.lift.setPower(1);
+                liftingUp = true;
+            }
+
+            if (liftingUp && (robot.lift.getCurrentPosition() > 600 || runtime.seconds() > 2)) {
+                robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.turret.setTargetPosition(340);
+                robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.turret.setPower(0.5);
+                liftingUp = false;
+            }
+
+
+            gamepad_y.update(gamepad2.y);
+            if(gamepad_y.getState()) {
+                robot.lift.setTargetPosition(1622);
+                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                robot.lift.setPower(0.3);
+                goingallup = true;
+            }
+
+            if (goingallup && (robot.lift.getCurrentPosition() > 300 || runtime.seconds() > 2)) {
+                robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.turret.setTargetPosition(340);
+                robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.turret.setPower(0.5);
+                goingallup = false;
+            }
+
+
+
+
+            // lift
+            if (gamepad2.right_stick_y < -0.2 || gamepad2.right_stick_y > 0.2) {
+                robot.lift.setTargetPosition((int) (robot.lift.getTargetPosition() + -gamepad2.right_stick_y * 10));
+                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.lift.setPower(1);
+            }
+
+
+
+
+            if(gamepad2.dpad_left) {
+                robot.turret.setTargetPosition(robot.turret.getCurrentPosition() - (20));
+                robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                robot.turret.setPower(0.5);
+            }
+
+            if(gamepad2.dpad_right) {
+                robot.turret.setTargetPosition(robot.turret.getCurrentPosition() + (20));
+                robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                runtime.reset();
+                robot.turret.setPower(0.5);
             }
 
             telemetry.update();
-            robot.update();
+            /*
 
-
-            if (gamepad1.left_trigger > 0.2) {
-                int ttarget;
-                ttarget = ((robot.turret.getCurrentPosition()) - (int) (323));
-                robot.turret.setTargetPosition((ttarget));
-                robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                if (robot.turret.getCurrentPosition() > robot.turret.getTargetPosition()) {
-                    robot.turret.setPower(-0.3);
-                }
-            }
-
-
-            if (gamepad1.right_trigger > 0.2) {
-                int attarget;
-                attarget = ((robot.turret.getCurrentPosition()) + (int) (323));
-                robot.turret.setTargetPosition((attarget));
-                robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                if (robot.turret.getCurrentPosition() < robot.turret.getTargetPosition()) {
-                    robot.turret.setPower(0.3);
-                }
-            }
-
-
-
-                if (gamepad1.x) {
-
-                    telemetry.clearAll();
-                    int etarget;
-                    sleep(50);
-                    etarget = ((robot.extention.getCurrentPosition()) + (int) (200));
-                    robot.extention.setTargetPosition((etarget));
-                    robot.extention.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-                    runtime.reset();
-                    robot.extention.setPower(1);
-                    telemetry.addData("Target:", robot.extention.getTargetPosition());
-                    telemetry.addData("Current:", robot.extention.getCurrentPosition());
-                    telemetry.update();
-                    robot.extention.setPower(0);
-
-                    /*
-                    sleep(50);
-                    robot.extention.setPower(0.75);
-                    sleep(750);
-                    robot.extention.setPower(0);
-
-                     */
-
-
-                }
-
-                if (gamepad1.y) {
-                    while (!robot.frontLimit.getState()) {
-                        robot.extention.setPower(-0.5);
-                    }
-                    robot.extention.setPower(0);
-
-                }
-
-
-                if (gamepad2.y) {
-                    robot.SWOD(0);
-                    telemetry.addData("y", "is true");
-                    telemetry.update();
-
-                }
-
-                if (gamepad2.x) {
-                    robot.SWOD(1);
-                    telemetry.addData("x", "is true");
-                    telemetry.update();
-
-                }
-
-
-
-            }
+*/
         }
+
     }
+
+}
