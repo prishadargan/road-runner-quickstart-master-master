@@ -38,7 +38,6 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
  *
  * Uncomment the @Disabled tag below to use this opmode.
  */
-@Disabled
 @Config
 @TeleOp(group = "drive")
 public class MotorDirectionDebugger extends LinearOpMode {
@@ -87,6 +86,10 @@ public class MotorDirectionDebugger extends LinearOpMode {
                 telemetry.addLine("Running Motor: None");
             }
 
+            telemetry.addData("Encoder Value FL:", drive.leftFront.getCurrentPosition());
+            telemetry.addData("Encoder Value BL:", drive.leftRear.getCurrentPosition());
+            telemetry.addData("Encoder Value FR:", drive.rightFront.getCurrentPosition());
+            telemetry.addData("Encoder Value BR:", drive.rightRear.getCurrentPosition());
             telemetry.update();
         }
     }
