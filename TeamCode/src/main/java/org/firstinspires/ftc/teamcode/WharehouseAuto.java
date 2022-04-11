@@ -102,12 +102,15 @@ public class WharehouseAuto {
                 pixyThresholds[0] = PIXY_BLUE_THRESHOLD_LOW;
                 pixyThresholds[1] = PIXY_BLUE_THRESHOLD_HIGH;
                 turretTargetPosition *= -1;
-                startPosition = new Pose2d(startPosition.getX(), -startPosition.getY(), startPosition.getHeading());
-                depositPreload = new Pose2d(depositPreload.getX(), -depositPreload.getY(), depositPreload.getHeading() + Math.toRadians(180));
-                startCycle1 = new Pose2d(6.5, -66.0, startCycle1.getHeading() - Math.toRadians(45));
-                collectingCycle1 = new Pose2d(collectingCycle1.getX(), -collectingCycle1.getY(), collectingCycle1.getHeading());
+                startPosition = new Pose2d(6.5, -startPosition.getY(), Math.toRadians(90.0));
+                depositPreload = new Pose2d(10.0, -depositPreload.getY(), Math.toRadians(0));
+                startCycle1 = new Pose2d(6.5, -startCycle1.getY(), Math.toRadians(0));
+                startCycle2 = new Pose2d(6.5, -startCycle2.getY(), Math.toRadians(0));
+                startCycle3 = new Pose2d(6.5, -startCycle3.getY(), Math.toRadians(0));
+                collectingCycle1 = new Pose2d(42.0, -collectingCycle1.getY(), Math.toRadians(0));
+                collectingCycle2 = new Pose2d(42.0, -collectingCycle2.getY(), Math.toRadians(0));
+                collectingCycle3 = new Pose2d(42.0, -collectingCycle3.getY(), Math.toRadians(0));
                 acolor = 1;
-                turretFinalPos = -680;
                 break;
         }
     }

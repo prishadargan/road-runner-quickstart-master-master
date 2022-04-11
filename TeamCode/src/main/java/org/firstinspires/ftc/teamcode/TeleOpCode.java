@@ -45,7 +45,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 @TeleOp(name="TeleOp", group="Freight-Frenzy")
 public class TeleOpCode extends LinearOpMode {
-    //Initializes joystick storage variables    2t
+    //Initializes joystick storage variables 2t
     private double leftStickX, leftStickY, rightStickX;
     private ElapsedTime runtime = new ElapsedTime();
     private ElapsedTime opmodetime = new ElapsedTime();
@@ -66,7 +66,7 @@ public class TeleOpCode extends LinearOpMode {
 
     public void runOpMode() throws InterruptedException {
         Robot robot = new Robot(hardwareMap, telemetry, this);
-        StickyButton depositButton =     new StickyButton();
+        StickyButton depositButton = new StickyButton();
         StickyButton controlButton = new StickyButton();
         StickyButton expansionButton = new StickyButton();
         StickyButton gamepad_y = new StickyButton();
@@ -86,6 +86,7 @@ public class TeleOpCode extends LinearOpMode {
                 color = "blue";
                 telemetry.clearAll();
                 telemetry.addLine("Alliance Color:  Blue");
+
             }
 
             if (gamepad1.b) {
@@ -121,12 +122,12 @@ public class TeleOpCode extends LinearOpMode {
         while (opModeIsActive()) {
 
             telemetry.addLine("Running...");
-            telemetry.addData("Turret Current - C", robot.turret.getCurrentPosition());
-            telemetry.addData("Lift Current - C", robot.lift.getCurrentPosition());
-            telemetry.addData("Mode:", mode);
-            telemetry.addData("Color:", color);
+            telemetry.addData("Turret Encoder - ", robot.turret.getCurrentPosition());
+            telemetry.addData("Lift Encoder - ", robot.lift.getCurrentPosition());
+            telemetry.addData("Mode: ", mode);
+            telemetry.addData("Color: ", color);
             telemetry.addData("Lift Status :", robot.lift.isBusy());
-            telemetry.addData("Time (s)", opmodetime.seconds());
+            telemetry.addData("Time (seconds) :", opmodetime.seconds());
 
 
             leftStickX = gamepad1.left_stick_x * -1;
@@ -175,6 +176,9 @@ public class TeleOpCode extends LinearOpMode {
                 color = "red";
                 telemetry.addLine("Red");
             }
+
+
+
             if (gamepad1.y){
                 robot.lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 robot.extention.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -285,8 +289,6 @@ public class TeleOpCode extends LinearOpMode {
                 robot.lift.setPower(0.5);
                 gotoleft = false;
             }
-
-
 
             expansionButton.update(gamepad2.b);
             if(expansionButton.getState()) {
