@@ -102,7 +102,7 @@ public class WharehouseAuto {
                 pixyThresholds[0] = PIXY_BLUE_THRESHOLD_LOW;
                 pixyThresholds[1] = PIXY_BLUE_THRESHOLD_HIGH;
                 turretTargetPosition *= -1;
-                startPosition = new Pose2d(6.5, -startPosition.getY(), Math.toRadians(90.0));
+                startPosition = new Pose2d(6.5, -startPosition.getY(), Math.toRadians(-90.0));
                 depositPreload = new Pose2d(10.0, -depositPreload.getY(), Math.toRadians(0));
                 startCycle1 = new Pose2d(6.5, -startCycle1.getY(), Math.toRadians(0));
                 startCycle2 = new Pose2d(6.5, -startCycle2.getY(), Math.toRadians(0));
