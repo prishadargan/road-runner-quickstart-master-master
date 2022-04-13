@@ -95,12 +95,8 @@ public class DuckAuto {
                 pixyThresholds[0] = PIXY_RED_THRESHOLD_LOW;
                 pixyThresholds[1] = PIXY_RED_THRESHOLD_HIGH;
                 acolor = 0;
-                robot.SWODpower = -0.15;
-                robot.SWODrampup = -0.09;
                 break;
             case BLUE:
-                robot.SWODpower = 0.15;
-                robot.SWODrampup = 0.09;
                 pixyThresholds[0] = PIXY_BLUE_THRESHOLD_LOW;
                 pixyThresholds[1] = PIXY_BLUE_THRESHOLD_HIGH;
                 turretTargetPosition *= -1;

@@ -49,7 +49,8 @@ public class TeleOpCode extends LinearOpMode {
     private double leftStickX, leftStickY, rightStickX;
     private ElapsedTime runtime = new ElapsedTime();
     private ElapsedTime opmodetime = new ElapsedTime();
-
+    public  double SWODpower;
+    public double SWODrampup;
     private static final double threshold = 0;
     public String mode = "shared";
     public String color = "color";
@@ -75,7 +76,26 @@ public class TeleOpCode extends LinearOpMode {
 
 
         while (!opModeIsActive() && !isStopRequested()){
+            telemetry.addLine("PRESS X IF PLAYING BLUE ");
+            telemetry.addLine("PRESS B IF PLAYING RED ");
+            robot.linearActuator.setPosition(0.7936507924);
+            if (gamepad1.x){
+                SWODpower = 0.15;
+                SWODrampup = 0.09;
+                color = "blue";
+                telemetry.clearAll();
+                telemetry.addLine("Alliance Color:  Blue");
+            }
 
+            if (gamepad1.b) {
+                SWODpower = -0.15;
+                SWODrampup = -0.09;
+                color = "red";
+                telemetry.clearAll();
+                telemetry.addLine("Alliance Color:  Red");
+            }
+
+            telemetry.update();
 
             telemetry.update();
 
@@ -140,10 +160,22 @@ public class TeleOpCode extends LinearOpMode {
             telemetry.update();
 
 
-//
+
 
             // reset encoder
+            if (gamepad1.x){
+                SWODpower = 0.15;
+                SWODrampup = 0.09;
+                color = "blue";
+                telemetry.addLine("Blue");
+            }
 
+            if (gamepad1.b){
+                SWODpower = -0.15;
+                SWODrampup = -0.09;
+                color = "red";
+                telemetry.addLine("Red");
+            }
 
 
             if (gamepad1.y){
@@ -158,8 +190,8 @@ public class TeleOpCode extends LinearOpMode {
                 telemetry.update();
 
                 for (int i = 1; i < 3; i++) {
-                    robot.SWOD(robot.SWODpower);
-                    robot.SWODpower += robot.SWODrampup;
+                    robot.SWOD(SWODpower);
+                    SWODpower += SWODrampup;
                     sleep(500);
                 }
             }
@@ -169,7 +201,7 @@ public class TeleOpCode extends LinearOpMode {
                 telemetry.addData("SWOD : ", "Off");
                 telemetry.update();
             }
-            if(gamepad1.dpad_right) {
+                if(gamepad1.dpad_right) {
                 robot.LetsCap(1200);
             }
 

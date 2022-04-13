@@ -97,12 +97,10 @@ public class WharehouseAuto {
                 pixyThresholds[0] = PIXY_RED_THRESHOLD_LOW;
                 pixyThresholds[1] = PIXY_RED_THRESHOLD_HIGH;
                 acolor = 0;
-                robot.SWODpower = -0.15;
-                robot.SWODrampup = -0.09;
+
                 break;
             case BLUE:
-                robot.SWODpower = 0.15;
-                robot.SWODrampup = 0.09;
+
                 pixyThresholds[0] = PIXY_BLUE_THRESHOLD_LOW;
                 pixyThresholds[1] = PIXY_BLUE_THRESHOLD_HIGH;
                 turretTargetPosition *= -1;
@@ -169,6 +167,8 @@ public class WharehouseAuto {
 
 
                 }
+
+
             } if (acolor == 1) {
                 if (team_element_x == 0 || team_element_x > pixyThresholds[0]) {
                     //detecting top
@@ -194,6 +194,7 @@ public class WharehouseAuto {
 
 
                 }
+
             }
             telemetry.addData("Completion Status : ", "Innit");
             telemetry.addData("Completion Status : ", "Innit");
