@@ -51,6 +51,9 @@ public class Robot
     public int ttarget;
     public int attarget;
 
+    public  double SWODpower;
+    public double SWODrampup;
+
 
     public Robot(HardwareMap hwMap, Telemetry telemetry, LinearOpMode opMode){
         this.telemetry = telemetry;

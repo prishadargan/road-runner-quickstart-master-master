@@ -79,12 +79,12 @@ public class WharehouseAuto {
     private int turretTargetPosition = -565;
     private Pose2d startPosition = new Pose2d(6.5, -64, Math.toRadians(90.0));
     private Pose2d depositPreload = new Pose2d(10.0, -37.0, Math.toRadians(0));
-    private Pose2d startCycle1 = new Pose2d(6.5, -65, Math.toRadians(0));
-    private Pose2d startCycle2 = new Pose2d(6.5, -65, Math.toRadians(0));
-    private Pose2d startCycle3 = new Pose2d(6.5, -65, Math.toRadians(0));
+    private Pose2d startCycle1 = new Pose2d(6.5, -67, Math.toRadians(0));
+    private Pose2d startCycle2 = new Pose2d(6.5, -67, Math.toRadians(0));
+    private Pose2d startCycle3 = new Pose2d(6.5, -67, Math.toRadians(0));
     private Pose2d collectingCycle1 = new Pose2d(42.0, -67.0, Math.toRadians(0));
-    private Pose2d collectingCycle2 = new Pose2d(42.0, -69.0, Math.toRadians(0));
-    private Pose2d collectingCycle3 = new Pose2d(42.0, -72.0, Math.toRadians(0));
+    private Pose2d collectingCycle2 = new Pose2d(42.0, -67.0, Math.toRadians(0));
+    private Pose2d collectingCycle3 = new Pose2d(42.0, -67.0, Math.toRadians(0));
 
 
 
@@ -97,19 +97,23 @@ public class WharehouseAuto {
                 pixyThresholds[0] = PIXY_RED_THRESHOLD_LOW;
                 pixyThresholds[1] = PIXY_RED_THRESHOLD_HIGH;
                 acolor = 0;
+                robot.SWODpower = -0.15;
+                robot.SWODrampup = -0.09;
                 break;
             case BLUE:
+                robot.SWODpower = 0.15;
+                robot.SWODrampup = 0.09;
                 pixyThresholds[0] = PIXY_BLUE_THRESHOLD_LOW;
                 pixyThresholds[1] = PIXY_BLUE_THRESHOLD_HIGH;
                 turretTargetPosition *= -1;
-                startPosition = new Pose2d(6.5, -startPosition.getY(), Math.toRadians(-90.0));
-                depositPreload = new Pose2d(10.0, -depositPreload.getY(), Math.toRadians(0));
-                startCycle1 = new Pose2d(6.5, -startCycle1.getY(), Math.toRadians(0));
-                startCycle2 = new Pose2d(6.5, -startCycle2.getY(), Math.toRadians(0));
-                startCycle3 = new Pose2d(6.5, -startCycle3.getY(), Math.toRadians(0));
-                collectingCycle1 = new Pose2d(42.0, -collectingCycle1.getY(), Math.toRadians(0));
-                collectingCycle2 = new Pose2d(42.0, -collectingCycle2.getY(), Math.toRadians(0));
-                collectingCycle3 = new Pose2d(42.0, -collectingCycle3.getY(), Math.toRadians(0));
+                startPosition = new Pose2d(6.5, -startPosition.getY(), startPosition.getHeading());
+                depositPreload = new Pose2d(10.0, -depositPreload.getY(), depositPreload.getHeading() + Math.toRadians(180));
+                startCycle1 = new Pose2d(6.5, -startCycle1.getY(), startCycle1.getHeading() + Math.toRadians(180));
+                startCycle2 = new Pose2d(6.5, -startCycle2.getY(), startCycle2.getHeading() + Math.toRadians(180));
+                startCycle3 = new Pose2d(6.5, -startCycle3.getY(), startCycle3.getHeading() + Math.toRadians(180));
+                collectingCycle1 = new Pose2d(42.0, -collectingCycle1.getY(), collectingCycle1.getHeading() + Math.toRadians(180));
+                collectingCycle2 = new Pose2d(42.0, -collectingCycle2.getY(), collectingCycle2.getHeading() + Math.toRadians(180));
+                collectingCycle3 = new Pose2d(42.0, -collectingCycle3.getY(), collectingCycle3.getHeading() + Math.toRadians(180));
                 acolor = 1;
                 break;
         }
@@ -207,6 +211,7 @@ public class WharehouseAuto {
         drive.setPoseEstimate(startPosition);
 
         totaltime.reset();
+
         //move towards hub
         Trajectory depositPreloadTrajectory = drive.trajectoryBuilder(drive.getPoseEstimate())
                 .lineToLinearHeading(depositPreload,
