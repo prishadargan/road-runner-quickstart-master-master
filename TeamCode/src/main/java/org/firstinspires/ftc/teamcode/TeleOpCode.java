@@ -51,7 +51,7 @@ public class TeleOpCode extends LinearOpMode {
     private ElapsedTime opmodetime = new ElapsedTime();
     public  double SWODpower;
     public double SWODrampup;
-    private static final double threshold = 0;
+    private static final double threshold = 0.2;
     public String mode = "shared";
     public String color = "color";
     private boolean liftingUp = false;
@@ -59,6 +59,7 @@ public class TeleOpCode extends LinearOpMode {
     private boolean gotoright = false;
     private boolean goingallup = false;
     private boolean extensionin = false;
+    //private double lessSpeed = 1;
 
 
     @Override
@@ -133,10 +134,27 @@ public class TeleOpCode extends LinearOpMode {
             leftStickX = gamepad1.left_stick_x * -1;
             leftStickY = gamepad1.left_stick_y * -1;
 
+           /* if (Math.abs(gamepad1.right_stick_x) > threshold) {
+                if (gamepad1.right_stick_x < 0) {
+                    rightStickX = -gamepad1.right_stick_x * gamepad1.right_stick_x * -1 * (4.0 / 5.0) - (1.0 / 5.0);
+                } else {
+                    rightStickX = -gamepad1.right_stick_x * gamepad1.right_stick_x * 1 * (4.0 / 5.0) + (1.0 / 5.0);
+                }
+            }
 
+            if ((Math.abs(gamepad1.left_stick_y) > threshold) || (Math.abs(gamepad1.left_stick_x) > threshold) || Math.abs(gamepad1.right_stick_x) > threshold) {
+                //Calculate formula for mecanum drive function
+                double addValue = (double) (Math.round((50 * (leftStickY * Math.abs(leftStickY) + leftStickX * Math.abs(leftStickX))))) / 50;
+                double subtractValue = (double) (Math.round((50 * (leftStickY * Math.abs(leftStickY) - leftStickX * Math.abs(leftStickX))))) / 50;
+                //Set motor speed variables
+                robot.setMotorPowers(addValue + rightStickX, subtractValue - rightStickX, subtractValue + rightStickX, addValue - rightStickX);
+            }
 
+          else {
+              robot.stop();
+            }
 
-
+            */
             // drive-train
 
 
@@ -294,8 +312,15 @@ public class TeleOpCode extends LinearOpMode {
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.lift.setPower(0.5);
                 gotoleft = false;
-            }
+                //lessSpeed = 1;
 
+            }
+            if(!gotoleft && robot.lift.getCurrentPosition() < 3) {
+                robot.lift.setPower(0);
+            }
+            else if(!gotoleft) {
+                robot.lift.setPower(.5);
+            }
             expansionButton.update(gamepad2.b);
             if(expansionButton.getState()) {
                 robot.turret.setTargetPosition(0);
@@ -337,6 +362,7 @@ public class TeleOpCode extends LinearOpMode {
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.turret.setPower(0.5);
                 liftingUp = false;
+                //lessSpeed = 1.5;
             }
 
 
