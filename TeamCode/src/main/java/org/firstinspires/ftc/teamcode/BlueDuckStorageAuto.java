@@ -1,15 +1,17 @@
 package org.firstinspires.ftc.teamcode;
 
 
+
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name="Red Ducks Auto")
-public class RedDuckAuto extends LinearOpMode {
+@Autonomous(name="Blue Duck Storage Auto")
+public class BlueDuckStorageAuto extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        DuckAuto auto = new DuckAuto(DuckAuto.AllianceColor.RED, this);
-        auto.run();
+        DuckStorageAuto duckStorageAuto = new DuckStorageAuto(DuckStorageAuto.AllianceColor.BLUE, this);
+        duckStorageAuto.run();
     }
 }
