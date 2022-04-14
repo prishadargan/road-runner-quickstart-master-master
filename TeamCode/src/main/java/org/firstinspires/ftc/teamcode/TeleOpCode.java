@@ -60,6 +60,7 @@ public class TeleOpCode extends LinearOpMode {
     private boolean goingallup = false;
     private boolean extensionin = false;
     //private double lessSpeed = 1;
+    private boolean capping = false;
 
 
     @Override
@@ -129,6 +130,7 @@ public class TeleOpCode extends LinearOpMode {
             telemetry.addData("Color: ", color);
             telemetry.addData("Lift Status :", robot.lift.isBusy());
             telemetry.addData("Time (seconds) :", opmodetime.seconds());
+            telemetry.addData("Capping:", capping);
 
 
             leftStickX = gamepad1.left_stick_x * -1;
@@ -157,15 +159,29 @@ public class TeleOpCode extends LinearOpMode {
             */
             // drive-train
 
+            if (capping == true){
 
-            drive.setWeightedDrivePower(
-                    new Pose2d(
-                            -(gamepad1.left_stick_y),
-                            -(gamepad1.left_stick_x),
-                            -(gamepad1.right_stick_x/2)
+                drive.setWeightedDrivePower(
+                        new Pose2d(
+                                -(gamepad1.left_stick_y/3),
+                                -(gamepad1.left_stick_x/3),
+                                -(gamepad1.right_stick_x/4)
 
-                    )
-            );
+                        )
+                );
+            }
+
+
+            if (!capping){
+                drive.setWeightedDrivePower(
+                        new Pose2d(
+                                -(gamepad1.left_stick_y),
+                                -(gamepad1.left_stick_x),
+                                -(gamepad1.right_stick_x/2)
+
+                        )
+                );
+            }
 
 
 
@@ -195,6 +211,12 @@ public class TeleOpCode extends LinearOpMode {
                 telemetry.addLine("Red");
             }
 
+            if (gamepad1.dpad_left){
+                capping = true;
+            }
+            if(gamepad1.dpad_right) {
+                capping = false;
+            }
 
             if (gamepad1.y){
                 robot.lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -244,7 +266,7 @@ public class TeleOpCode extends LinearOpMode {
             }
 
             if  (gamepad2.left_trigger > 0.2) {
-                robot.Collector(0.6); // Out
+                robot.Collector(0.4); // Out
             }
 
             if ((gamepad2.left_trigger > 0.2) && (gamepad2.right_trigger > 0.2)) {
