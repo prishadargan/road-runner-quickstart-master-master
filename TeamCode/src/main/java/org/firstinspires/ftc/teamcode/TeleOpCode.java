@@ -169,6 +169,8 @@ public class TeleOpCode extends LinearOpMode {
 
                         )
                 );
+
+
             }
 
 
@@ -181,6 +183,7 @@ public class TeleOpCode extends LinearOpMode {
 
                         )
                 );
+
             }
 
 
@@ -198,15 +201,15 @@ public class TeleOpCode extends LinearOpMode {
 
             // reset encoder
             if (gamepad1.x){
-                SWODpower = 0.15;
-                SWODrampup = 0.09;
+                SWODpower = 0.1;
+                SWODrampup = 0.05;
                 color = "blue";
                 telemetry.addLine("Blue");
             }
 
             if (gamepad1.b){
-                SWODpower = -0.15;
-                SWODrampup = -0.09;
+                SWODpower = -0.1;
+                SWODrampup = -0.05;
                 color = "red";
                 telemetry.addLine("Red");
             }
@@ -282,10 +285,15 @@ public class TeleOpCode extends LinearOpMode {
 
 
             // extension
-            if (gamepad2.left_stick_y < -0.1 || gamepad2.left_stick_y > 0.1) {
+            if ((gamepad2.left_stick_y < -0.1 || gamepad2.left_stick_y > 0.1) & capping) {
+                robot.extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                robot.extention.setPower((gamepad2.left_stick_y/2));
+            }
+            if ((gamepad2.left_stick_y < -0.1 || gamepad2.left_stick_y > 0.1) & !capping) {
                 robot.extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 robot.extention.setPower((gamepad2.left_stick_y));
             }
+
 
             if(gamepad2.left_stick_y < 0.1 && gamepad2.left_stick_y > -0.1) {
                 robot.extention.setPower(0);
@@ -360,7 +368,9 @@ public class TeleOpCode extends LinearOpMode {
             }
 
 
-
+          if(gamepad1.a) {
+              robot.cap.setPosition(1300/2521);
+          }
             //shared hub position
             if (gamepad2.right_stick_button){
                 mode = "alliance";
@@ -409,8 +419,14 @@ public class TeleOpCode extends LinearOpMode {
 
 
             // lift
-            if (gamepad2.right_stick_y < -0.2 || gamepad2.right_stick_y > 0.2) {
+            if ((gamepad2.right_stick_y < -0.2 || gamepad2.right_stick_y > 0.2) && !capping)  {
                 robot.lift.setTargetPosition((int) (robot.lift.getTargetPosition() + -gamepad2.right_stick_y * 10));
+                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.lift.setPower(1);
+            }
+
+            if ((gamepad2.right_stick_y < -0.2 || gamepad2.right_stick_y > 0.2) && capping)  {
+                robot.lift.setTargetPosition((int) (robot.lift.getTargetPosition() + -gamepad2.right_stick_y * 40));
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.lift.setPower(1);
             }
@@ -418,14 +434,14 @@ public class TeleOpCode extends LinearOpMode {
 
 
             if(gamepad2.dpad_left) {
-                robot.turret.setTargetPosition(robot.turret.getCurrentPosition() - (20));
+                robot.turret.setTargetPosition(robot.turret.getCurrentPosition() - (40));
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 runtime.reset();
                 robot.turret.setPower(0.5);
             }
 
             if(gamepad2.dpad_right) {
-                robot.turret.setTargetPosition(robot.turret.getCurrentPosition() + (20));
+                robot.turret.setTargetPosition(robot.turret.getCurrentPosition() + (40));
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 runtime.reset();
                 robot.turret.setPower(0.5);

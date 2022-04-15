@@ -76,12 +76,12 @@ public class DuckStorageAuto {
     private Pose2d startPosition = new Pose2d(-30.25, -63.75, Math.toRadians(-90.0));
     private Pose2d depositPreload = new Pose2d(startPosition.getX(), -48.5, Math.toRadians(0));
     private Pose2d closeToCarousel = new Pose2d(-55.0, -56.0, Math.toRadians(-32.5));
-    private static double StrafeAmount = 7.25;
+    private static double StrafeAmount = 6;
     private Pose2d collectingDuck1 = new Pose2d(-50.0, -54.0, Math.toRadians(-90.0));
     private Pose2d collectingDuck2 = new Pose2d(-52.0, -46.0, Math.toRadians(-90.0));
     private Pose2d depositDuck = new Pose2d(-33.0, -27.0, Math.toRadians(0));
     private Pose2d parkAtEnd1 = new Pose2d(-39.25, -46.5, Math.toRadians(0));
-    private Pose2d parkAtEnd2 = new Pose2d(-64.5, -35.0, Math.toRadians(0));
+    private Pose2d parkAtEnd2 = new Pose2d(-62.0, -35.0, Math.toRadians(0));
     private static double swodpower = -0.15;
 
 
@@ -330,7 +330,7 @@ public class DuckStorageAuto {
 
                 if (acolor == 1) {
                     while (current_duck_x == 0 && runtime.seconds() < 2.25) {
-                        drive.turn(Math.toRadians(7));
+                        drive.turn(Math.toRadians(7.5));
 
                         Log.d("BrainSTEM", "Finding the duck blue");
                     }
@@ -341,13 +341,13 @@ public class DuckStorageAuto {
                 }
 
                 if (current_duck_x < 110 && current_duck_x != 0) { // move right
-                    drive.turn(Math.toRadians(5));
+                    drive.turn(Math.toRadians(5.5));
                     telemetry.addLine("Moving Right");
                     telemetry.update();
                     Log.d("BrainSTEM", "Adjusting Right");
                 }
                 if (current_duck_x > 130 && current_duck_x != 0) { // move left
-                    drive.turn(Math.toRadians(-5));
+                    drive.turn(Math.toRadians(-5.5));
                     telemetry.addLine("Moving Left");
                     telemetry.update();
                     Log.d("BrainSTEM", "Adjusting Left");
