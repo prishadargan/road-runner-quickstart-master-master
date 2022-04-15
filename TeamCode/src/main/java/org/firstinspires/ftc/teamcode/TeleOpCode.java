@@ -269,7 +269,7 @@ public class TeleOpCode extends LinearOpMode {
             }
 
             if  (gamepad2.left_trigger > 0.2) {
-                robot.Collector(0.4); // Out
+                robot.Collector(0.35); // Out
             }
 
             if ((gamepad2.left_trigger > 0.2) && (gamepad2.right_trigger > 0.2)) {

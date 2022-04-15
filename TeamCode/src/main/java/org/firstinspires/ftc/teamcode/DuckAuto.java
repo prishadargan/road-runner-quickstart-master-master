@@ -442,17 +442,38 @@ public class DuckAuto {
         drive.waitForIdle();
 
         lift_barriers();
-          while (totalTime.seconds() < 27.5) {
-                sleep(50);
-          }
+        /*
+           if(acolor == 0) {
+               Trajectory WallAlign = drive.trajectoryBuilder(drive.getPoseEstimate())
+                       .strafeLeft(35,
+                               SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                               SampleMecanumDrive.getAccelerationConstraint(35))
+                       .build();
+               drive.followTrajectory(WallAlign);
+           }
+
+        if(acolor == 1) {
+            Trajectory WallAlign = drive.trajectoryBuilder(drive.getPoseEstimate())
+                    .strafeRight(35,
+                            SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                            SampleMecanumDrive.getAccelerationConstraint(35))
+                    .build();
+            drive.followTrajectory(WallAlign);
+        }
+
+         */
+
+
+
+
               if (acolor == 0) {
-                  robot.setMotorPowers(.95, 1, .95, 1);
+                  robot.setMotorPowers(1, 1, 1, 1);
                   sleep(1690);
                   robot.stop();
               }
 
               if (acolor == 1) {
-                  robot.setMotorPowers(-1, -.95, -1, -.95);
+                  robot.setMotorPowers(-1, -1, -1, -1);
                   sleep(1690);
                   robot.stop();
               }
