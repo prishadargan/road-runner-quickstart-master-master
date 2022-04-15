@@ -37,7 +37,7 @@ public class Robot
     public Object drive;
 
     public enum states {
-        STOPPED_L,STOPPED_T,TURRET_SHARED,TURRET_SHARED_ACT, LIFT_UP, LIFT_UP_ACT
+        STOPPED_L,STOPPED_T,TURRET_SHARED,TURRET_SHARED_ACT, LIFT_UP, LIFT_UP_ACT,
     }
 
 

@@ -163,9 +163,9 @@ public class TeleOpCode extends LinearOpMode {
 
                 drive.setWeightedDrivePower(
                         new Pose2d(
-                                -(gamepad1.left_stick_y/3),
-                                -(gamepad1.left_stick_x/3),
-                                -(gamepad1.right_stick_x/4)
+                                -(gamepad1.left_stick_y/5),
+                                -(gamepad1.left_stick_x/5),
+                                -(gamepad1.right_stick_x/5)
 
                         )
                 );
@@ -217,9 +217,10 @@ public class TeleOpCode extends LinearOpMode {
             if (gamepad1.dpad_left){
                 capping = true;
             }
-            if(gamepad1.dpad_right) {
+            if (gamepad1.dpad_right){
                 capping = false;
             }
+
 
             if (gamepad1.y){
                 robot.lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -249,11 +250,11 @@ public class TeleOpCode extends LinearOpMode {
             }
 
             // capping
-            if (gamepad1.dpad_up) {
+            if (gamepad1.right_trigger > 0.1) {
                 robot.linearActuator.setPosition(robot.linearActuator.getPosition() - 0.005);
             }
 
-            if (gamepad1.dpad_down) {
+            if (gamepad1.left_trigger > 0.1) {
                 robot.linearActuator.setPosition(robot.linearActuator.getPosition() + 0.005);
             }
 
@@ -269,7 +270,7 @@ public class TeleOpCode extends LinearOpMode {
             }
 
             if  (gamepad2.left_trigger > 0.2) {
-                robot.Collector(0.35); // Out
+                robot.Collector(0.4); // Out
             }
 
             if ((gamepad2.left_trigger > 0.2) && (gamepad2.right_trigger > 0.2)) {
@@ -285,11 +286,11 @@ public class TeleOpCode extends LinearOpMode {
 
 
             // extension
-            if ((gamepad2.left_stick_y < -0.1 || gamepad2.left_stick_y > 0.1) & capping) {
+            if ((gamepad2.left_stick_y < -0.1 || gamepad2.left_stick_y > 0.1) && capping) {
                 robot.extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 robot.extention.setPower((gamepad2.left_stick_y/2));
             }
-            if ((gamepad2.left_stick_y < -0.1 || gamepad2.left_stick_y > 0.1) & !capping) {
+            if ((gamepad2.left_stick_y < -0.1 || gamepad2.left_stick_y > 0.1) && !capping) {
                 robot.extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 robot.extention.setPower((gamepad2.left_stick_y));
             }
@@ -342,7 +343,6 @@ public class TeleOpCode extends LinearOpMode {
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.lift.setPower(0.5);
                 gotoleft = false;
-                //lessSpeed = 1;
 
             }
             if(!gotoleft && robot.lift.getCurrentPosition() < 3) {
@@ -368,6 +368,8 @@ public class TeleOpCode extends LinearOpMode {
             }
 
 
+
+
           if(gamepad1.a) {
               robot.cap.setPosition(1300/2521);
           }
@@ -381,6 +383,10 @@ public class TeleOpCode extends LinearOpMode {
 
             depositButton.update(gamepad2.a);
             if(depositButton.getState()) {
+                robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                robot.extention.setTargetPosition(0);
+                robot.extention.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.extention.setPower(1);
                 robot.lift.setTargetPosition(680);
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 runtime.reset();
@@ -426,9 +432,9 @@ public class TeleOpCode extends LinearOpMode {
             }
 
             if ((gamepad2.right_stick_y < -0.2 || gamepad2.right_stick_y > 0.2) && capping)  {
-                robot.lift.setTargetPosition((int) (robot.lift.getTargetPosition() + -gamepad2.right_stick_y * 40));
+                robot.lift.setTargetPosition((int) (robot.lift.getTargetPosition() + -gamepad2.right_stick_y * 25));
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.lift.setPower(1);
+                robot.lift.setPower(0.75);
             }
 
 

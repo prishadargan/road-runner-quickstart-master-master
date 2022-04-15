@@ -39,6 +39,7 @@ public class WharehouseAuto {
     private int[] pixyThresholds = new int[2];
     private int[] pixyDuckThresholds = new int[2];
     private int turretFinalPos = -10;
+    private int currentDrawValue = 1150;
 
     // Other
     private double extensionTime = 0.35;
@@ -316,17 +317,21 @@ public class WharehouseAuto {
         telemetry.addData("Collector Current Draw (mA) ", robot.collector.getCurrent(CurrentUnit.MILLIAMPS));
         telemetry.update();
         runtime.reset();
-        while ((robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1849) && runtime.seconds() < 0.7) {
+        while ((robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < currentDrawValue) && runtime.seconds() < 0.7) {
             telemetry.update();
         }
-        while (robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1849) {
+        runtime.reset();
+        while ((robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < currentDrawValue) && runtime.seconds() < 2) {
             drive.turn(Math.toRadians(10));
             extend_to_target(robot.extention.getCurrentPosition() - 50);
             sleep(100);
             telemetry.addLine("Current Draw is below 1000");
+            telemetry.addLine("While #1");
             telemetry.update();
         }
-        while(robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1849 && runtime.seconds() > 3){
+
+
+        while(robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < currentDrawValue && runtime.seconds() > 2){
             Trajectory returntocollection = drive.trajectoryBuilder(drive.getPoseEstimate())
                     .lineToLinearHeading(collectingCycle1, SampleMecanumDrive.getVelocityConstraint(75,
                             DriveConstants.MAX_ANG_VEL,
@@ -339,44 +344,30 @@ public class WharehouseAuto {
             robot.collector.setPower(1);
             drive.turn(Math.toRadians(-10));
             robot.collector.setPower(-1);
+            telemetry.addLine("While #2");
+            telemetry.update();
 
         }
+
+
+        while (runtime.seconds() < 2.5 && opMode.opModeIsActive()){
+            drive.update();
+        }
+
+        drive.waitForIdle();
+
+
+
 
 
         sleep(100);
         telemetry.addLine("collected");
         telemetry.update();
-        if (acolor == 0) {
-            Trajectory goBacktoCheck = drive.trajectoryBuilder(drive.getPoseEstimate())
-                    .back(5)
-                    .build();
-            drive.followTrajectoryAsync(goBacktoCheck);
 
-        }
 
-        if (acolor == 1) {
-            Trajectory goBacktoCheck = drive.trajectoryBuilder(drive.getPoseEstimate())
-                    .forward(5)
-                    .build();
-            drive.followTrajectoryAsync(goBacktoCheck);
-        }
-        if (acolor == 0) {
 
-            if (robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1849) {
-                Trajectory adjustToGettheBlock = drive.trajectoryBuilder(drive.getPoseEstimate())
-                        .forward(8.5)
-                        .build();
-                drive.followTrajectoryAsync(adjustToGettheBlock);
-            }
-        }
-        if (acolor == 1) {
-            if (robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1849) {
-                Trajectory adjustToGettheBlock = drive.trajectoryBuilder(drive.getPoseEstimate())
-                        .back(8.5)
-                        .build();
-                drive.followTrajectoryAsync(adjustToGettheBlock);
-            }
-        }
+
+
         // exit the warehouse
         Trajectory leaveWarehouse1 = drive.trajectoryBuilder(drive.getPoseEstimate())
                 .lineToLinearHeading(startCycle1,
@@ -498,17 +489,17 @@ public class WharehouseAuto {
         telemetry.addData("Collector Current Draw (mA) ", robot.collector.getCurrent(CurrentUnit.MILLIAMPS));
         telemetry.update();
         runtime.reset();
-        while ((robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1849) && runtime.seconds() < 0.5) {
+        while ((robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < currentDrawValue) && runtime.seconds() < 0.5) {
             telemetry.update();
         }
-        while (robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1849) {
+        while (robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < currentDrawValue) {
             drive.turn(Math.toRadians(20));
             extend_to_target(robot.extention.getCurrentPosition() - 75);
             sleep(500);
             telemetry.addLine("Current Draw is below 1000");
             telemetry.update();
         }
-        while(robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1849 && runtime.seconds() > 3){
+        while(robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < currentDrawValue && runtime.seconds() > 3){
             Trajectory returntocollection2 = drive.trajectoryBuilder(drive.getPoseEstimate())
                     .lineToLinearHeading(collectingCycle1, SampleMecanumDrive.getVelocityConstraint(75,
                             DriveConstants.MAX_ANG_VEL,
@@ -602,7 +593,7 @@ public class WharehouseAuto {
         //park if not enough time to do 3rd cycle
 
 
-        if (totaltime.seconds() > 23.75) {
+        if (totaltime.seconds() > 24.5) {
             Trajectory driveForward = drive.trajectoryBuilder(drive.getPoseEstimate())
                     .lineToLinearHeading(collectingCycle3, SampleMecanumDrive.getVelocityConstraint(75, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                             SampleMecanumDrive.getAccelerationConstraint(75))
@@ -636,17 +627,17 @@ public class WharehouseAuto {
         telemetry.addData("Collector Current Draw (mA) ", robot.collector.getCurrent(CurrentUnit.MILLIAMPS));
         telemetry.update();
         runtime.reset();
-        while ((robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1849) && runtime.seconds() < 0.25) {
+        while ((robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < currentDrawValue) && runtime.seconds() < 0.25) {
             telemetry.update();
         }
-        while (robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1849) {
+        while (robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < currentDrawValue) {
             drive.turn(Math.toRadians(5));
             extend_to_target(robot.extention.getCurrentPosition() - 50);
             sleep(500);
             telemetry.addLine("Current Draw is below 1000");
             telemetry.update();
         }
-        while(robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < 1849 && runtime.seconds() > 3){
+        while(robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < currentDrawValue && runtime.seconds() > 3){
             Trajectory returntocollection3 = drive.trajectoryBuilder(drive.getPoseEstimate())
                     .lineToLinearHeading(collectingCycle1, SampleMecanumDrive.getVelocityConstraint(75,
                             DriveConstants.MAX_ANG_VEL,

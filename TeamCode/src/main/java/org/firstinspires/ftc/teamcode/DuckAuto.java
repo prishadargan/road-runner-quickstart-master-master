@@ -310,7 +310,7 @@ public class DuckAuto {
 
 
         runtime.reset();
-        while (runtime.seconds() < 10) {
+        while (runtime.seconds() < 6.5) {
             for (int i = 0; i < 50; i++) {
                 robot.pixyCam.engage();
                 current_duck_x = 0xff & robot.pixyCam.read(0x52, 5)[1];
@@ -442,44 +442,36 @@ public class DuckAuto {
         drive.waitForIdle();
 
         lift_barriers();
-        /*
-           if(acolor == 0) {
-               Trajectory WallAlign = drive.trajectoryBuilder(drive.getPoseEstimate())
-                       .strafeLeft(35,
-                               SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                               SampleMecanumDrive.getAccelerationConstraint(35))
-                       .build();
-               drive.followTrajectory(WallAlign);
-           }
+          while (totalTime.seconds() < 26.75) {
+                sleep(50);
+          }
+              if (acolor == 0) {
+                  robot.setMotorPowers(.95, 1, .95, 1);
+                  sleep(1690);
+                  robot.stop();
+              }
+              if (acolor == 1) {
+                  robot.setMotorPowers(-1, -.95, -1, -.95);
+                  sleep(1690);
+                  robot.stop();
+              }
 
-        if(acolor == 1) {
-            Trajectory WallAlign = drive.trajectoryBuilder(drive.getPoseEstimate())
-                    .strafeRight(35,
-                            SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                            SampleMecanumDrive.getAccelerationConstraint(35))
+        if (acolor == 1) {
+            Trajectory finaltraj = drive.trajectoryBuilder(drive.getPoseEstimate())
+                    .strafeRight(10)
                     .build();
-            drive.followTrajectory(WallAlign);
+            drive.followTrajectoryAsync(finaltraj);
+        }
+        if (acolor == 0) {
+            Trajectory finaltraj0 = drive.trajectoryBuilder(drive.getPoseEstimate())
+                    .strafeLeft(10)
+                    .build();
+            drive.followTrajectoryAsync(finaltraj0);
         }
 
-         */
 
 
-
-
-              if (acolor == 0) {
-                  robot.setMotorPowers(1, 1, 1, 1);
-                  sleep(1690);
-                  robot.stop();
-              }
-
-              if (acolor == 1) {
-                  robot.setMotorPowers(-1, -1, -1, -1);
-                  sleep(1690);
-                  robot.stop();
-              }
-
-
-          }
+    }
 
 
 
