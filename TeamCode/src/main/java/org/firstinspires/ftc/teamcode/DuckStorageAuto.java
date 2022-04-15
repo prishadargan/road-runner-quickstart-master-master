@@ -102,7 +102,7 @@ public class DuckStorageAuto {
                 startPosition = new Pose2d(startPosition.getX(), -startPosition.getY(), startPosition.getHeading());
                 depositPreload = new Pose2d(depositPreload.getX(), -depositPreload.getY(), depositPreload.getHeading() + Math.toRadians(180));
                 closeToCarousel = new Pose2d(-56.0, 60.5, closeToCarousel.getHeading() - Math.toRadians(45));
-                StrafeAmount = 2.5;
+                StrafeAmount = 1.65;
                 collectingDuck1 = new Pose2d(collectingDuck1.getX(), -collectingDuck1.getY(), collectingDuck1.getHeading());
                 collectingDuck2 = new Pose2d(collectingDuck2.getX(), -collectingDuck2.getY(), collectingDuck2.getHeading());
                 depositDuck = new Pose2d(depositDuck.getX(), -depositDuck.getY(), depositDuck.getHeading() + Math.toRadians(180));

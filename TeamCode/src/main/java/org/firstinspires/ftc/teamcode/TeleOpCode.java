@@ -332,7 +332,7 @@ public class TeleOpCode extends LinearOpMode {
                 robot.turret.setTargetPosition(680);
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 runtime.reset();
-                robot.turret.setPower(0.3);
+                robot.turret.setPower(1);
                 gotoleft = true;
             }
 
@@ -356,7 +356,7 @@ public class TeleOpCode extends LinearOpMode {
                 robot.turret.setTargetPosition(0);
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 runtime.reset();
-                robot.turret.setPower(0.3);
+                robot.turret.setPower(1);
                 gotoright = true;
             }
             if (gotoright && (robot.turret.getCurrentPosition() < 50 || runtime.seconds() > 2)) {
@@ -383,10 +383,6 @@ public class TeleOpCode extends LinearOpMode {
 
             depositButton.update(gamepad2.a);
             if(depositButton.getState()) {
-                robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.extention.setTargetPosition(0);
-                robot.extention.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.extention.setPower(1);
                 robot.lift.setTargetPosition(680);
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 runtime.reset();
@@ -398,9 +394,12 @@ public class TeleOpCode extends LinearOpMode {
                 robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.turret.setTargetPosition(340);
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.turret.setPower(0.5);
+                robot.turret.setPower(0.75);
                 liftingUp = false;
-                //lessSpeed = 1.5;
+            }
+
+            if(gamepad1.start){
+                robot.SharedHubTurret(400);
             }
 
 

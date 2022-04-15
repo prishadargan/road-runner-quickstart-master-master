@@ -184,4 +184,14 @@ public class Robot
 
     public void LetsCap(int position)  {cap.setPosition(position/2521);}
 
+    public void SharedHubTurret(int position){
+        double poweradj;
+        turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        while (turret.getCurrentPosition() < position){
+            poweradj = (((Math.abs(position - turret.getCurrentPosition())) / 340) + 0.15);
+            turret.setPower(poweradj);
+
+        }
+    }
+
 }
