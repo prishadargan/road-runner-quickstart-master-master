@@ -186,12 +186,20 @@ public class Robot
 
     public void SharedHubTurret(int position){
         double poweradj;
+        runtime.reset();
         turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        while (turret.getCurrentPosition() < position){
-            poweradj = (((Math.abs(position - turret.getCurrentPosition())) / 340) + 0.15);
+        while ((turret.getCurrentPosition() < (position - 100)) && (runtime.seconds() < 2)){
+            poweradj = (((Math.abs(position - turret.getCurrentPosition())) / ( position / 0.85)) + 0.15);
             turret.setPower(poweradj);
-
+            telemetry.addData("power - ", poweradj);
+            telemetry.addData("pos - ", turret.getCurrentPosition());
+            telemetry.update();
         }
+        while ((turret.getCurrentPosition() >= position - 100) || runtime.seconds() > 2 ){
+            turret.setPower(0);
+            break;
+        }
+
     }
 
 }

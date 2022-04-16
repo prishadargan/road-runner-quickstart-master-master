@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
 
+import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.path.QuinticSpline;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -17,7 +20,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
-public class WharehouseAuto {
+public class WharehouseAuto2 {
     //Enums
     private enum LiftHeight {
         LOW, MID, TOP
@@ -44,7 +47,6 @@ public class WharehouseAuto {
     // Other
     private double extensionTime = 0.35;
     private static int acolor;
-    private double turn_amount;
 
 
     //Pixy code values
@@ -65,9 +67,9 @@ public class WharehouseAuto {
     private static final int PIXY_BLUE_THRESHOLD_LOW = 100;
     private static final int PIXY_BLUE_THRESHOLD_HIGH = 40;
 
-    private static final int EXTEND_TARGET_POSITION_TOP = -230;
-    private static final int EXTEND_TARGET_POSITION_MID = -145;
-    private static final int EXTEND_TARGET_POSITION_LOW = -120;
+    private static final int EXTEND_TARGET_POSITION_TOP = -275;
+    private static final int EXTEND_TARGET_POSITION_MID = -230;
+    private static final int EXTEND_TARGET_POSITION_LOW = -190;
 
     private static final int LIFT_TARGET_POSITION_TOP = 1540;
     private static final int LIFT_TARGET_POSITION_MID = 870;
@@ -81,7 +83,7 @@ public class WharehouseAuto {
     private int turretTargetPosition = -580;
     private Pose2d startPosition = new Pose2d(4, -64, Math.toRadians(90.0));
     private Pose2d depositPreload = new Pose2d(7.5, -37.0, Math.toRadians(0));
-    private Pose2d depositCycle = new Pose2d(7.5, -37.0, Math.toRadians(0));
+    private Pose2d depositCycle = new Pose2d(-12, -57, Math.toRadians(0));
     private Pose2d startCycle1 = new Pose2d(6.5, -67, Math.toRadians(0));
     private Pose2d startCycle2 = new Pose2d(6.5, -67, Math.toRadians(0));
     private Pose2d startCycle3 = new Pose2d(6.5, -67, Math.toRadians(0));
@@ -92,7 +94,7 @@ public class WharehouseAuto {
 
 
 
-    public WharehouseAuto(AllianceColor color, LinearOpMode opMode) {
+    public WharehouseAuto2(AllianceColor color, LinearOpMode opMode) {
         this.color = color;
         this.opMode = opMode;
         telemetry = opMode.telemetry;
@@ -101,17 +103,16 @@ public class WharehouseAuto {
                 pixyThresholds[0] = PIXY_RED_THRESHOLD_LOW;
                 pixyThresholds[1] = PIXY_RED_THRESHOLD_HIGH;
                 acolor = 0;
-                turn_amount = 10;
 
                 break;
             case BLUE:
-                    final int EXTEND_TARGET_POSITION_TOP = -240;
+                final int EXTEND_TARGET_POSITION_TOP = -240;
                 pixyThresholds[0] = PIXY_BLUE_THRESHOLD_LOW;
                 pixyThresholds[1] = PIXY_BLUE_THRESHOLD_HIGH;
-                turretTargetPosition = 550;
+                turretTargetPosition = 334;
                 startPosition = new Pose2d(8, -startPosition.getY(), startPosition.getHeading());
-                depositPreload = new Pose2d(7.5, -depositPreload.getY(), depositPreload.getHeading() + Math.toRadians(180));
-                depositCycle = new Pose2d(-13, 43, depositPreload.getHeading() + Math.toRadians(0));
+                depositPreload = new Pose2d(7.5, 35.0, depositPreload.getHeading() + Math.toRadians(180));
+                depositCycle = new Pose2d(-12, 48, depositPreload.getHeading() + Math.toRadians(0));
                 startCycle1 = new Pose2d(4, -startCycle1.getY(), startCycle1.getHeading() + Math.toRadians(180));
                 startCycle2 = new Pose2d(4, -startCycle2.getY(), startCycle2.getHeading() + Math.toRadians(180));
                 startCycle3 = new Pose2d(4, -startCycle3.getY(), startCycle3.getHeading() + Math.toRadians(180));
@@ -119,7 +120,6 @@ public class WharehouseAuto {
                 collectingCycle2 = new Pose2d(42.0, -collectingCycle2.getY(),  Math.toRadians(-4) + Math.toRadians(180));
                 collectingCycle3 = new Pose2d(42.0, -collectingCycle3.getY(),  Math.toRadians(-8) + Math.toRadians(180));
                 acolor = 1;
-                turn_amount = -10;
                 break;
         }
     }
@@ -223,13 +223,11 @@ public class WharehouseAuto {
         telemetry.update();
         //move towards hub
         Trajectory depositPreloadTrajectory = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .lineToLinearHeading(depositPreload,
-                        SampleMecanumDrive.getVelocityConstraint(67,
-                                DriveConstants.MAX_ANG_VEL,
-                                DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(67))
+                .splineToLinearHeading(new Pose2d(-12, 48, Math.toRadians(-180)), Math.toRadians(0))
                 .build();
         drive.followTrajectoryAsync(depositPreloadTrajectory);
+
+
 
         // move the lift up for the pre-load
         move_lift(currentLiftTargetPosition);
@@ -241,13 +239,18 @@ public class WharehouseAuto {
         // turret for pre-load
         while (drive.isBusy() || firstTime) {
             if (firstTime && runtime.seconds() > 0.75) {
-                turret_turn_deposit_pos();
                 firstTime = false;
             }
 
             drive.update();
         }
+
         drive.waitForIdle();
+
+        extend_to_target(-200);
+
+
+
 
         // move the extension
         runtime.reset();
@@ -269,18 +272,15 @@ public class WharehouseAuto {
 
 
 
+        while (totaltime.seconds() < 26) {
             //going to the start position of cycle 1
             Trajectory cycle1Start = drive.trajectoryBuilder(drive.getPoseEstimate())
-                    .lineToLinearHeading(startCycle1,
-                            SampleMecanumDrive.getVelocityConstraint(70,
-                                    DriveConstants.MAX_ANG_VEL,
-                                    DriveConstants.TRACK_WIDTH),
-                            SampleMecanumDrive.getAccelerationConstraint(70))
+                    .splineToConstantHeading(new Vector2d(42, 67), Math.toRadians(7))
                     .build();
             drive.followTrajectoryAsync(cycle1Start);
 
+
             // reset the turret and lift
-            sleep(100);
             move_turret(0);
             while (runtime.seconds() < 1) ;
             lift_down();
@@ -289,7 +289,7 @@ public class WharehouseAuto {
             }
             drive.waitForIdle();
 
-
+            while (opMode.opModeIsActive()) ;
 
 
             Trajectory strafeonWall1 = drive.trajectoryBuilder(drive.getPoseEstimate())
@@ -301,8 +301,7 @@ public class WharehouseAuto {
             drive.followTrajectoryAsync(strafeonWall1);
 
 
-            // cycle start
-
+            //cycle 1
 
             Trajectory driveInWareHouse1 = drive.trajectoryBuilder(drive.getPoseEstimate())
                     .lineToLinearHeading(collectingCycle1,
@@ -332,14 +331,17 @@ public class WharehouseAuto {
                 telemetry.update();
             }
             runtime.reset();
-            while ((robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < currentDrawValue) && runtime.seconds() < 2) {
-                drive.turn(Math.toRadians(turn_amount));
-                extend_to_target(robot.extention.getCurrentPosition() - 50);
-                sleep(100);
-                telemetry.addLine("Current Draw is below 1000");
-                telemetry.addLine("While #1");
-                telemetry.update();
-            }
+        /*
+        while ((robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < currentDrawValue) && runtime.seconds() < 2) {
+            drive.turn(Math.toRadians(-10));
+            extend_to_target(robot.extention.getCurrentPosition() - 50);
+            sleep(100);
+            telemetry.addLine("Current Draw is below 1000");
+            telemetry.addLine("While #1");
+            telemetry.update();
+        }
+
+         */
 
 
             while (runtime.seconds() < 1 && opMode.opModeIsActive()) {
@@ -353,10 +355,15 @@ public class WharehouseAuto {
             telemetry.addLine("collected");
             telemetry.update();
 
+            Trajectory wallAllign = drive.trajectoryBuilder(drive.getPoseEstimate())
+                    .strafeLeft(5,
+                            SampleMecanumDrive.getVelocityConstraint(15,
+                                    DriveConstants.MAX_ANG_VEL,
+                                    DriveConstants.TRACK_WIDTH),
+                            SampleMecanumDrive.getAccelerationConstraint(15))
+                    .build();
+            drive.followTrajectoryAsync(wallAllign);
 
-            if (totaltime.seconds() > 26){
-                opMode.requestOpModeStop();
-            }
 
             // exit the warehouse
             Trajectory leaveWarehouse1 = drive.trajectoryBuilder(drive.getPoseEstimate())
@@ -397,7 +404,7 @@ public class WharehouseAuto {
 
             while (drive.isBusy() || firstTime) {
                 if (firstTime && robot.lift.getCurrentPosition() > 650 && runtime.seconds() > 0.75) {
-                    move_turret(334);
+                    turret_turn_deposit_pos();
                     firstTime = false;
 
 
@@ -411,7 +418,7 @@ public class WharehouseAuto {
 
             //extension
             runtime.reset();
-            extend_to_target(-150);
+            extend_to_target(-275);
             //wait for extension to reach position (or timeout)
             while (runtime.seconds() < 0.3 && opMode.opModeIsActive()) ;
 
@@ -421,15 +428,12 @@ public class WharehouseAuto {
             sleep(600);
             robot.collector.setPower(0);
             extension_in();
+            move_lift(750);
 
 
+        }
 
-
-
-
-
-
-
+        while (opMode.opModeIsActive());
 
         // cycle 1 end (go to cycle 2 start pos)
         Trajectory cycle2Start = drive.trajectoryBuilder(drive.getPoseEstimate())
@@ -440,7 +444,6 @@ public class WharehouseAuto {
                         SampleMecanumDrive.getAccelerationConstraint(75))
                 .build();
         drive.followTrajectoryAsync(cycle2Start);
-        move_lift(750);
         move_turret(0);
         while (runtime.seconds() < .7) ;
         lift_down();
@@ -457,271 +460,6 @@ public class WharehouseAuto {
                 .build();
         drive.followTrajectoryAsync(strafeonWall);
 
-
-        // cycle 2
-
-        Trajectory driveIntoWareHouse2 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .lineToLinearHeading(collectingCycle2,
-                        SampleMecanumDrive.getVelocityConstraint(75,
-                                DriveConstants.MAX_ANG_VEL,
-                                DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(75))
-                .build();
-        drive.followTrajectoryAsync(driveIntoWareHouse2);
-
-
-        //collection
-        robot.collector.setPower(-1);
-        extend_to_target(-300);
-        runtime.reset();
-        while (!robot.cLimit.getState() && runtime.seconds() < 0.6 && opMode.opModeIsActive()) {
-            drive.update();
-        }
-        drive.waitForIdle();
-
-        if (totaltime.seconds() > 23) {
-            while (opMode.opModeIsActive()) ;
-            // end of auto with 2 cycles
-        }
-
-        // current draw for collecting cargo in warehouse
-        telemetry.addData("Collector Current Draw (mA) ", robot.collector.getCurrent(CurrentUnit.MILLIAMPS));
-        telemetry.update();
-        runtime.reset();
-        /*
-        while ((robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < currentDrawValue) && runtime.seconds() < 0.5) {
-            telemetry.update();
-        }
-        while (robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < currentDrawValue) {
-            drive.turn(Math.toRadians(20));
-            extend_to_target(robot.extention.getCurrentPosition() - 75);
-            sleep(500);
-            telemetry.addLine("Current Draw is below 1000");
-            telemetry.update();
-        }
-        while(robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < currentDrawValue && runtime.seconds() > 3){
-            Trajectory returntocollection2 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                    .lineToLinearHeading(collectingCycle1, SampleMecanumDrive.getVelocityConstraint(75,
-                            DriveConstants.MAX_ANG_VEL,
-                            DriveConstants.TRACK_WIDTH),
-                            SampleMecanumDrive.getAccelerationConstraint(75))
-                    .build();
-            drive.followTrajectory(returntocollection2);
-            robot.collector.setPower(1);
-            drive.turn(Math.toRadians(-10));
-            robot.collector.setPower(-1);
-
-        }
-
-         */
-
-        sleep(500);
-        telemetry.addLine("collected");
-        telemetry.update();
-
-
-        //exit warehouse
-        Trajectory leaveWareHouse2 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .lineToLinearHeading(startCycle1,
-                        SampleMecanumDrive.getVelocityConstraint(75,
-                                DriveConstants.MAX_ANG_VEL,
-                                DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(75))
-                .build();
-        robot.collector.setPower(-1);
-        drive.followTrajectoryAsync(leaveWareHouse2);
-        extend_to_target(25);
-        lift_warehouse();
-        extend_to_target(0);
-        turret_turn_deposit_pos();
-        while (!robot.cLimit.getState() && runtime.seconds() < .6 && opMode.opModeIsActive()) {
-            drive.update();
-        }
-        drive.waitForIdle();
-
-        //go to depositing location (same as preload pos)
-        Trajectory depositCycle2 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .lineToLinearHeading(depositCycle,
-                        SampleMecanumDrive.getVelocityConstraint(65,
-                                DriveConstants.MAX_ANG_VEL,
-                                DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(65))
-                .build();
-        drive.followTrajectoryAsync(depositCycle2);
-        runtime.reset();
-
-        //depositing
-        move_lift(1580);
-        while (runtime.seconds() < 0.75) ;
-        turret_turn_deposit_pos();
-        drive.waitForIdle();
-        runtime.reset();
-        extend_to_target(-325);
-        while (runtime.seconds() < 0.3) ;
-        robot.collector.setPower(0.35);
-        sleep(600);
-        robot.collector.setPower(0);
-        extend_to_target(0);
-        move_lift(750);
-
-
-        //go to cycle 3 start pos
-        Trajectory cycle3StartTrajectory = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .lineToLinearHeading(startCycle3,
-                        SampleMecanumDrive.getVelocityConstraint(75,
-                                DriveConstants.MAX_ANG_VEL,
-                                DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(75))
-                .build();
-        drive.followTrajectoryAsync(cycle3StartTrajectory);
-        move_turret(0);
-        while (runtime.seconds() < .7) ;
-        lift_down();
-        while (!robot.cLimit.getState() && runtime.seconds() < 1 && opMode.opModeIsActive()) {
-            drive.update();
-        }
-        drive.waitForIdle();
-
-
-        Trajectory strafeonWall3 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .strafeRight(6.5, SampleMecanumDrive.getVelocityConstraint(75,
-                        DriveConstants.MAX_ANG_VEL,
-                        DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(75))
-                .build();
-        drive.followTrajectoryAsync(strafeonWall3);
-
-
-        //park if not enough time to do 3rd cycle
-
-
-        if (totaltime.seconds() > 24.5) {
-            Trajectory driveForward = drive.trajectoryBuilder(drive.getPoseEstimate())
-                    .lineToLinearHeading(collectingCycle3, SampleMecanumDrive.getVelocityConstraint(75, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                            SampleMecanumDrive.getAccelerationConstraint(75))
-                    .build();
-            drive.followTrajectory(driveForward);
-            while (opMode.opModeIsActive()) ;
-            // end of auto with 2 cycles
-        }
-
-        //cycle 3
-
-        Trajectory driveIntoWareHouse3 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .lineToLinearHeading(collectingCycle3,
-                        SampleMecanumDrive.getVelocityConstraint(75,
-                                DriveConstants.MAX_ANG_VEL,
-                                DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(75))
-                .build();
-        drive.followTrajectoryAsync(driveIntoWareHouse3);
-
-        //collection
-        robot.collector.setPower(-1);
-        extend_to_target(-300);
-        runtime.reset();
-        while (!robot.cLimit.getState() && runtime.seconds() < 0.45 && opMode.opModeIsActive()) {
-            drive.update();
-        }
-        drive.waitForIdle();
-
-        // current draw for collecting cargo in warehouse
-        telemetry.addData("Collector Current Draw (mA) ", robot.collector.getCurrent(CurrentUnit.MILLIAMPS));
-        telemetry.update();
-        runtime.reset();
-        while ((robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < currentDrawValue) && runtime.seconds() < 0.25) {
-            telemetry.update();
-        }
-        while (robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < currentDrawValue) {
-            drive.turn(Math.toRadians(5));
-            extend_to_target(robot.extention.getCurrentPosition() - 50);
-            sleep(500);
-            telemetry.addLine("Current Draw is below 1000");
-            telemetry.update();
-        }
-        while(robot.collector.getCurrent(CurrentUnit.MILLIAMPS) < currentDrawValue && runtime.seconds() > 3){
-            Trajectory returntocollection3 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                    .lineToLinearHeading(collectingCycle1, SampleMecanumDrive.getVelocityConstraint(75,
-                            DriveConstants.MAX_ANG_VEL,
-                            DriveConstants.TRACK_WIDTH),
-                            SampleMecanumDrive.getAccelerationConstraint(75))
-                    .build();
-            drive.followTrajectory(returntocollection3);
-            robot.collector.setPower(1);
-            drive.turn(Math.toRadians(-10));
-            robot.collector.setPower(-1);
-
-
-
-        }
-
-        sleep(500);
-
-
-        //exit WareHouse
-        Trajectory leaveWareHouse3 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .lineToLinearHeading(startCycle1,
-                        SampleMecanumDrive.getVelocityConstraint(75,
-                                DriveConstants.MAX_ANG_VEL,
-                                DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(75))
-                .build();
-        drive.followTrajectoryAsync(leaveWareHouse3);
-        robot.collector.setPower(-1);
-        extend_to_target(25);
-        lift_warehouse();
-        extend_to_target(0);
-        turret_turn_deposit_pos();
-
-        while (!robot.cLimit.getState() && runtime.seconds() < .6 && opMode.opModeIsActive()) {
-            drive.update();
-        }
-        drive.waitForIdle();
-
-
-        //go to depositing pos (same as preload pos)
-        Trajectory depositblock3 = drive.trajectoryBuilder(drive.getPoseEstimate())
-                .lineToLinearHeading(depositCycle,
-                        SampleMecanumDrive.getVelocityConstraint(60,
-                                DriveConstants.MAX_ANG_VEL,
-                                DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(60))
-                .build();
-        drive.followTrajectoryAsync(depositblock3);
-        runtime.reset();
-        move_lift(1560);
-        while (runtime.seconds() < 0.75) ;
-        if(acolor == 0) {
-            move_turret(-570);
-        }
-        if(acolor == 1) {
-            move_turret(570);
-        }
-
-        drive.waitForIdle();
-
-        //depositing
-        runtime.reset();
-        extend_to_target(-300);
-        while (runtime.seconds() < 0.3) ;
-        robot.collector.setPower(0.35);
-        sleep(400);
-        robot.collector.setPower(0);
-        extension_in();
-        move_lift(750);
-      //  move_turret(-340);
-
-        //parking
-        if(acolor == 0) {
-            robot.setMotorPowers(1, 1, 1, 1);
-            sleep(1000);
-            robot.stop();
-        }
-        if(acolor == 1) {
-            robot.setMotorPowers(-1, -1, -1, -1);
-            sleep(1000);
-            robot.stop();
-        }
     }
 
 
@@ -751,6 +489,12 @@ public class WharehouseAuto {
     //Turret
     private void turret_turn_deposit_pos(){
         robot.turret.setTargetPosition(turretTargetPosition);
+        robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        robot.turret.setPower(1);
+    }
+
+    private void turret_turn_deposit_pre_pos(){
+        robot.turret.setTargetPosition(580);
         robot.turret.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         robot.turret.setPower(1);
     }

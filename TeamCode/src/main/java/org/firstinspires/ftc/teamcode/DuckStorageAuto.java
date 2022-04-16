@@ -51,7 +51,7 @@ public class DuckStorageAuto {
     private double previous_duck_x;
     private boolean duckCollectStat = false;
     private boolean see_duck = false;
-
+    private double search_amount;
 
     //Constants
     private static final int PIXY_RED_THRESHOLD_LOW = 50;
@@ -331,8 +331,8 @@ public class DuckStorageAuto {
                 if (acolor == 1) {
                     while (current_duck_x == 0 && runtime.seconds() < 2.25) {
                         drive.turn(Math.toRadians(7.5));
-
-                        Log.d("BrainSTEM", "Finding the duck blue");
+                        sleep(10);
+                        Log.d("BrainSTEM 17895", "Finding the duck blue");
                     }
                 }
 
@@ -355,7 +355,7 @@ public class DuckStorageAuto {
                 if ((current_duck_x <= 130) && (current_duck_x >= 110) && (previous_duck_x == current_duck_x)) {
                     telemetry.addLine("Collected");
                     telemetry.update();
-                    robot.collector.setPower(-0.7);
+                    robot.collector.setPower(-1);
                     robot.extention.setTargetPosition(-374);
                     robot.extention.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     runtime.reset();
@@ -380,7 +380,7 @@ public class DuckStorageAuto {
 
 
         if (duckCollectStat) {
-            robot.collector.setPower(-0.6);
+            robot.collector.setPower(-0.85);
             Trajectory depositTheDuck = drive.trajectoryBuilder(drive.getPoseEstimate())
                     .lineToLinearHeading(depositDuck, SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                             SampleMecanumDrive.getAccelerationConstraint(35))
@@ -440,10 +440,12 @@ public class DuckStorageAuto {
                 .build();
         drive.followTrajectoryAsync(parkingAtTheEnd2);
         extend_to_target(0);
-        lift_barriers();
+        lift_down();
         while (runtime.seconds() < 0.5 && opMode.opModeIsActive()) {
             drive.update();
         }
+
+
 
         drive.waitForIdle();
 

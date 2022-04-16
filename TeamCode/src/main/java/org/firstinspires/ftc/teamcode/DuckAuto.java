@@ -52,6 +52,7 @@ public class DuckAuto {
     private double previous_duck_x;
     private boolean duckCollectStat = false;
     private  boolean see_duck = false;
+    private double search_amount;
 
 
     //Constants
@@ -96,6 +97,7 @@ public class DuckAuto {
                 pixyThresholds[0] = PIXY_RED_THRESHOLD_LOW;
                 pixyThresholds[1] = PIXY_RED_THRESHOLD_HIGH;
                 acolor = 0;
+                search_amount = 2.5;
                 break;
             case BLUE:
                 pixyThresholds[0] = PIXY_BLUE_THRESHOLD_LOW;
@@ -113,6 +115,7 @@ public class DuckAuto {
                 swodpower = 0.1;
                 acolor = 1;
                 turretFinalPos = -680;
+                search_amount = 2.25;
                 break;
         }
     }
@@ -324,19 +327,18 @@ public class DuckAuto {
                 telemetry.update();
 
                 if (acolor == 0) {
-                    while (current_duck_x == 0 && runtime.seconds() < 2.5) {
+                    while (current_duck_x == 0 && runtime.seconds() < search_amount) {
                         drive.turn(Math.toRadians(-7.5));
-                        sleep(100);
-
+                        sleep(25);
                         Log.d("BrainSTEM", "Finding the duck red");
                     }
                 }
 
                 if (acolor == 1){
-                    while (current_duck_x == 0 && runtime.seconds() < 2.5){
-                        drive.turn(Math.toRadians(7.5));
-
-                        Log.d("BrainSTEM", "Finding the duck blue");
+                    while (current_duck_x == 0 && runtime.seconds() < search_amount){
+                        drive.turn(Math.toRadians(6));
+                        sleep(25);
+                        Log.d("BrainSTEM 17895", "Finding the duck blue");
                     }
                 }
 
@@ -348,18 +350,18 @@ public class DuckAuto {
                     drive.turn(Math.toRadians(5.5));
                     telemetry.addLine("Moving Right");
                     telemetry.update();
-                    Log.d("BrainSTEM", "Adjusting Right");
+                    Log.d("BrainSTEM 17895", "Adjusting Right");
                 }
                 if (current_duck_x > 130 && current_duck_x != 0) { // move left
                     drive.turn(Math.toRadians(-5.5));
                     telemetry.addLine("Moving Left");
                     telemetry.update();
-                    Log.d("BrainSTEM", "Adjusting Left");
+                    Log.d("BrainSTEM 17895", "Adjusting Left");
                 }
                 if ((current_duck_x <= 130) && (current_duck_x >= 110) && (previous_duck_x == current_duck_x)){
                     telemetry.addLine("Collected");
                     telemetry.update();
-                    robot.collector.setPower(-0.7);
+                    robot.collector.setPower(-1);
                     robot.extention.setTargetPosition(-374);
                     robot.extention.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     runtime.reset();
@@ -371,7 +373,7 @@ public class DuckAuto {
                     runtime.reset();
                     sleep(10);
                     duckCollectStat = true;
-                    Log.d("BrainSTEM", "picking up the duck");
+                    Log.d("BrainSTEM 17895", "picking up the duck");
                     i = 99;
                 }
                 previous_duck_x = current_duck_x;
@@ -389,10 +391,10 @@ public class DuckAuto {
 
 
         if (duckCollectStat) {
-            robot.collector.setPower(-0.6);
+            robot.collector.setPower(-1);
             Trajectory depositTheDuck = drive.trajectoryBuilder(drive.getPoseEstimate())
-                    .lineToLinearHeading(depositDuck, SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                            SampleMecanumDrive.getAccelerationConstraint(35))
+                    .lineToLinearHeading(depositDuck, SampleMecanumDrive.getVelocityConstraint(25, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                            SampleMecanumDrive.getAccelerationConstraint(25))
                     .build();
             drive.followTrajectoryAsync(depositTheDuck);
 
@@ -468,6 +470,11 @@ public class DuckAuto {
                     .build();
             drive.followTrajectoryAsync(finaltraj0);
         }
+
+
+        lift_down();
+
+
 
 
 

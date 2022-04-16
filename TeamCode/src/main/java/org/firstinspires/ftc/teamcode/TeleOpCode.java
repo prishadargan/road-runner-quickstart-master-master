@@ -136,27 +136,7 @@ public class TeleOpCode extends LinearOpMode {
             leftStickX = gamepad1.left_stick_x * -1;
             leftStickY = gamepad1.left_stick_y * -1;
 
-           /* if (Math.abs(gamepad1.right_stick_x) > threshold) {
-                if (gamepad1.right_stick_x < 0) {
-                    rightStickX = -gamepad1.right_stick_x * gamepad1.right_stick_x * -1 * (4.0 / 5.0) - (1.0 / 5.0);
-                } else {
-                    rightStickX = -gamepad1.right_stick_x * gamepad1.right_stick_x * 1 * (4.0 / 5.0) + (1.0 / 5.0);
-                }
-            }
 
-            if ((Math.abs(gamepad1.left_stick_y) > threshold) || (Math.abs(gamepad1.left_stick_x) > threshold) || Math.abs(gamepad1.right_stick_x) > threshold) {
-                //Calculate formula for mecanum drive function
-                double addValue = (double) (Math.round((50 * (leftStickY * Math.abs(leftStickY) + leftStickX * Math.abs(leftStickX))))) / 50;
-                double subtractValue = (double) (Math.round((50 * (leftStickY * Math.abs(leftStickY) - leftStickX * Math.abs(leftStickX))))) / 50;
-                //Set motor speed variables
-                robot.setMotorPowers(addValue + rightStickX, subtractValue - rightStickX, subtractValue + rightStickX, addValue - rightStickX);
-            }
-
-          else {
-              robot.stop();
-            }
-
-            */
             // drive-train
 
             if (capping == true){
@@ -215,6 +195,7 @@ public class TeleOpCode extends LinearOpMode {
             }
 
             if (gamepad1.dpad_left){
+                robot.cap.setPosition(1300/2521);
                 capping = true;
             }
             if (gamepad1.dpad_right){
@@ -251,11 +232,11 @@ public class TeleOpCode extends LinearOpMode {
 
             // capping
             if (gamepad1.right_trigger > 0.1) {
-                robot.linearActuator.setPosition(robot.linearActuator.getPosition() - 0.005);
+                robot.linearActuator.setPosition(robot.linearActuator.getPosition() - 0.01);
             }
 
             if (gamepad1.left_trigger > 0.1) {
-                robot.linearActuator.setPosition(robot.linearActuator.getPosition() + 0.005);
+                robot.linearActuator.setPosition(robot.linearActuator.getPosition() + 0.01);
             }
 
 
@@ -292,37 +273,13 @@ public class TeleOpCode extends LinearOpMode {
             }
             if ((gamepad2.left_stick_y < -0.1 || gamepad2.left_stick_y > 0.1) && !capping) {
                 robot.extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                robot.extention.setPower((gamepad2.left_stick_y));
+                robot.extention.setPower((gamepad2.left_stick_y) / 1.75);
             }
 
 
             if(gamepad2.left_stick_y < 0.1 && gamepad2.left_stick_y > -0.1) {
                 robot.extention.setPower(0);
             }
-
-/*
-            extendin.update(gamepad2.left_bumper);
-            if(extendin.getState()) {
-                robot.extention.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.extention.setTargetPosition(0);
-                robot.extention.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                robot.extention.setPower(1);
-                extensionin = true;
-            }
-            if (goingallup && (robot.extention.getCurrentPosition() < 50 || runtime.seconds() > 5)) {
-                robot.extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                robot.extention.setPower(0.07);
-                extensionin = false;
-            }
-
-
- */
-
-
-
-
-
 
 
             // khadified functions
@@ -370,9 +327,7 @@ public class TeleOpCode extends LinearOpMode {
 
 
 
-          if(gamepad1.a) {
-              robot.cap.setPosition(1300/2521);
-          }
+
             //shared hub position
             if (gamepad2.right_stick_button){
                 mode = "alliance";
@@ -398,8 +353,8 @@ public class TeleOpCode extends LinearOpMode {
                 liftingUp = false;
             }
 
-            if(gamepad1.start){
-                robot.SharedHubTurret(400);
+            if(gamepad1.left_stick_button){
+                robot.SharedHubTurret(334);
             }
 
 
