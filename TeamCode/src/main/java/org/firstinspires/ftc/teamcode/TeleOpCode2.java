@@ -40,16 +40,14 @@ import static java.lang.Thread.sleep;
 
 import android.util.Log;
 
-import org.checkerframework.checker.lock.qual.Holding;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 
-@TeleOp(name="TeleOp", group="Freight-Frenzy")
-public class TeleOpCode extends LinearOpMode {
+@TeleOp(name="Moral Support ", group="Freight-Frenzy")
+public class TeleOpCode2 extends LinearOpMode {
     //Initializes joystick storage variables 2t
     private double leftStickX, leftStickY, rightStickX;
     private ElapsedTime runtime = new ElapsedTime();
-    private ElapsedTime runtime3 = new ElapsedTime();
     private ElapsedTime opmodetime = new ElapsedTime();
     public  double SWODpower;
     public double SWODrampup;
@@ -65,7 +63,6 @@ public class TeleOpCode extends LinearOpMode {
     private boolean capping = false;
     private boolean extension_state = false;
     private double extension_speed = 1;
-    private boolean adjustlift = false;
 
 
     @Override
@@ -87,28 +84,46 @@ public class TeleOpCode extends LinearOpMode {
             telemetry.addLine("PRESS B IF PLAYING RED ");
             robot.linearActuator.setPosition(0.7936507924);
             if (gamepad1.x){
-                SWODpower = 0.15;
-                SWODrampup = 0.09;
+                SWODpower = 0.2;
+                SWODrampup = 0.4;
                 color = "blue";
                 telemetry.clearAll();
                 telemetry.addLine("Alliance Color:  Blue");
             }
 
             if (gamepad1.b) {
-                SWODpower = -0.15;
-                SWODrampup = -0.09;
+                SWODpower = -0.2;
+                SWODrampup = -0.4;
                 color = "red";
                 telemetry.clearAll();
                 telemetry.addLine("Alliance Color:  Red");
+            }
+
+            double rand = Math.random() * 10;
+            if (rand >= 0 && rand < 4){
+                telemetry.addData("Driver 1 - ", "Shivum ");
+                telemetry.addLine("Driver 2 - Prisha");
+                telemetry.addLine("Driver Coach - Moral Support");
+            }
+            if (rand > 3 && rand < 7){
+                telemetry.addData("Driver 1 - ", "Moral Support ");
+                telemetry.addLine("Driver 2 - Shivum");
+                telemetry.addLine("Driver Coach - Prisha");
+            }
+            if (rand > 6 && rand < 11){
+                telemetry.addData("Driver 1 - ", "Prisha ");
+                telemetry.addLine("Driver 2 - Moral Support");
+                telemetry.addLine("Driver Coach - Shivum");
             }
 
             telemetry.update();
 
             telemetry.update();
 
+            while(!opModeIsActive());
+
+
         }
-
-
 
 
 
@@ -121,9 +136,7 @@ public class TeleOpCode extends LinearOpMode {
 
         //reset encoders
         robot.extention.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
         robot.turret.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
 
@@ -146,15 +159,14 @@ public class TeleOpCode extends LinearOpMode {
             leftStickY = gamepad1.left_stick_y * -1;
 
 
-            // drive-train
 
-            if (capping){
+            if (gamepad1.y){
 
                 drive.setWeightedDrivePower(
                         new Pose2d(
-                                -(gamepad1.left_stick_y/5),
-                                -(gamepad1.left_stick_x/5),
-                                -(gamepad1.right_stick_x/5)
+                                -(gamepad1.left_stick_y/0.99),
+                                -(gamepad1.left_stick_x/0.99),
+                                -(gamepad1.right_stick_x/0.99)
 
                         )
                 );
@@ -186,19 +198,6 @@ public class TeleOpCode extends LinearOpMode {
 
 
             // reset encoder
-            if (gamepad1.x){
-                SWODpower = 0.1;
-                SWODrampup = 0.05;
-                color = "blue";
-                telemetry.addLine("Blue");
-            }
-
-            if (gamepad1.b){
-                SWODpower = -0.1;
-                SWODrampup = -0.05;
-                color = "red";
-                telemetry.addLine("Red");
-            }
 
             if (gamepad1.dpad_left){
                 robot.cap.setPosition(1300/2521);
@@ -220,10 +219,10 @@ public class TeleOpCode extends LinearOpMode {
                 telemetry.addData("SWOD : ", "On");
                 telemetry.update();
 
-                for (int i = 1; i < 3; i++) {
+                for (int i = 1; i < 5; i++) {
                     robot.SWOD(SWODpower);
                     SWODpower += SWODrampup;
-                    sleep(500);
+                    sleep(250);
                 }
             }
 
@@ -232,17 +231,17 @@ public class TeleOpCode extends LinearOpMode {
                 telemetry.addData("SWOD : ", "Off");
                 telemetry.update();
             }
-                if(gamepad1.dpad_right) {
+            if(gamepad1.dpad_right) {
                 robot.LetsCap(1200);
             }
 
             // capping
             if (gamepad1.right_trigger > 0.1) {
-                robot.linearActuator.setPosition(robot.linearActuator.getPosition() + 0.01);
+                robot.linearActuator.setPosition(robot.linearActuator.getPosition() - 0.01);
             }
 
             if (gamepad1.left_trigger > 0.1) {
-                robot.linearActuator.setPosition(robot.linearActuator.getPosition() - 0.01);
+                robot.linearActuator.setPosition(robot.linearActuator.getPosition() + 0.01);
             }
 
 
@@ -252,11 +251,11 @@ public class TeleOpCode extends LinearOpMode {
 
 
             // collector
-            if  (gamepad2.right_trigger > 0.2) {
+            if  (gamepad1.right_trigger > 0.2) {
                 robot.Collector(-1); // In
             }
 
-            if  (gamepad2.left_trigger > 0.2) {
+            if  (gamepad1.left_trigger > 0.2) {
                 robot.Collector(0.4); // Out
             }
 
@@ -273,13 +272,16 @@ public class TeleOpCode extends LinearOpMode {
 
 
             // extension
-
-
-
-
-            if ((gamepad2.left_stick_y < -0.1 || gamepad2.left_stick_y > 0.1)) {
+            /*
+            if ((gamepad2.left_stick_y < -0.1 || gamepad2.left_stick_y > 0.1) && capping) {
                 robot.extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                robot.extention.setPower((gamepad2.left_stick_y) );
+                robot.extention.setPower((gamepad2.left_stick_y/2));
+            }
+             */
+
+            if ((gamepad2.left_stick_y < -0.1 || gamepad2.left_stick_y > 0.1) && !capping) {
+                robot.extention.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                robot.extention.setPower((gamepad2.left_stick_y) / extension_speed);
             } else {
                 robot.extention.setPower(0);
             }
@@ -287,45 +289,51 @@ public class TeleOpCode extends LinearOpMode {
 
             // khadified functions
 
-            controlButton.update(gamepad2.x);
+            controlButton.update(gamepad1.x);
             if(controlButton.getState()) {
-                Log.d("brainSTEM 17895 ", "button presed ");
                 robot.turret.setTargetPosition(680);
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 runtime.reset();
                 robot.turret.setPower(1);
+                extension_speed = 1;
                 gotoleft = true;
             }
 
 
             if (gotoleft && (robot.turret.getCurrentPosition() > 650 || runtime.seconds() > 2)) {
-                Log.d("brainSTEM 17895 ", "second phase ");
                 robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.lift.setTargetPosition(0);
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.lift.setPower(0.5);
+                robot.lift.setPower(1);
                 gotoleft = false;
                 Log.d("BrainSTEM 17895", "Gamepad 2- X");
 
             }
 
 
+            if(!gotoleft && robot.lift.getCurrentPosition() < 3) {
+                robot.lift.setPower(0);
+            }
+            else if(!gotoleft) {
+                robot.lift.setPower(.5);
+            }
 
 
-            expansionButton.update(gamepad2.b);
+
+            expansionButton.update(gamepad1.b);
             if(expansionButton.getState()) {
-                robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.turret.setTargetPosition(0);
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 runtime.reset();
                 robot.turret.setPower(1);
+                extension_speed = 1;
                 gotoright = true;
             }
             if (gotoright && (robot.turret.getCurrentPosition() < 50 || runtime.seconds() > 2)) {
                 robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.lift.setTargetPosition(0);
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.lift.setPower(0.5);
+                robot.lift.setPower(1);
                 gotoright = false;
                 Log.d("BrainSTEM 17895", "Gamepad 2- B");
             }
@@ -342,25 +350,23 @@ public class TeleOpCode extends LinearOpMode {
                 mode = "shared";
             }
 
-            depositButton.update(gamepad2.a);
+            depositButton.update(gamepad1.a);
             if(depositButton.getState()) {
-                Log.d("brainSTEM 17895 ", "button presed - A-1");
                 robot.lift.setTargetPosition(680);
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                runtime3.reset();
+                runtime.reset();
                 robot.lift.setPower(1);
-                Log.d("BrainSTEM 17895", "Gamepad 2- A-2");
+                extension_speed = 1.8;
                 liftingUp = true;
             }
 
-            if (liftingUp && (robot.lift.getCurrentPosition() > 600)) {
-                Log.d("BrainSTEM 17895", "Gamepad 2- A-3");
+            if (liftingUp && (robot.lift.getCurrentPosition() > 600 || runtime.seconds() > 2)) {
                 robot.turret.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.turret.setTargetPosition(340);
                 robot.turret.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.turret.setPower(0.75);
+                robot.turret.setPower(1);
                 liftingUp = false;
-                Log.d("BrainSTEM 17895", "Gamepad 2- A-4");
+                Log.d("BrainSTEM 17895", "Gamepad 1- A");
             }
 
             if(gamepad1.left_stick_button){
@@ -369,11 +375,10 @@ public class TeleOpCode extends LinearOpMode {
 
             gamepad_y.update(gamepad2.y);
             if(gamepad_y.getState()) {
-                robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.lift.setTargetPosition(1622);
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 runtime.reset();
-                robot.lift.setPower(1);
+                robot.lift.setPower(0.3);
                 goingallup = true;
             }
 
@@ -390,27 +395,23 @@ public class TeleOpCode extends LinearOpMode {
 
 
             // lift
-
-
-            if ((gamepad2.right_stick_y < -0.4 || gamepad2.right_stick_y > 0.4)){
-                robot.lift.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                robot.lift.setPower(-gamepad2.right_stick_y );
-                Log.d("BrainSTEM 17895", "Lift down not in capping mode");
-                adjustlift = true;
-
-            }
-
-            if ((gamepad2.right_stick_y > -0.4 && gamepad2.right_stick_y < 0.4 && adjustlift)){
-                robot.lift.setPower(0);
-                robot.lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                int liftcurrentpos = robot.lift.getCurrentPosition();
-                robot.lift.setTargetPosition(liftcurrentpos);
+            if ((gamepad2.right_stick_y < -0.2 || gamepad2.right_stick_y > 0.2) && !capping)  {
+                robot.lift.setTargetPosition((int) (robot.lift.getTargetPosition() + -gamepad2.right_stick_y * 10));
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                adjustlift = false;
+                robot.lift.setPower(1);
+                Log.d("BrainSTEM 17895", "Lift down not in capping mode");
             }
 
 
+            /*
+            if ((gamepad2.right_stick_y < -0.2 || gamepad2.right_stick_y > 0.2) && capping)  {
+                robot.lift.setTargetPosition((int) (robot.lift.getTargetPosition() + -gamepad2.right_stick_y * 30));
+                robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                robot.lift.setPower(1);
+                Log.d("BrainSTEM 17895", "Lift down in capping mode");
+            }
 
+             */
 
 
 
@@ -431,6 +432,9 @@ public class TeleOpCode extends LinearOpMode {
             }
 
             telemetry.update();
+            /*
+
+             */
         }
 
     }
