@@ -373,6 +373,7 @@ public class TeleOpCode extends LinearOpMode {
                 robot.lift.setTargetPosition(1622);
                 robot.lift.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 runtime.reset();
+
                 robot.lift.setPower(1);
                 goingallup = true;
             }
